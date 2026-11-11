@@ -207,6 +207,186 @@ conferir(MOTOR.validaEtapa({
   profundidade: 'clara', temperatura: 'fria', baseNatural: 8, familia: 'ZZ'
 }, 13).ok === false, 'tela 13 deveria recusar família desconhecida.');
 
+/* ---------- smoke das telas 10 a 13 (DOM falso, sem navegador) ---------- */
+
+function elementoFalso() {
+  return {
+    innerHTML: '',
+    value: '',
+    querySelector: function () { return null; },
+    querySelectorAll: function () { return []; }
+  };
+}
+
+function contextoFalso(estado) {
+  return {
+    estado: estado,
+    salvar: function () {},
+    recarregar: function () {},
+    irPara: function () { return true; },
+    atualizar: function () {},
+    dados: DADOS,
+    motor: MOTOR
+  };
+}
+
+var TELAS = null;
+try {
+  global.window = { VISAGE_DATA: DADOS, VISAGE_ENGINE: MOTOR };
+  require('../assets/telas-prescricao.js');
+  TELAS = global.window.VISAGE && global.window.VISAGE.telas;
+} catch (err) {
+  falhar('não foi possível carregar assets/telas-prescricao.js: ' + err.message);
+}
+
+if (!TELAS) {
+  falhar('as telas de prescrição não se registraram em window.VISAGE.telas.');
+} else {
+  [10, 11, 12, 13].forEach(function (n) {
+    conferir(TELAS[n] && typeof TELAS[n].render === 'function', 'a tela ' + n + ' não foi registrada.');
+    conferir(TELAS[n] && TELAS[n].bloco === 'prescricao', 'a tela ' + n + ' deveria estar no bloco prescricao.');
+  });
+
+  function html10(estado) {
+    var el = elementoFalso();
+    TELAS[10].render(el, contextoFalso(estado));
+    return el.innerHTML;
+  }
+
+  /* sem temperatura: só a leitura é pedida, painel ainda não aparece. */
+  var semTemperatura = html10({ profundidade: 'clara', rota: 'harmonia', contraste: 'baixo', baseNatural: 8 });
+  conferir(semTemperatura.indexOf('Profundidade: <b>Clara</b>') !== -1,
+    'tela 10 deveria exibir "Profundidade: Clara".');
+  conferir(semTemperatura.indexOf('Temperatura (leitura do Kit de Tecidos)') !== -1,
+    'tela 10 deveria pedir a temperatura do Kit de Tecidos.');
+  conferir(semTemperatura.indexOf('A temperatura vem do Kit de Tecidos; o app não a estima.') !== -1,
+    'tela 10 deveria trazer a nota de que a temperatura vem do Kit de Tecidos.');
+  conferir(semTemperatura.indexOf('Família prescrita') === -1,
+    'tela 10 não deveria mostrar família antes de haver temperatura.');
+
+  /* com temperatura: família, calibração e contraste confirmado. */
+  var comFria = html10({ profundidade: 'clara', temperatura: 'fria', rota: 'harmonia', contraste: 'medio', baseNatural: 8 });
+  conferir(comFria.indexOf('VC') !== -1 && comFria.indexOf('Verão Claro') !== -1,
+    'tela 10 deveria mostrar Verão Claro · VC com temperatura fria.');
+  conferir(comFria.indexOf('Suave') !== -1, 'contraste médio deveria calibrar em Suave.');
+  conferir(comFria.indexOf('clara · fria') !== -1, 'tela 10 deveria mostrar "clara · fria".');
+  conferir(comFria.indexOf('Família prescrita') !== -1, 'rota Harmonia usa o rótulo "Família prescrita".');
+
+  var comEstilo = html10({ profundidade: 'clara', temperatura: 'quente', rota: 'estilo', contraste: 'alto', baseNatural: 8 });
+  conferir(comEstilo.indexOf('Família proposta') !== -1,
+    'rota Estilo deveria usar o rótulo "Família proposta".');
+  conferir(comEstilo.indexOf('Intensa') !== -1, 'contraste alto deveria calibrar em Intensa.');
+
+  /* a família persistida recupera a temperatura ao recarregar. */
+  var recuperado = { profundidade: 'clara', familia: 'VC', rota: 'harmonia', contraste: 'baixo', baseNatural: 8 };
+  html10(recuperado);
+  conferir(recuperado.temperatura === 'fria',
+    'tela 10 deveria recuperar a temperatura da família persistida; veio ' + String(recuperado.temperatura) + '.');
+
+  /* profundidade alterada invalida a família e as decisões da família anterior. */
+  var desatualizado = {
+    profundidade: 'profunda',
+    temperatura: 'fria',
+    familia: 'VC',
+    rota: 'harmonia',
+    contraste: 'medio',
+    baseNatural: 1,
+    teto: 6,
+    decisaoConflito: { escolha: 'adiar-cor', data: new Date().toISOString() },
+    amostraEscolhida: { codigo: '8.1', manual: false }
+  };
+  html10(desatualizado);
+  conferir(desatualizado.familia === 'IP',
+    'tela 10 deveria sincronizar a família com a profundidade atual; veio ' + String(desatualizado.familia) + '.');
+  conferir(desatualizado.decisaoConflito === null && desatualizado.amostraEscolhida === null && desatualizado.teto === null,
+    'tela 10 deveria descartar teto, decisão e amostra da família anterior.');
+
+  /* tela 11: destaque obrigatório e roteamento condicional. */
+  var el11 = elementoFalso();
+  var estado11 = { profundidade: 'clara', temperatura: 'fria', familia: 'VC', rota: 'harmonia', contraste: 'baixo', baseNatural: 8 };
+  TELAS[11].render(el11, contextoFalso(estado11));
+  conferir(el11.innerHTML.indexOf('A altura cede, a temperatura não.') !== -1,
+    'tela 11 deveria destacar "A altura cede, a temperatura não."');
+  conferir(el11.innerHTML.indexOf('08–10') !== -1, 'tela 11 deveria mostrar a faixa 08–10 da família.');
+  conferir(estado11.teto === 10, 'tela 11 deveria registrar o teto 10 para a base 08.');
+  conferir(el11.innerHTML.indexOf('escolha da amostra') !== -1,
+    'com amostra viável a tela 11 deveria anunciar a escolha da amostra.');
+
+  var el11b = elementoFalso();
+  var estado11b = { profundidade: 'clara', temperatura: 'fria', familia: 'VC', rota: 'harmonia', contraste: 'baixo', baseNatural: 1 };
+  TELAS[11].render(el11b, contextoFalso(estado11b));
+  conferir(estado11b.teto === 6, 'tela 11 deveria registrar o teto 06 para a base 01.');
+  conferir(el11b.innerHTML.indexOf('conflito e decisão') !== -1,
+    'sem amostra viável a tela 11 deveria anunciar o conflito.');
+
+  /* tela 12: só existe no conflito, decide e registra com data. */
+  var el12fora = elementoFalso();
+  TELAS[12].render(el12fora, contextoFalso({ familia: 'VC', profundidade: 'clara', temperatura: 'fria', baseNatural: 8, rota: 'harmonia' }));
+  conferir(el12fora.innerHTML.indexOf('Esta tela não se aplica') !== -1,
+    'tela 12 deveria recusar quando há amostra viável.');
+
+  var estado12 = { familia: 'VC', profundidade: 'clara', temperatura: 'fria', baseNatural: 1, rota: 'harmonia' };
+  var el12 = elementoFalso();
+  TELAS[12].render(el12, contextoFalso(estado12));
+  conferir(el12.innerHTML.indexOf('A pele pede') !== -1 &&
+    el12.innerHTML.indexOf('O fio alcança hoje') !== -1 &&
+    el12.innerHTML.indexOf('conflito declarado') !== -1,
+    'tela 12 deveria montar o painel do conflito.');
+  conferir(el12.innerHTML.toLowerCase().indexOf('toque na amostra') === -1,
+    'tela 12 não pode dizer "toque na amostra".');
+  conferir(el12.innerHTML.indexOf('Adiar a cor e tratar o fio primeiro') !== -1,
+    'tela 12 deveria oferecer as duas decisões.');
+
+  estado12.decisaoConflito = { escolha: 'adiar-cor', data: new Date().toISOString() };
+  var el12b = elementoFalso();
+  TELAS[12].render(el12b, contextoFalso(estado12));
+  conferir(el12b.innerHTML.indexOf('Decisão registrada (RN-20)') !== -1,
+    'tela 12 deveria mostrar a decisão registrada com data.');
+
+  /* tela 13: só as viáveis, com nota obrigatória. */
+  /* base 05 + 4 degraus → teto 09: a 10.1 fica de fora da grade. */
+  var estado13 = { familia: 'VC', profundidade: 'clara', temperatura: 'fria', baseNatural: 5, rota: 'harmonia' };
+  var el13 = elementoFalso();
+  TELAS[13].render(el13, contextoFalso(estado13));
+  conferir(el13.innerHTML.indexOf('8.1') !== -1 && el13.innerHTML.indexOf('9.1') !== -1,
+    'tela 13 deveria listar as amostras viáveis 8.1 e 9.1.');
+  conferir(el13.innerHTML.indexOf('10.1') === -1,
+    'tela 13 não deveria listar a amostra 10.1 fora do teto 09.');
+  conferir(el13.innerHTML.indexOf('cor de tela é direção; a decisão se confirma com a amostra na mão') !== -1,
+    'tela 13 deveria trazer a nota sobre a amostra na mão.');
+
+  /* tela 13 sem amostra viável manda para o conflito, sem grade vazia. */
+  var el13b = elementoFalso();
+  TELAS[13].render(el13b, contextoFalso({ familia: 'VC', profundidade: 'clara', temperatura: 'fria', baseNatural: 1, rota: 'harmonia' }));
+  conferir(el13b.innerHTML.indexOf('Ir para o conflito e decisão') !== -1,
+    'tela 13 sem amostra viável deveria mandar para a tela 12.');
+
+  /* lacuna: família sem amostras na matriz → cartão e registro manual, sem inventar tom. */
+  var familiaPorSiglaOriginal = DADOS.familiaPorSigla;
+  DADOS.familiaPorSigla = function (sigla) {
+    if (String(sigla).toUpperCase() === 'ZZ') {
+      return { sigla: 'ZZ', nome: 'Família Sem Amostras', faixa: [6, 7], temperatura: 'fria', profundidade: 'media', tetoClareamento: 4, amostras: [] };
+    }
+    return familiaPorSiglaOriginal(sigla);
+  };
+  try {
+    var elLacuna = elementoFalso();
+    TELAS[13].render(elLacuna, contextoFalso({ familia: 'ZZ', profundidade: 'media', temperatura: 'fria', baseNatural: 6, rota: 'harmonia' }));
+    conferir(elLacuna.innerHTML.indexOf('A matriz ainda não tem amostras') !== -1,
+      'tela 13 deveria mostrar o cartão de lacuna quando a família não tem amostras.');
+    conferir(elLacuna.innerHTML.indexOf('Registrar tom manualmente') !== -1,
+      'a lacuna deveria permitir o registro manual do tom.');
+    conferir(MOTOR.validaEtapa({ familia: 'ZZ', profundidade: 'media', temperatura: 'fria', baseNatural: 6 }, 13).ok === false,
+      'a tela 13 com lacuna deveria bloquear sem registro manual.');
+    conferir(MOTOR.validaEtapa({
+      familia: 'ZZ', profundidade: 'media', temperatura: 'fria', baseNatural: 6,
+      amostraEscolhida: { manual: true, descricao: '7.1 da marca usada na bancada', data: new Date().toISOString() }
+    }, 13).ok === true, 'a tela 13 com lacuna deveria liberar com registro manual preenchido.');
+  } finally {
+    DADOS.familiaPorSigla = familiaPorSiglaOriginal;
+  }
+}
+
 /* ---------- resultado ---------- */
 
 if (falhas.length) {
