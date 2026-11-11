@@ -209,6 +209,41 @@ var tetoDerivado = semErro('montarDossie(teto derivado)', function () {
 }) || '';
 contem(tetoDerivado, 'até 10', 'sem teto registrado, calcula o teto a partir da base natural e da família');
 
+/* ---------- faixa alcançável limitada pelo teto ---------- */
+
+var casoTetoFaixaMeio = semErro('montarDossie(faixa 06-07 com teto 06)', function () {
+  return DOSSIE.montarDossie({
+    cliente: { nome: 'Cliente Teste' },
+    familia: 'VE',
+    baseNatural: 4,
+    teto: 6
+  });
+}) || '';
+naoContem(casoTetoFaixaMeio, '06 a 07', 'família 06 a 07 com teto 06 não pode conter "06 a 07"');
+contem(casoTetoFaixaMeio, 'até 06', 'família 06 a 07 com teto 06 deve conter "até 06"');
+
+var casoTetoAbaixo = semErro('montarDossie(faixa 08-10 com teto 06)', function () {
+  return DOSSIE.montarDossie({
+    cliente: { nome: 'Cliente Teste' },
+    familia: 'VC',
+    baseNatural: 4,
+    teto: 6
+  });
+}) || '';
+naoContem(casoTetoAbaixo, '08 a 10', 'família 08 a 10 com teto 06 não pode conter "08 a 10"');
+contem(casoTetoAbaixo, 'até 06', 'família 08 a 10 com teto 06 deve conter "até 06"');
+
+var casoTetoTopoMeio = semErro('montarDossie(faixa 08-10 com teto 09)', function () {
+  return DOSSIE.montarDossie({
+    cliente: { nome: 'Cliente Teste' },
+    familia: 'VC',
+    baseNatural: 4,
+    teto: 9
+  });
+}) || '';
+naoContem(casoTetoTopoMeio, '08 a 10', 'família 08 a 10 com teto 09 não pode conter "08 a 10"');
+contem(casoTetoTopoMeio, '08 a 09', 'família 08 a 10 com teto 09 deve terminar no teto ("08 a 09")');
+
 /* ---------- segurança: conteúdo escapado ---------- */
 
 var hostil = semErro('montarDossie(conteúdo hostil)', function () {

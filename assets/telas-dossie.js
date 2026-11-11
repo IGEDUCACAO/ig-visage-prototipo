@@ -132,8 +132,13 @@
     }
     if (teto !== null && teto !== undefined && teto !== '') {
       var tetoNum = Number(teto);
-      if (Number.isFinite(tetoNum) && tetoNum < min) {
-        return 'até ' + DADOS.formatarAltura(tetoNum);
+      if (Number.isFinite(tetoNum)) {
+        if (tetoNum <= min) {
+          return 'até ' + DADOS.formatarAltura(tetoNum);
+        }
+        if (tetoNum < max) {
+          return DADOS.formatarAltura(min) + ' a ' + DADOS.formatarAltura(tetoNum);
+        }
       }
     }
     return DADOS.formatarAltura(min) + ' a ' + DADOS.formatarAltura(max);
