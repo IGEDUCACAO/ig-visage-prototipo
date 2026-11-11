@@ -593,19 +593,19 @@
       return;
     }
 
-    var linhas = [
-      { rotulo: 'Corte', valor: formato.corte },
-      { rotulo: 'Franja', valor: formato.franja },
-      { rotulo: 'Repartição', valor: formato.reparticao },
-      { rotulo: 'Volume', valor: formato.volume },
-      { rotulo: 'Posição da cor', valor: formato.posicaoCor }
-    ].map(function (linha) {
-      var semIndicacao = linha.valor === 'Sem indicação na tabela do método';
-      return '<div class="linha-leitura' + (semIndicacao ? ' linha-vazia' : '') + '">' +
-        '<span class="linha-rotulo-texto">' + esc(linha.rotulo) + '</span>' +
-        '<span class="linha-valor">' + esc(linha.valor) + '</span>' +
-        '</div>';
-    }).join('');
+    var itens = MOTOR.itensDoFormato(formato);
+
+    var itensHtml;
+    if (itens.length) {
+      itensHtml = '<div class="linhas-leitura">' + itens.map(function (item) {
+        return '<div class="linha-leitura">' +
+          '<span class="linha-rotulo-texto">' + esc(item.rotulo) + '</span>' +
+          '<span class="linha-valor">' + esc(item.texto) + '</span>' +
+          '</div>';
+      }).join('') + '</div>';
+    } else {
+      itensHtml = '<p class="texto-suave">A tabela do método não separa corte, franja, repartição, volume ou posição de cor para este formato.</p>';
+    }
 
     el.innerHTML =
       '<h2>O que o seu formato direciona</h2>' +
@@ -613,9 +613,9 @@
       '<section class="cartao cartao-leitura" aria-labelledby="tituloDirecionamento">' +
         '<p class="sobretitulo" id="tituloDirecionamento">Direcionamento do método</p>' +
         '<p class="direcionamento">' + esc(formato.direcionamento) + '</p>' +
-        '<div class="linhas-leitura">' + linhas + '</div>' +
+        itensHtml +
       '</section>' +
-      '<p class="hint">“Sem indicação na tabela do método” significa que a tabela não separa esse item para este formato — o app não inventa direção.</p>' +
+      '<p class="hint">Abaixo do direcionamento aparecem só os itens que a tabela separa para este formato. O que ela não separa continua dito na frase inteira — o app não inventa direção.</p>' +
       '<div class="nota"><b>Leitura, não prescrição.</b> Estas são as direções da tabela do método; a decisão final de corte é da profissional.</div>';
   }
 

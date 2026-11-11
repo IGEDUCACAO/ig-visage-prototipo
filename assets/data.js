@@ -117,24 +117,27 @@
     return FAMILIA_POR_SIGLA[String(sigla).toUpperCase()] || null;
   }
 
+  /* A tabela da spec (seção TELA 9) traz UMA frase por formato. Os campos
+     derivados só recebem um trecho quando a própria frase separa aquela
+     informação; o que a tabela não separa fica null (a tela 9 não inventa). */
   var FORMATOS_ROSTO = [
     {
       id: 'oval',
       nome: 'Oval',
       direcionamento: 'formato de referência, quase tudo favorece',
-      corte: 'Formato de referência — quase tudo favorece',
-      franja: 'Formato de referência — quase tudo favorece',
-      reparticao: 'Formato de referência — quase tudo favorece',
-      volume: 'Formato de referência — quase tudo favorece',
-      posicaoCor: 'Formato de referência — quase tudo favorece'
+      corte: null,
+      franja: null,
+      reparticao: null,
+      volume: null,
+      posicaoCor: null
     },
     {
       id: 'redondo',
       nome: 'Redondo',
       direcionamento: 'volume no topo, luz que cria altura, evitar largura nas laterais',
       corte: 'Evitar largura nas laterais',
-      franja: 'Sem indicação na tabela do método',
-      reparticao: 'Sem indicação na tabela do método',
+      franja: null,
+      reparticao: null,
       volume: 'Volume no topo',
       posicaoCor: 'Luz que cria altura'
     },
@@ -142,11 +145,11 @@
       id: 'quadrado',
       nome: 'Quadrado',
       direcionamento: 'ondas e linhas suaves que quebram o ângulo, evitar cortes retos na altura da mandíbula',
-      corte: 'Ondas e linhas suaves que quebram o ângulo; evitar cortes retos na altura da mandíbula',
-      franja: 'Sem indicação na tabela do método',
-      reparticao: 'Ondas e linhas suaves que quebram o ângulo',
-      volume: 'Ondas e linhas suaves que quebram o ângulo',
-      posicaoCor: 'Sem indicação na tabela do método'
+      corte: 'Evitar cortes retos na altura da mandíbula',
+      franja: null,
+      reparticao: null,
+      volume: null,
+      posicaoCor: null
     },
     {
       id: 'retangular',
@@ -154,17 +157,17 @@
       direcionamento: 'franja e volume lateral para encurtar visualmente, evitar comprimento excessivo sem volume',
       corte: 'Evitar comprimento excessivo sem volume',
       franja: 'Franja e volume lateral para encurtar visualmente',
-      reparticao: 'Sem indicação na tabela do método',
+      reparticao: null,
       volume: 'Volume lateral',
-      posicaoCor: 'Sem indicação na tabela do método'
+      posicaoCor: null
     },
     {
       id: 'triangular',
       nome: 'Triangular',
       direcionamento: 'volume e luz na parte superior, evitar peso na mandíbula',
       corte: 'Evitar peso na mandíbula',
-      franja: 'Sem indicação na tabela do método',
-      reparticao: 'Sem indicação na tabela do método',
+      franja: null,
+      reparticao: null,
       volume: 'Volume e luz na parte superior',
       posicaoCor: 'Luz na parte superior'
     },
@@ -172,11 +175,11 @@
       id: 'triangulo-invertido',
       nome: 'Triângulo invertido',
       direcionamento: 'volume na altura da mandíbula e do queixo, evitar volume no topo',
-      corte: 'Sem indicação na tabela do método',
-      franja: 'Sem indicação na tabela do método',
-      reparticao: 'Sem indicação na tabela do método',
-      volume: 'Volume na altura da mandíbula e do queixo; evitar volume no topo',
-      posicaoCor: 'Volume na altura da mandíbula e do queixo'
+      corte: null,
+      franja: null,
+      reparticao: null,
+      volume: 'Volume na altura da mandíbula e do queixo',
+      posicaoCor: null
     },
     {
       id: 'losangular',
@@ -184,19 +187,19 @@
       direcionamento: 'suavizar as maçãs com mechas que acolhem o rosto, evitar cortes que exponham os ângulos',
       corte: 'Evitar cortes que exponham os ângulos',
       franja: 'Mechas que acolhem o rosto',
-      reparticao: 'Sem indicação na tabela do método',
-      volume: 'Suavizar as maçãs com mechas que acolhem o rosto',
-      posicaoCor: 'Mechas que acolhem o rosto, suavizando as maçãs'
+      reparticao: null,
+      volume: null,
+      posicaoCor: null
     },
     {
       id: 'hexagonal',
       nome: 'Hexagonal',
       direcionamento: 'contornos suaves e mechas que acolhem, evitar linhas muito retas',
-      corte: 'Contornos suaves; evitar linhas muito retas',
+      corte: 'Evitar linhas muito retas',
       franja: 'Mechas que acolhem',
-      reparticao: 'Evitar linhas muito retas',
-      volume: 'Contornos suaves e mechas que acolhem',
-      posicaoCor: 'Mechas que acolhem'
+      reparticao: null,
+      volume: null,
+      posicaoCor: null
     }
   ];
 

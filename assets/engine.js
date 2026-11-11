@@ -97,6 +97,42 @@
     return !!dados.formatoPorId(id);
   }
 
+  /* Ordem única dos cinco campos da tela 9 (spec v2, seção TELA 9). */
+  var CAMPOS_FORMATO = [
+    { campo: 'corte', rotulo: 'Corte' },
+    { campo: 'franja', rotulo: 'Franja' },
+    { campo: 'reparticao', rotulo: 'Repartição' },
+    { campo: 'volume', rotulo: 'Volume' },
+    { campo: 'posicaoCor', rotulo: 'Posição da cor' }
+  ];
+
+  function resolverFormato(formato) {
+    if (typeof formato === 'string') {
+      var encontrado = dados.formatoPorId(formato);
+      if (encontrado) return encontrado;
+      throw new Error('Formato de rosto desconhecido: "' + formato + '".');
+    }
+    if (formato && typeof formato === 'object') return formato;
+    throw new Error('itensDoFormato espera o formato do rosto ou o id de um dos oito formatos.');
+  }
+
+  /* A tabela da spec traz uma frase por formato, não cinco campos:
+     a tela 9 exibe só os itens que a frase realmente separa. */
+  function itensDoFormato(formato) {
+    var f = resolverFormato(formato);
+    var vistos = [];
+    var itens = [];
+    CAMPOS_FORMATO.forEach(function (def) {
+      var t = texto(f[def.campo]);
+      if (!t) return;
+      var chave = normalizar(t);
+      if (vistos.indexOf(chave) !== -1) return;
+      vistos.push(chave);
+      itens.push({ campo: def.campo, rotulo: def.rotulo, texto: t });
+    });
+    return itens;
+  }
+
   function alturaDeMercado(altura) {
     var n = Number(altura);
     return Number.isInteger(n) && ALTURAS.indexOf(n) !== -1;
@@ -163,11 +199,10 @@
         }
         return { ok: true, motivo: '' };
       default:
+        /* Telas 10 a 17 ainda não têm render registrado: a navegação segue
+           livre e o roteador desenha o cartão "em construção" no lugar. */
         if (n >= 10 && n <= 17) {
-          return {
-            ok: false,
-            motivo: 'Tela ' + n + ' — em construção nesta entrega. As telas 10 a 17 chegam nas próximas tarefas.'
-          };
+          return { ok: true, motivo: '' };
         }
         return { ok: false, motivo: 'Tela inválida: ' + numeroDaTela + '.' };
     }
@@ -181,6 +216,7 @@
     tetoDeClareamento: tetoDeClareamento,
     amostrasViaveis: amostrasViaveis,
     rotaDaTela11: rotaDaTela11,
+    itensDoFormato: itensDoFormato,
     validaEtapa: validaEtapa
   };
 });

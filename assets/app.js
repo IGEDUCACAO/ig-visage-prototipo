@@ -439,8 +439,8 @@
       return '<section class="cartao cartao-construcao" aria-labelledby="titulo-construcao">' +
         '<p class="sobretitulo">Bloco ' + bloco.letra + ' · ' + bloco.nome + '</p>' +
         '<h2 id="titulo-construcao">Tela ' + n + ' — em construção</h2>' +
-        '<p class="texto">Esta tela ainda não faz parte desta entrega do protótipo. O fluxo das telas 1 a 9 está completo; as telas 10 a 17 chegam nas próximas tarefas.</p>' +
-        '<p class="texto-suave">A navegação de retorno continua funcionando. O avanço a partir daqui fica bloqueado até a tela existir.</p>' +
+        '<p class="texto">Esta tela ainda não faz parte desta entrega do protótipo. As telas 10 a 17 chegam nas próximas tarefas.</p>' +
+        '<p class="texto-suave">O botão Continuar segue disponível: ele apenas percorre as telas em construção. Voltar retorna ao fluxo já entregue.</p>' +
         '</section>';
     }
 
