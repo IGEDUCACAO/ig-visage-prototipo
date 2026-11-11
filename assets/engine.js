@@ -234,10 +234,18 @@
           return { ok: false, motivo: 'A tela 9 depende do formato escolhido na tela 8.' };
         }
         return { ok: true, motivo: '' };
+      case 10:
+        if (!familiaDaSessao(e)) {
+          return {
+            ok: false,
+            motivo: 'Registre a temperatura do Kit de Tecidos (fria ou quente): sem temperatura não há família a derivar.'
+          };
+        }
+        return { ok: true, motivo: '' };
       default:
-        /* Telas 10 a 17 ainda não têm render registrado: a navegação segue
-           livre e o roteador desenha o cartão "em construção" no lugar. */
-        if (n >= 10 && n <= 17) {
+        /* Telas 11 a 17: a navegação segue livre; as obrigatoriedades das
+           telas 12 e 13 ficam em telas-prescricao.js. */
+        if (n >= 11 && n <= 17) {
           return { ok: true, motivo: '' };
         }
         return { ok: false, motivo: 'Tela inválida: ' + numeroDaTela + '.' };

@@ -246,7 +246,15 @@ conferir(TELAS.validarAvancar(13, viavel).ok === false, 'amostra fora do teto no
 
 /* ---------- telas 10 e 11 não bloqueiam ---------- */
 
-conferir(TELAS.validarAvancar(10, {}).ok === true, 'tela 10 não deveria bloquear.');
+var avancarSemTemperatura = TELAS.validarAvancar(10, { profundidade: 'clara' });
+conferir(avancarSemTemperatura.ok === false,
+  'tela 10 sem temperatura não pode liberar o Continuar.');
+conferir(avancarSemTemperatura.motivo.indexOf('temperatura') !== -1,
+  'o bloqueio da tela 10 precisa dizer que falta a temperatura.');
+conferir(TELAS.validarAvancar(10, { profundidade: 'clara', temperatura: 'fria' }).ok === true,
+  'tela 10 com a leitura registrada deveria liberar o Continuar.');
+conferir(MOTOR.validaEtapa({ profundidade: 'clara' }, 10).ok === false,
+  'o motor precisa bloquear a tela 10 sem temperatura (é ele que o app consulta).');
 conferir(TELAS.validarAvancar(11, {}).ok === true, 'tela 11 não deveria bloquear.');
 
 /* ---------- render: conteúdo obrigatório ---------- */

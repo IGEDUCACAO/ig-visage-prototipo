@@ -142,6 +142,8 @@
     var n = Number(numero);
     var e = estado || {};
 
+    if (n === 10) return MOTOR.validaEtapa(e, 10);
+
     if (n === 12) {
       if (!e.decisaoConflito || !DECISOES[e.decisaoConflito.escolha]) {
         return { ok: false, motivo: 'Registre a decisão do conflito antes de seguir: entregar o ponto mais alto ou adiar a cor.' };
