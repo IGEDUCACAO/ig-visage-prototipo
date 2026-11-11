@@ -61,6 +61,36 @@
     };
   }
 
+  /* A família nasce de profundidade × temperatura (spec v2, tela 10).
+     Sem temperatura registrada não há família — nunca chute uma. */
+  var FAMILIA_POR_LEITURA = {
+    'clara|fria': 'VC',
+    'clara|quente': 'PC',
+    'media|fria': 'VE',
+    'media|quente': 'PE',
+    'profunda|fria': 'IP',
+    'profunda|quente': 'OP'
+  };
+
+  /* Neutra não tem família própria: cai na fria do par, a de menor contraste térmico (cinzas contra cobre). */
+  var NEUTRA_COMO = 'fria';
+
+  function familiaPrescrita(profundidade, temperatura) {
+    var p = normalizar(profundidade);
+    var t = normalizar(temperatura);
+    if (!p || !t) return null;
+    if (t === 'neutra') t = NEUTRA_COMO;
+    return dados.familiaPorSigla(FAMILIA_POR_LEITURA[p + '|' + t]) || null;
+  }
+
+  /* Regra da Ilda (spec v2, tela 10): baixo ou médio → Suave; alto → Intensa. */
+  function calibracaoDeContraste(nivel) {
+    var n = normalizar(nivel);
+    if (n === 'baixo' || n === 'medio') return 'Suave';
+    if (n === 'alto') return 'Intensa';
+    throw new Error('Contraste inválido: "' + nivel + '". Use baixo, médio ou alto.');
+  }
+
   function resolverFamilia(familia) {
     if (familia && typeof familia === 'object' && Array.isArray(familia.amostras)) return familia;
     return dados.familiaPorSigla(familia);
@@ -213,6 +243,8 @@
     indiceBase: indiceBase,
     alturaDeMercado: alturaDeMercado,
     contraste: contraste,
+    familiaPrescrita: familiaPrescrita,
+    calibracaoDeContraste: calibracaoDeContraste,
     tetoDeClareamento: tetoDeClareamento,
     amostrasViaveis: amostrasViaveis,
     rotaDaTela11: rotaDaTela11,

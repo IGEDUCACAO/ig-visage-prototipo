@@ -14,7 +14,8 @@
   var temJanela = typeof window !== 'undefined' && window !== null;
   var VISAGE = temJanela ? (window.VISAGE = window.VISAGE || {}) : null;
 
-  if (!DADOS || !DADOS.ALTURAS || !MOTOR || typeof MOTOR.amostrasViaveis !== 'function') {
+  if (!DADOS || !DADOS.ALTURAS || !MOTOR || typeof MOTOR.amostrasViaveis !== 'function' ||
+      typeof MOTOR.familiaPrescrita !== 'function' || typeof MOTOR.calibracaoDeContraste !== 'function') {
     if (typeof console !== 'undefined' && console.error) {
       console.error('[visage] telas-prescricao.js precisa de assets/data.js e assets/engine.js carregados antes.');
     }
@@ -33,15 +34,7 @@
   var ROTULO_PROFUNDIDADE = { 1: 'clara', 2: 'media', 3: 'profunda' };
   var ROTULO_NIVEL = { baixo: 'baixo', medio: 'médio', alto: 'alto' };
 
-  /* A família cruza profundidade × temperatura (v1: famOf). */
-  var FAMILIA_POR_LEITURA = {
-    'clara|fria': 'VC',
-    'clara|quente': 'PC',
-    'media|fria': 'VE',
-    'media|quente': 'PE',
-    'profunda|fria': 'IP',
-    'profunda|quente': 'OP'
-  };
+  /* A família cruza profundidade × temperatura (v1: famOf). A regra tem um dono só: assets/engine.js. */
 
   var DECISOES = {
     'ponto-mais-alto': 'Entregar o ponto mais alto que o fio suporta (mantendo a temperatura da família)',
@@ -55,30 +48,22 @@
 
   function temperaturaDe(estado) {
     var t = normalizar(estado && estado.temperatura);
-    return (t === 'fria' || t === 'quente') ? t : null;
+    return (t === 'fria' || t === 'neutra' || t === 'quente') ? t : null;
   }
 
-  /* Família prescrita: o estado manda; sem ele, deriva da leitura clara × quente.
+  /* Família prescrita: o estado manda; sem ele, deriva da leitura profundidade × temperatura.
      Sem profundidade ou sem temperatura não há família — a tela diz o que falta. */
   function familiaPrescrita(estado) {
     var e = estado || {};
     var registrada = DADOS.familiaPorSigla(e.familia);
     if (registrada) return registrada;
 
-    var indicePele = MOTOR.indiceProfundidade(e.profundidade);
-    var temperatura = temperaturaDe(e);
-    if (!indicePele || !temperatura) return null;
-
-    var chave = ROTULO_PROFUNDIDADE[indicePele] + '|' + temperatura;
-    return DADOS.familiaPorSigla(FAMILIA_POR_LEITURA[chave]) || null;
+    return MOTOR.familiaPrescrita(e.profundidade, e.temperatura);
   }
 
   /* Regra da Ilda (spec v2, TELA 10): baixo ou médio → Suave; alto → Intensa. */
   function calibracaoPorContraste(nivel) {
-    var n = normalizar(nivel);
-    if (n === 'baixo' || n === 'medio') return 'Suave';
-    if (n === 'alto') return 'Intensa';
-    throw new Error('Contraste inválido: "' + nivel + '". Use baixo, médio ou alto.');
+    return MOTOR.calibracaoDeContraste(nivel);
   }
 
   /* RN-24: na Rota Estilo o rótulo não é "prescrita". */
@@ -301,12 +286,36 @@
 
   /* ---------- TELA 10 ---------- */
 
+  var ROTULO_TEMPERATURA = 'Temperatura (leitura do Kit de Tecidos)';
+  var NOTA_TEMPERATURA = 'A temperatura vem do Kit de Tecidos; o app não a estima.';
+
+  function opcaoTemperatura(valor, titulo, sub, atual) {
+    var selecionada = atual === valor;
+    return '<button type="button" class="opcao' + (selecionada ? ' selecionada' : '') +
+      '" data-temperatura="' + esc(valor) + '" aria-pressed="' + (selecionada ? 'true' : 'false') + '">' +
+      '<span class="opcao-marca" aria-hidden="true"></span>' +
+      '<span class="opcao-texto"><span class="opcao-titulo">' + esc(titulo) + '</span>' +
+      '<small class="opcao-sub">' + esc(sub) + '</small></span>' +
+      '</button>';
+  }
+
+  function controlesDeTemperatura(temperatura) {
+    return '<div class="opcoes" role="group" aria-label="' + esc(ROTULO_TEMPERATURA) + '">' +
+        opcaoTemperatura('fria', 'Fria', 'Leitura do kit: a pele pede temperatura fria', temperatura) +
+        opcaoTemperatura('neutra', 'Neutra', 'Sem predominância: usa a família de menor contraste térmico do par', temperatura) +
+        opcaoTemperatura('quente', 'Quente', 'Leitura do kit: a pele pede temperatura quente', temperatura) +
+      '</div>' +
+      '<p class="texto-suave">' + esc(NOTA_TEMPERATURA) + '</p>';
+  }
+
   function render10(el, ctx) {
     var e = ctx.estado || {};
-    var estadoSin = sincronizar(e, ctx);
-    var familia = estadoSin.familia;
-    var rotulos = rotulosDaRota(e.rota);
     var temperatura = temperaturaDe(e);
+    /* Deriva sempre da leitura registrada: família cacheada no estado não pinta este painel. */
+    var familia = MOTOR.familiaPrescrita(e.profundidade, e.temperatura);
+    if (familia && e.familia !== familia.sigla) e.familia = familia.sigla;
+    sincronizar(e, ctx); /* grave a família derivada e o teto no prontuário */
+    var rotulos = rotulosDaRota(e.rota);
     var indicePele = MOTOR.indiceProfundidade(e.profundidade);
     var calibracao = (e.contraste === 'baixo' || e.contraste === 'medio' || e.contraste === 'alto')
       ? calibracaoPorContraste(e.contraste)
@@ -322,29 +331,23 @@
           linha(rotulos.calibracao, calibracao || '—') +
           linha('Profundidade × temperatura', leituraTexto(e)) +
           linha('Contraste', e.contraste ? ROTULO_NIVEL[e.contraste] : '—') +
-        '</div></div>';
+        '</div></div>' +
+        '<div class="cartao cartao-calculo">' +
+          '<p class="rotulo">' + esc(ROTULO_TEMPERATURA) + '</p>' +
+          controlesDeTemperatura(temperatura) +
+        '</div>';
     } else {
       secao +=
         '<div class="cartao cartao-calculo">' +
           '<p class="rotulo">Família ainda não definida</p>' +
           '<p class="texto">A família cruza profundidade × temperatura. ' +
             (indicePele
-              ? 'A profundidade está registrada, mas a temperatura não — nenhuma tela de 1 a 9 da spec v2 coleta esse dado.'
-              : 'Faltam a profundidade da pele (tela 4) e a temperatura lida no kit.') +
+              ? 'A profundidade está registrada; falta a temperatura lida no Kit de Tecidos.'
+              : 'Faltam a profundidade da pele (tela 4) e a temperatura lida no Kit de Tecidos.') +
           '</p>' +
-          '<p class="texto-suave">Registre a temperatura lida no Kit de Tecidos para o painel e as próximas telas seguirem.</p>' +
-          '<div class="opcoes">' +
-            '<button type="button" class="opcao' + (temperatura === 'fria' ? ' selecionada' : '') + '" data-temperatura="fria" aria-pressed="' + (temperatura === 'fria' ? 'true' : 'false') + '">' +
-              '<span class="opcao-marca" aria-hidden="true"></span>' +
-              '<span class="opcao-texto"><span class="opcao-titulo">Fria</span>' +
-              '<small class="opcao-sub">Leitura do kit: a pele pede temperatura fria</small></span>' +
-            '</button>' +
-            '<button type="button" class="opcao' + (temperatura === 'quente' ? ' selecionada' : '') + '" data-temperatura="quente" aria-pressed="' + (temperatura === 'quente' ? 'true' : 'false') + '">' +
-              '<span class="opcao-marca" aria-hidden="true"></span>' +
-              '<span class="opcao-texto"><span class="opcao-titulo">Quente</span>' +
-              '<small class="opcao-sub">Leitura do kit: a pele pede temperatura quente</small></span>' +
-            '</button>' +
-          '</div>' +
+          '<p class="texto">Sem temperatura registrada não há família a derivar.</p>' +
+          '<p class="rotulo">' + esc(ROTULO_TEMPERATURA) + '</p>' +
+          controlesDeTemperatura(temperatura) +
         '</div>';
     }
 
@@ -356,7 +359,7 @@
     Array.prototype.forEach.call(el.querySelectorAll('[data-temperatura]'), function (botao) {
       botao.addEventListener('click', function () {
         e.temperatura = botao.getAttribute('data-temperatura');
-        var derivada = familiaPrescrita(e);
+        var derivada = MOTOR.familiaPrescrita(e.profundidade, e.temperatura);
         if (derivada) e.familia = derivada.sigla;
         var teto = tetoDoEstado(e);
         if (teto !== null) e.teto = teto;
