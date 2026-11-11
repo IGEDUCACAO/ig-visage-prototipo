@@ -37,6 +37,11 @@
     alto: 'ALTO'
   };
 
+  var DECISOES = {
+    'ponto-mais-alto': 'Entregar o ponto mais alto que o fio suporta (mantendo a temperatura da família)',
+    'adiar': 'Adiar a cor e tratar o fio primeiro'
+  };
+
   var TEXTOS = {
     semDesejo: 'Desejo não registrado — a cliente seguiu sem verbalizar um desejo.',
     semReceita: 'Receita técnica não registrada.',
@@ -114,6 +119,50 @@
     var base = Number(estado && estado.baseNatural);
     if (DADOS.ALTURAS.indexOf(base) === -1) return null;
     return MOTOR.tetoDeClareamento(base, familia ? familia.tetoClareamento : 4);
+  }
+
+  function faixaAlcancavelDoEstado(familia, teto) {
+    if (!familia || !Array.isArray(familia.faixa) || familia.faixa.length < 2) {
+      return '';
+    }
+    var min = Number(familia.faixa[0]);
+    var max = Number(familia.faixa[1]);
+    if (!Number.isFinite(min) || !Number.isFinite(max)) {
+      return '';
+    }
+    if (teto !== null && teto !== undefined && teto !== '') {
+      var tetoNum = Number(teto);
+      if (Number.isFinite(tetoNum) && tetoNum < min) {
+        return 'até ' + DADOS.formatarAltura(tetoNum);
+      }
+    }
+    return DADOS.formatarAltura(min) + ' a ' + DADOS.formatarAltura(max);
+  }
+
+  function decisaoConflitoDoEstado(estado) {
+    if (!estado || !estado.decisaoConflito) return null;
+    var raw = estado.decisaoConflito;
+    var escolhaId = '';
+    var textoEscolha = '';
+    if (typeof raw === 'string') {
+      escolhaId = raw;
+      textoEscolha = DECISOES[raw] || raw;
+    } else if (typeof raw === 'object') {
+      if (raw.escolha) escolhaId = String(raw.escolha);
+      if (raw.rotulo && typeof raw.rotulo === 'string') {
+        textoEscolha = raw.rotulo;
+      } else if (raw.escolha) {
+        textoEscolha = DECISOES[raw.escolha] || String(raw.escolha);
+      } else if (raw.texto && typeof raw.texto === 'string') {
+        textoEscolha = raw.texto;
+      }
+    }
+    textoEscolha = texto(textoEscolha);
+    if (!textoEscolha) return null;
+    return {
+      escolha: escolhaId,
+      texto: textoEscolha
+    };
   }
 
   function amostraDoEstado(estado, familia) {
@@ -214,6 +263,9 @@
       contexto.familia ? contexto.familia.temperatura : ''
     ].filter(function (parte) { return !!parte; }).join(' · ');
 
+    var decisaoTexto = contexto.decisaoConflito || (decisaoConflitoDoEstado(e) ? decisaoConflitoDoEstado(e).texto : '');
+    var decisaoEscolha = contexto.decisaoConflitoEscolha || (decisaoConflitoDoEstado(e) ? decisaoConflitoDoEstado(e).escolha : '');
+
     return '<section class="dossie-secao">' +
       '<h3><span class="dossie-num">02</span> Diagnóstico</h3>' +
       '<dl class="dossie-grade">' +
@@ -229,6 +281,11 @@
       (contexto.amostra
         ? '<p class="dossie-amostra">Amostra escolhida: <strong>' + esc(contexto.amostra.nome || contexto.amostra.codigo) + '</strong>' +
           (contexto.amostra.codigo ? ' · ' + esc(contexto.amostra.codigo) : '') + '</p>'
+        : '') +
+      (decisaoTexto
+        ? '<p class="dossie-nota dossie-conflito" data-rotulo="DECISÃO DE CONFLITO"' +
+          (decisaoEscolha ? ' data-escolha="' + esc(decisaoEscolha) + '"' : '') +
+          ' title="Decisão de conflito">DECISAO DE CONFLITO: ' + esc(decisaoTexto) + '</p>'
         : '') +
       (e.contrasteAjuste && texto(e.contrasteAjuste.justificativa)
         ? '<p class="dossie-nota">Ajuste manual do contraste: ' + esc(e.contrasteAjuste.justificativa) + '</p>'
@@ -370,6 +427,7 @@
     '.dossie-dado dd { margin: 0; font-size: 14px; line-height: 1.4; color: var(--ink); }',
     '.dossie-dado-vazio dd { color: #94836f; font-style: italic; }',
     '.dossie-amostra { margin: 16px 0 0; font-size: 12.5px; color: var(--ink2); }',
+    '.dossie-conflito { margin: 12px 0 0; }',
     '.dossie-formato-nome { margin: 0 0 6px; font-family: var(--serif); font-size: 24px; color: var(--ink); }',
     '.dossie-direcionamento { margin: 0 0 14px; font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.55; color: #4a3a2a; }',
     '.dossie-itens { margin: 0; padding: 0; list-style: none; }',
@@ -411,6 +469,7 @@
     var familia = familiaDoEstado(estado);
     var base = baseFormatada(estado.baseNatural);
     var teto = tetoDoEstado(estado, familia);
+    var decisaoConflito = decisaoConflitoDoEstado(estado);
     var contexto = {
       estado: estado,
       familia: familia,
@@ -420,9 +479,9 @@
       contrasteRotulo: ROTULO_CONTRASTE[estado.contraste] || '',
       base: base,
       teto: teto === null ? '' : DADOS.formatarAltura(teto),
-      faixa: familia && Array.isArray(familia.faixa)
-        ? DADOS.formatarAltura(familia.faixa[0]) + ' a ' + DADOS.formatarAltura(familia.faixa[1])
-        : '',
+      faixa: faixaAlcancavelDoEstado(familia, teto),
+      decisaoConflito: decisaoConflito ? decisaoConflito.texto : '',
+      decisaoConflitoEscolha: decisaoConflito ? decisaoConflito.escolha : '',
       amostra: amostraDoEstado(estado, familia),
       fotoRegistrada: fotoRegistrada(estado),
       dataAtendimento: dataDoAtendimento(estado)
