@@ -351,7 +351,7 @@
     '.dossie-capa { padding: 38px 30px 30px; background: radial-gradient(circle at 82% 12%, rgba(169,133,90,.28), transparent 46%), linear-gradient(160deg, #292320 0%, #1c1815 100%); color: #f5ede1; }',
     '.dossie-capa-marca { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #d6b98e; }',
     '.dossie-capa-sobre { margin: 6px 0 26px; font-size: 12px; letter-spacing: .04em; color: rgba(245,237,225,.7); }',
-    '.dossie-capa-nome { margin: 0; font-family: var(--serif); font-size: clamp(30px, 7vw, 44px); font-weight: 400; line-height: 1.1; letter-spacing: -.01em; }',
+    '.dossie .dossie-capa-nome { margin: 0; font-family: var(--serif); font-size: clamp(30px, 7vw, 44px); font-weight: 400; line-height: 1.1; letter-spacing: -.01em; color: #f7efe2; }',
     '.dossie-capa-data { margin: 12px 0 0; font-size: 13.5px; color: #e6d6bd; }',
     '.dossie-capa-contato { margin: 4px 0 0; font-size: 12.5px; color: rgba(245,237,225,.68); }',
     '.dossie-capa-fio { width: 56px; height: 1px; margin: 24px 0 18px; background: linear-gradient(90deg, #d6b98e, transparent); }',
