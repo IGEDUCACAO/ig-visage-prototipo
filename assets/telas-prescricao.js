@@ -33,16 +33,6 @@
   var ROTULO_PROFUNDIDADE = { 1: 'clara', 2: 'media', 3: 'profunda' };
   var ROTULO_NIVEL = { baixo: 'baixo', medio: 'médio', alto: 'alto' };
 
-  /* A família cruza profundidade × temperatura (v1: famOf). */
-  var FAMILIA_POR_LEITURA = {
-    'clara|fria': 'VC',
-    'clara|quente': 'PC',
-    'media|fria': 'VE',
-    'media|quente': 'PE',
-    'profunda|fria': 'IP',
-    'profunda|quente': 'OP'
-  };
-
   var DECISOES = {
     'ponto-mais-alto': 'Entregar o ponto mais alto que o fio suporta (mantendo a temperatura da família)',
     'adiar': 'Adiar a cor e tratar o fio primeiro'
@@ -58,38 +48,30 @@
     return (t === 'fria' || t === 'quente') ? t : null;
   }
 
-  /* Família prescrita: o estado manda; sem ele, deriva da leitura clara × quente.
+  /* Família desta sessão: SEMPRE profundidade × temperatura, nunca o cache.
      Sem profundidade ou sem temperatura não há família — a tela diz o que falta. */
   function familiaPrescrita(estado) {
-    var e = estado || {};
-    var registrada = DADOS.familiaPorSigla(e.familia);
-    if (registrada) return registrada;
-
-    var indicePele = MOTOR.indiceProfundidade(e.profundidade);
-    var temperatura = temperaturaDe(e);
-    if (!indicePele || !temperatura) return null;
-
-    var chave = ROTULO_PROFUNDIDADE[indicePele] + '|' + temperatura;
-    return DADOS.familiaPorSigla(FAMILIA_POR_LEITURA[chave]) || null;
+    return MOTOR.familiaDaSessao(estado);
   }
 
   /* Regra da Ilda (spec v2, TELA 10): baixo ou médio → Suave; alto → Intensa. */
   function calibracaoPorContraste(nivel) {
-    var n = normalizar(nivel);
-    if (n === 'baixo' || n === 'medio') return 'Suave';
-    if (n === 'alto') return 'Intensa';
-    throw new Error('Contraste inválido: "' + nivel + '". Use baixo, médio ou alto.');
+    return MOTOR.calibracaoDeContraste(nivel);
   }
 
-  /* RN-24: na Rota Estilo o rótulo não é "prescrita". */
+  /* RN-24: "prescrita" vale para Harmonia e Íris; na Rota Estilo o rótulo é "proposta". */
   function rotulosDaRota(rota) {
-    if (rota === 'estilo') {
-      return { familia: 'Ponto de partida', calibracao: 'Calibração proposta' };
-    }
-    if (rota === 'iris') {
-      return { familia: 'Família de referência', calibracao: 'Calibração de referência' };
+    if (normalizar(rota) === 'estilo') {
+      return { familia: 'Família proposta', calibracao: 'Calibração proposta' };
     }
     return { familia: 'Família prescrita', calibracao: 'Calibração prescrita' };
+  }
+
+  function notaDaRota(rota) {
+    if (normalizar(rota) === 'estilo') {
+      return '<div class="nota"><b>Nomenclatura (RN-24):</b> na Rota Estilo a família e a calibração são <b>propostas</b>: a cor parte de uma leitura, não de uma prescrição.</div>';
+    }
+    return '<div class="nota"><b>Nomenclatura (RN-24):</b> nas rotas Harmonia e Íris a família e a calibração são <b>prescritas</b>.</div>';
   }
 
   /* O teto nasce da base natural; o teto gravado só vale como fallback
@@ -240,6 +222,10 @@
     if (familia && estado.familia !== familia.sigla) {
       estado.familia = familia.sigla;
       mudou = true;
+    } else if (!familia && estado.familia) {
+      /* Sem leitura não há família: o valor antigo não fica no prontuário. */
+      estado.familia = null;
+      mudou = true;
     }
     var teto = tetoDoEstado(estado);
     if (teto !== null && estado.teto !== teto) {
@@ -309,7 +295,7 @@
     var temperatura = temperaturaDe(e);
     var indicePele = MOTOR.indiceProfundidade(e.profundidade);
     var calibracao = (e.contraste === 'baixo' || e.contraste === 'medio' || e.contraste === 'alto')
-      ? calibracaoPorContraste(e.contraste)
+      ? MOTOR.calibracaoDeContraste(e.contraste)
       : null;
 
     var secao = '<h2>Família e calibração</h2>' +
@@ -322,17 +308,20 @@
           linha(rotulos.calibracao, calibracao || '—') +
           linha('Profundidade × temperatura', leituraTexto(e)) +
           linha('Contraste', e.contraste ? ROTULO_NIVEL[e.contraste] : '—') +
-        '</div></div>';
+        '</div></div>' +
+        '<p class="texto-suave">A temperatura vem do Kit de Tecidos; o app não a estima.</p>';
     } else {
       secao +=
         '<div class="cartao cartao-calculo">' +
           '<p class="rotulo">Família ainda não definida</p>' +
-          '<p class="texto">A família cruza profundidade × temperatura. ' +
+          '<p class="texto">Sem temperatura registrada não há família a derivar. ' +
+            'A família cruza profundidade × temperatura; ' +
             (indicePele
-              ? 'A profundidade está registrada, mas a temperatura não — nenhuma tela de 1 a 9 da spec v2 coleta esse dado.'
-              : 'Faltam a profundidade da pele (tela 4) e a temperatura lida no kit.') +
+              ? 'a profundidade está registrada, mas a temperatura nunca foi lida.'
+              : 'e a profundidade da pele (tela 4) ainda falta no prontuário.') +
           '</p>' +
-          '<p class="texto-suave">Registre a temperatura lida no Kit de Tecidos para o painel e as próximas telas seguirem.</p>' +
+          '<p class="texto-suave">A temperatura vem do Kit de Tecidos; o app não a estima. ' +
+            'Se a leitura for inconclusiva, repita o Kit — não há opção neutra.</p>' +
           '<div class="opcoes">' +
             '<button type="button" class="opcao' + (temperatura === 'fria' ? ' selecionada' : '') + '" data-temperatura="fria" aria-pressed="' + (temperatura === 'fria' ? 'true' : 'false') + '">' +
               '<span class="opcao-marca" aria-hidden="true"></span>' +
@@ -348,8 +337,7 @@
         '</div>';
     }
 
-    secao +=
-      '<div class="nota"><b>Nomenclatura (RN-24):</b> o rótulo muda com a rota. Na Rota Estilo a cor é <b>proposta</b> — chamar de prescrita seria erro conceitual.</div>';
+    secao += notaDaRota(e.rota);
 
     el.innerHTML = secao;
 
@@ -357,7 +345,7 @@
       botao.addEventListener('click', function () {
         e.temperatura = botao.getAttribute('data-temperatura');
         var derivada = familiaPrescrita(e);
-        if (derivada) e.familia = derivada.sigla;
+        e.familia = derivada ? derivada.sigla : null;
         var teto = tetoDoEstado(e);
         if (teto !== null) e.teto = teto;
         recarregarCom(ctx);

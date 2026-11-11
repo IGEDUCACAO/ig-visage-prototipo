@@ -66,6 +66,42 @@
     return dados.familiaPorSigla(familia);
   }
 
+  /* A família cruza profundidade × temperatura (v1: famOf). */
+  var FAMILIA_POR_LEITURA = {
+    'clara|fria': 'VC',
+    'clara|quente': 'PC',
+    'media|fria': 'VE',
+    'media|quente': 'PE',
+    'profunda|fria': 'IP',
+    'profunda|quente': 'OP'
+  };
+  var CHAVE_PROFUNDIDADE = { 1: 'clara', 2: 'media', 3: 'profunda' };
+
+  function temperaturaDaLeitura(valor) {
+    var t = normalizar(valor);
+    return (t === 'fria' || t === 'quente') ? t : null;
+  }
+
+  /* A família da sessão vem SEMPRE da leitura registrada agora. estado.familia
+     é saída do cálculo, nunca entrada: um cache antigo não pode sobreviver a
+     uma troca de profundidade ou de temperatura. */
+  function familiaDaSessao(estado) {
+    var e = estado || {};
+    var indicePele = indiceProfundidade(e.profundidade);
+    var temperatura = temperaturaDaLeitura(e.temperatura);
+    if (!indicePele || !temperatura) return null;
+    var sigla = FAMILIA_POR_LEITURA[CHAVE_PROFUNDIDADE[indicePele] + '|' + temperatura];
+    return dados.familiaPorSigla(sigla) || null;
+  }
+
+  /* Regra da Ilda (spec v2, TELA 10): baixo ou médio → Suave; alto → Intensa. */
+  function calibracaoDeContraste(nivel) {
+    var n = normalizar(nivel);
+    if (n === 'baixo' || n === 'medio') return 'Suave';
+    if (n === 'alto') return 'Intensa';
+    throw new Error('Contraste inválido: "' + nivel + '". Use baixo, médio ou alto.');
+  }
+
   /* O teto é contado em degraus na régua de alturas (a altura 02 não existe). */
   function tetoDeClareamento(baseNatural, degraus) {
     var base = Number(baseNatural);
@@ -213,6 +249,8 @@
     indiceBase: indiceBase,
     alturaDeMercado: alturaDeMercado,
     contraste: contraste,
+    familiaDaSessao: familiaDaSessao,
+    calibracaoDeContraste: calibracaoDeContraste,
     tetoDeClareamento: tetoDeClareamento,
     amostrasViaveis: amostrasViaveis,
     rotaDaTela11: rotaDaTela11,

@@ -1,7 +1,7 @@
 /* Teste das telas 10 a 13 — node puro, sem framework e sem npm.
-   Uso: node testes/telas-prescricao.test.js
-   Sai com código != 0 se o registro, a calibração, o filtro do teto ou o
-   bloqueio das telas 12/13 quebrarem. */
+   Uso: node testes/prescricao.test.js
+   Sai com código != 0 se o registro, a calibração, a família da sessão, o
+   filtro do teto ou o bloqueio das telas 12/13 quebrarem. */
 'use strict';
 
 var DADOS = require('../assets/data.js');
@@ -60,6 +60,24 @@ function contextoFalso(estado) {
     irPara: function () { return true; }
   };
   return ctx;
+}
+
+/* Elemento com os dois botões de temperatura, para exercitar o clique real. */
+function elementoComTemperatura() {
+  var botoes = ['fria', 'quente'].map(function (valor) {
+    return {
+      valor: valor,
+      listeners: [],
+      getAttribute: function (nome) { return nome === 'data-temperatura' ? valor : null; },
+      addEventListener: function (evento, funcao) { this.listeners.push(funcao); }
+    };
+  });
+  return {
+    innerHTML: '',
+    botoes: botoes,
+    querySelectorAll: function () { return botoes; },
+    querySelector: function () { return null; }
+  };
 }
 
 function renderizar(numero, estado) {
@@ -127,8 +145,38 @@ conferir(TELAS.familiaPrescrita({ temperatura: 'fria' }) === null,
   'sem profundidade a família não pode ser derivada.');
 conferir(TELAS.familiaPrescrita({ profundidade: 'clara', temperatura: 'morna' }) === null,
   'temperatura fora de fria/quente deveria devolver null.');
-conferir(TELAS.familiaPrescrita({ familia: 'VC' }).sigla === 'VC',
-  'a família já registrada no estado deveria prevalecer.');
+
+/* ---------- MOTOR.familiaDaSessao: o cache não prevalece ---------- */
+
+var cacheAntigo = MOTOR.familiaDaSessao({ profundidade: 'clara', temperatura: 'fria', familia: 'PE' });
+conferir(!!cacheAntigo && cacheAntigo.sigla === 'VC',
+  "familiaDaSessao(clara × fria, familia 'PE' em cache) deveria derivar VC; veio " +
+  JSON.stringify(cacheAntigo && cacheAntigo.sigla) + '.');
+
+var derivadaQuente = MOTOR.familiaDaSessao({ profundidade: 'media', temperatura: 'quente' });
+conferir(!!derivadaQuente && derivadaQuente.sigla === 'PE',
+  "familiaDaSessao(media × quente) deveria ser PE; veio " +
+  JSON.stringify(derivadaQuente && derivadaQuente.sigla) + '.');
+
+conferir(MOTOR.familiaDaSessao({ profundidade: 'clara' }) === null,
+  'sem temperatura não há família a derivar.');
+conferir(MOTOR.familiaDaSessao({}) === null,
+  'estado vazio não pode produzir família.');
+conferir(MOTOR.familiaDaSessao({ profundidade: 'clara', temperatura: 'fria', familia: 'XX' }).sigla === 'VC',
+  'familia inválida no cache não pode interferir na derivação.');
+
+/* ---------- MOTOR.calibracaoDeContraste ---------- */
+
+conferir(MOTOR.calibracaoDeContraste('baixo') === 'Suave',
+  "calibracaoDeContraste('baixo') deveria ser Suave; veio " + JSON.stringify(MOTOR.calibracaoDeContraste('baixo')) + '.');
+conferir(MOTOR.calibracaoDeContraste('medio') === 'Suave',
+  "calibracaoDeContraste('medio') deveria ser Suave.");
+conferir(MOTOR.calibracaoDeContraste('médio') === 'Suave',
+  "calibracaoDeContraste('médio') (com acento) deveria ser Suave.");
+conferir(MOTOR.calibracaoDeContraste('alto') === 'Intensa',
+  "calibracaoDeContraste('alto') deveria ser Intensa.");
+esperaErro('MOTOR.calibracaoDeContraste("nenhum")',
+  function () { MOTOR.calibracaoDeContraste('nenhum'); }, 'Contraste inválido');
 
 /* ---------- tela 13: nunca acima do teto ---------- */
 
@@ -219,8 +267,65 @@ conferir(tela10.html.indexOf('clara · fria') !== -1, 'tela 10 não mostra profu
 conferir(tela10.html.indexOf('baixo') !== -1, 'tela 10 não mostra o contraste.');
 conferir(tela10.html.indexOf('RN-24') !== -1, 'tela 10 perdeu a ressalva do rótulo por rota (RN-24).');
 
+/* Sem temperatura: nem família nem calibração — e o registro é oferecido. */
+var tela10SemTemperatura = renderizar(10, { rota: 'harmonia', profundidade: 'clara', contraste: 'baixo', familia: 'PE' });
+conferir(tela10SemTemperatura.html.indexOf('Sem temperatura registrada não há família a derivar') !== -1,
+  'tela 10 sem temperatura precisa dizer que não há família a derivar.');
+conferir(tela10SemTemperatura.html.indexOf('Primavera Essencial') === -1,
+  'a família em cache (PE) não pode aparecer sem temperatura registrada.');
+conferir(tela10SemTemperatura.html.indexOf('Família prescrita') === -1,
+  'tela 10 sem temperatura não pode afirmar família prescrita.');
+conferir(tela10SemTemperatura.html.indexOf('Calibração prescrita') === -1,
+  'tela 10 sem temperatura não pode afirmar calibração prescrita.');
+conferir(tela10SemTemperatura.html.indexOf('data-temperatura="fria"') !== -1,
+  'tela 10 precisa oferecer a leitura fria do Kit de Tecidos.');
+conferir(tela10SemTemperatura.html.indexOf('data-temperatura="quente"') !== -1,
+  'tela 10 precisa oferecer a leitura quente do Kit de Tecidos.');
+conferir(tela10SemTemperatura.html.indexOf('Kit de Tecidos') !== -1,
+  'tela 10 precisa dizer que a temperatura vem do Kit de Tecidos.');
+conferir(tela10SemTemperatura.html.indexOf('o app não a estima') !== -1,
+  'tela 10 precisa dizer que o app não estima a temperatura.');
+conferir(tela10SemTemperatura.html.indexOf('data-temperatura="neutra"') === -1,
+  'tela 10 não pode inventar opção neutra de temperatura.');
+conferir((tela10SemTemperatura.html.match(/data-temperatura="/g) || []).length === 2,
+  'tela 10 deve oferecer exatamente duas leituras de temperatura (fria e quente).');
+
+/* A leitura nova derruba o cache: clara × fria com PE gravado mostra VC. */
+var tela10ComCacheAntigo = renderizar(10, { rota: 'harmonia', profundidade: 'clara', temperatura: 'fria', contraste: 'baixo', familia: 'PE' });
+conferir(tela10ComCacheAntigo.html.indexOf('Verão Claro · VC') !== -1,
+  'a família precisa ser derivada da leitura nova, não do cache (esperava Verão Claro · VC).');
+conferir(tela10ComCacheAntigo.html.indexOf('Primavera Essencial') === -1,
+  'a família antiga (PE) não pode prevalecer sobre a leitura atual.');
+
+/* Clique real na leitura do Kit: deriva a família e grava no prontuário. */
+var estadoClique = { rota: 'harmonia', profundidade: 'clara', baseNatural: 5, contraste: 'baixo', familia: 'PE' };
+var elClique = elementoComTemperatura();
+var ctxClique = contextoFalso(estadoClique);
+global.window.VISAGE.telas[10].render(elClique, ctxClique);
+conferir(elClique.botoes[0].listeners.length === 1 && elClique.botoes[1].listeners.length === 1,
+  'os dois botões de temperatura deveriam ter handler de clique.');
+
+elClique.botoes[1].listeners[0](); // quente
+conferir(estadoClique.temperatura === 'quente', 'o clique deveria registrar temperatura quente.');
+conferir(estadoClique.familia === 'PC', 'clara × quente deveria gravar PC; veio ' + JSON.stringify(estadoClique.familia) + '.');
+conferir(ctxClique.recargas === 1, 'o clique deveria recarregar a tela.');
+
+elClique.botoes[0].listeners[0](); // fria, trocando a leitura
+conferir(estadoClique.temperatura === 'fria', 'o clique deveria trocar a temperatura para fria.');
+conferir(estadoClique.familia === 'VC', 'clara × fria deveria substituir PC por VC; veio ' + JSON.stringify(estadoClique.familia) + '.');
+conferir(estadoClique.teto === 9, 'o teto deveria acompanhar a base natural 05; veio ' + JSON.stringify(estadoClique.teto) + '.');
+
+var tela10Iris = renderizar(10, { rota: 'iris', profundidade: 'clara', temperatura: 'fria', contraste: 'baixo' });
+conferir(tela10Iris.html.indexOf('Família prescrita') !== -1,
+  'na Rota Íris o rótulo deveria ser "Família prescrita".');
+conferir(tela10Iris.html.indexOf('Calibração prescrita') !== -1,
+  'na Rota Íris o rótulo deveria ser "Calibração prescrita".');
+
 var tela10Estilo = renderizar(10, { rota: 'estilo', profundidade: 'clara', temperatura: 'fria', contraste: 'alto', familia: 'VC' });
-conferir(tela10Estilo.html.indexOf('Ponto de partida') !== -1, 'na Rota Estilo o rótulo deveria ser "Ponto de partida".');
+conferir(tela10Estilo.html.indexOf('Família proposta') !== -1, 'na Rota Estilo o rótulo deveria ser "Família proposta".');
+conferir(tela10Estilo.html.indexOf('Calibração proposta') !== -1, 'na Rota Estilo o rótulo deveria ser "Calibração proposta".');
+conferir(tela10Estilo.html.toLowerCase().indexOf('prescrit') === -1,
+  'a Rota Estilo nunca pode escrever "prescrita".');
 conferir(tela10Estilo.html.indexOf('Intensa') !== -1, 'contraste alto deveria dar calibração Intensa.');
 
 var tela11 = renderizar(11, estadoCompleto);
@@ -228,6 +333,31 @@ conferir(tela11.html.indexOf('A altura cede, a temperatura não.') !== -1, 'tela
 conferir(tela11.html.indexOf('Teto de clareamento') !== -1, 'tela 11 não mostra o teto.');
 conferir(tela11.html.indexOf('Faixa da família') !== -1, 'tela 11 não mostra a faixa da família.');
 conferir(tela11.html.indexOf('05') !== -1, 'tela 11 não mostra a base natural em duas casas.');
+
+/* ---------- tela 11: teto em degraus contados da base natural ---------- */
+
+conferir(MOTOR.tetoDeClareamento(1, 4) === 6,
+  'base 01 + 4 degraus deveria alcançar 06 (03, 04, 05, 06); veio ' + MOTOR.tetoDeClareamento(1, 4) + '.');
+conferir(MOTOR.tetoDeClareamento(5, 4) === 9,
+  'base 05 + 4 degraus deveria alcançar 09; veio ' + MOTOR.tetoDeClareamento(5, 4) + '.');
+conferir(MOTOR.tetoDeClareamento(10, 4) === 10,
+  'o teto não pode passar da altura 10.');
+conferir(MOTOR.tetoDeClareamento(3, 4) === 7,
+  'base 03 + 4 degraus deveria alcançar 07 (04, 05, 06, 07); veio ' + MOTOR.tetoDeClareamento(3, 4) + '.');
+conferir(TELAS.tetoDoEstado({ profundidade: 'clara', temperatura: 'fria', baseNatural: 5 }) === 9,
+  'o teto de VC com base 05 deveria ser 09 (4 degraus), não a altura absoluta 04.');
+conferir(TELAS.tetoDoEstado({ profundidade: 'clara', temperatura: 'fria', baseNatural: 5 }) !== 4,
+  'o teto não pode ser lido como altura absoluta (04).');
+
+var viaveisNove = MOTOR.amostrasViaveis('VC', 9).map(function (a) { return a.codigo; });
+conferir(viaveisNove.indexOf('8.1') !== -1 && viaveisNove.indexOf('9.1') !== -1,
+  'o teto 09 deveria manter 8.1 e 9.1 viáveis; veio ' + JSON.stringify(viaveisNove) + '.');
+conferir(viaveisNove.indexOf('10.1') === -1,
+  'o teto 09 não pode manter a amostra 10.1 viável.');
+conferir(MOTOR.rotaDaTela11('VC', 9) === 13,
+  'com amostra viável a tela 11 deveria rotear para 13.');
+conferir(MOTOR.rotaDaTela11('VC', 6) === 12,
+  'sem amostra viável a tela 11 deveria rotear para 12.');
 
 var tela12 = renderizar(12, { familia: 'VC', baseNatural: 1, rota: 'harmonia' });
 conferir(tela12.html.indexOf('conflito declarado') !== -1, 'tela 12 não declara o conflito.');
