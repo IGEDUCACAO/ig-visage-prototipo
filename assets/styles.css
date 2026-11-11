@@ -938,3 +938,52 @@ a:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- impressão do dossiê (tela 17) ---------- */
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pular-para-conteudo,
+  .topo,
+  .aviso,
+  .rodape,
+  .dossie-acoes,
+  .dossie-status {
+    display: none !important;
+  }
+  .app {
+    display: block;
+    min-height: 0;
+  }
+  .tela {
+    display: block;
+    max-width: none;
+    padding: 0;
+    overflow: visible;
+  }
+  .dossie {
+    max-width: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .dossie-capa {
+    break-after: page;
+    page-break-after: always;
+  }
+  .dossie-secao {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
