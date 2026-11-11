@@ -76,13 +76,65 @@
     return ALTURAS[Math.min(indice + Math.floor(passos), ALTURAS.length - 1)];
   }
 
-  function amostrasViaveis(familia, teto) {
+  /* Duas formas: (familia, teto) como já existia, e (familia, baseNatural, degraus),
+     em que o limite é derivado do teto de clareamento e a amostra precisa estar
+     também dentro da faixa da família. */
+  function amostrasViaveis(familia, baseOuTeto, degraus) {
     var f = resolverFamilia(familia);
-    var limite = Number(teto);
-    if (!f || !Number.isFinite(limite)) return [];
+    if (!f) return [];
+    var limite;
+    var faixa = null;
+    if (degraus !== undefined) {
+      limite = tetoDeClareamento(baseOuTeto, degraus);
+      faixa = Array.isArray(f.faixa) ? f.faixa : null;
+    } else {
+      limite = Number(baseOuTeto);
+    }
+    if (!Number.isFinite(limite)) return [];
     return f.amostras.filter(function (amostra) {
-      return amostra.altura <= limite;
+      if (amostra.altura > limite) return false;
+      if (faixa && (amostra.altura < faixa[0] || amostra.altura > faixa[1])) return false;
+      return true;
     });
+  }
+
+  /* Família = profundidade da pele + temperatura. A spec não cria família
+     neutra: com leitura neutra o app fica no lado frio do par fria × quente,
+     que é o de menor contraste térmico contra o quente. */
+  function familiaPrescrita(profundidade, temperatura) {
+    var indice = indiceProfundidade(profundidade);
+    var t = normalizar(temperatura);
+    if (!indice || !t) return null;
+    if (t === 'neutra' || t === 'neutro' || t === 'neutral') t = 'fria';
+    if (t !== 'fria' && t !== 'quente') return null;
+    var alvo = normalizar(ROTULO_PROFUNDIDADE[indice]);
+    for (var i = 0; i < dados.FAMILIAS.length; i++) {
+      var f = dados.FAMILIAS[i];
+      if (normalizar(f.profundidade) === alvo && normalizar(f.temperatura) === t) return f;
+    }
+    return null;
+  }
+
+  var CALIBRACAO = { baixo: 'Suave', medio: 'Suave', alto: 'Intensa' };
+
+  function calibracaoDeContraste(nivel) {
+    var n = normalizar(nivel);
+    if (!CALIBRACAO[n]) {
+      throw new Error('Nível de contraste inválido: "' + nivel + '". Use baixo, medio ou alto.');
+    }
+    return CALIBRACAO[n];
+  }
+
+  /* Intervalo da família que o fio alcança hoje, cruzando a faixa da família
+     com o teto de clareamento. */
+  function faixaAlcancavel(familia, baseNatural, degraus) {
+    var f = resolverFamilia(familia);
+    if (!f || !Array.isArray(f.faixa)) return 'faixa da família indisponível';
+    var teto = tetoDeClareamento(baseNatural, degraus);
+    var faixa = dados.formatarAltura(f.faixa[0]) + '–' + dados.formatarAltura(f.faixa[1]);
+    if (teto === null) return 'teto de clareamento indisponível para a base ' + baseNatural;
+    if (teto < f.faixa[0]) return 'nenhuma altura da família ' + faixa + ' está ao alcance hoje';
+    return 'até a altura ' + dados.formatarAltura(Math.min(teto, f.faixa[1]));
   }
 
   function rotaDaTela11(familia, teto) {
@@ -198,10 +250,63 @@
           return { ok: false, motivo: 'A tela 9 depende do formato escolhido na tela 8.' };
         }
         return { ok: true, motivo: '' };
+      case 10:
+        if (!indiceProfundidade(e.profundidade)) {
+          return { ok: false, motivo: 'A família depende da profundidade registrada na tela 4.' };
+        }
+        if (['fria', 'neutra', 'quente'].indexOf(normalizar(e.temperatura)) === -1) {
+          return { ok: false, motivo: 'Registre a temperatura lida no Kit de Tecidos: fria, neutra ou quente.' };
+        }
+        if (!familiaPrescrita(e.profundidade, e.temperatura)) {
+          return { ok: false, motivo: 'Não há família cadastrada para essa combinação de profundidade e temperatura.' };
+        }
+        return { ok: true, motivo: '' };
+      case 11:
+        if (!dados.familiaPorSigla(e.familia) && !familiaPrescrita(e.profundidade, e.temperatura)) {
+          return { ok: false, motivo: 'A faixa depende da família definida na tela 10.' };
+        }
+        if (!alturaDeMercado(e.baseNatural)) {
+          return { ok: false, motivo: 'A base natural registrada na tela 5 é necessária para calcular o teto.' };
+        }
+        return { ok: true, motivo: '' };
+      case 12:
+        if (!e.decisaoConflito || ['entregar-ponto-mais-alto', 'adiar-cor'].indexOf(e.decisaoConflito.escolha) === -1) {
+          return { ok: false, motivo: 'Registre a decisão do conflito: entregar o ponto mais alto ou adiar a cor.' };
+        }
+        return { ok: true, motivo: '' };
+      case 13: {
+        var familia13 = dados.familiaPorSigla(e.familia) || familiaPrescrita(e.profundidade, e.temperatura);
+        if (!familia13) {
+          return { ok: false, motivo: 'A escolha da amostra depende da família definida na tela 10.' };
+        }
+        if (!alturaDeMercado(e.baseNatural)) {
+          return { ok: false, motivo: 'A base natural registrada na tela 5 é necessária para filtrar as amostras.' };
+        }
+        var viaveis13 = amostrasViaveis(familia13, e.baseNatural, familia13.tetoClareamento);
+        if (!viaveis13.length) {
+          if (familia13.amostras.length) {
+            return { ok: false, motivo: 'Nenhuma amostra da família cabe no teto hoje: a decisão fica na tela 12.' };
+          }
+          if (!e.amostraEscolhida || !e.amostraEscolhida.manual || !texto(e.amostraEscolhida.descricao)) {
+            return { ok: false, motivo: 'A matriz está sem amostras para esta família: registre o tom manualmente.' };
+          }
+          return { ok: true, motivo: '' };
+        }
+        if (!e.amostraEscolhida) {
+          return { ok: false, motivo: 'Escolha uma das amostras viáveis.' };
+        }
+        if (e.amostraEscolhida.manual) {
+          return { ok: false, motivo: 'Esta família tem amostras na matriz: escolha uma delas em vez do registro manual.' };
+        }
+        for (var i = 0; i < viaveis13.length; i++) {
+          if (viaveis13[i].codigo === e.amostraEscolhida.codigo) return { ok: true, motivo: '' };
+        }
+        return { ok: false, motivo: 'A amostra registrada não está entre as viáveis desta família. Escolha de novo.' };
+      }
       default:
-        /* Telas 10 a 17 ainda não têm render registrado: a navegação segue
-           livre e o roteador desenha o cartão "em construção" no lugar. */
-        if (n >= 10 && n <= 17) {
+        /* As telas 14 a 17 são de outra entrega: a navegação segue livre e o
+           roteador desenha o cartão "em construção" no lugar. */
+        if (n >= 14 && n <= 17) {
           return { ok: true, motivo: '' };
         }
         return { ok: false, motivo: 'Tela inválida: ' + numeroDaTela + '.' };
@@ -216,6 +321,9 @@
     tetoDeClareamento: tetoDeClareamento,
     amostrasViaveis: amostrasViaveis,
     rotaDaTela11: rotaDaTela11,
+    familiaPrescrita: familiaPrescrita,
+    calibracaoDeContraste: calibracaoDeContraste,
+    faixaAlcancavel: faixaAlcancavel,
     itensDoFormato: itensDoFormato,
     validaEtapa: validaEtapa
   };
