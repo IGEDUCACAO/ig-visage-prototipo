@@ -159,7 +159,9 @@ var casoIgualMinimo = {
 var htmlIgualMinimo = semErro('montarDossie teto igual à altura mínima', function () {
   return DOSSIE.montarDossie(casoIgualMinimo);
 }) || '';
-contem(htmlIgualMinimo, '08 a 10', 'teto igual à altura mínima da família preserva a faixa normal');
+contem(htmlIgualMinimo, 'até 08', 'teto igual à altura mínima limita a faixa alcançável ao próprio teto');
+naoContem(htmlIgualMinimo, '08 a 10',
+  'teto 08 não deve prometer a faixa 08 a 10 (regra do teto: a faixa é limitada por ele)');
 
 /* Borda 3: Estado vazio e null */
 var htmlNull = semErro('montarDossie(null)', function () {
