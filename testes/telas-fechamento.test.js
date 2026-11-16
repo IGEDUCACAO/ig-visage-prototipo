@@ -169,10 +169,13 @@ var html14 = el14.innerHTML;
 conferir(html14.indexOf('Receita técnica') !== -1, 'Tela 14 deve exibir o rótulo "Receita técnica".');
 conferir(html14.indexOf('placeholder="Fórmula, tempo, oxidante, técnica..."') !== -1,
   'Tela 14 deve conter textarea com placeholder "Fórmula, tempo, oxidante, técnica...".');
-conferir(html14.indexOf('Valor da consultoria (R$)') !== -1,
-  'Tela 14 deve conter o campo numérico "Valor da consultoria (R$)".');
-conferir(html14.indexOf('Valor do serviço de cor (R$)') !== -1,
-  'Tela 14 deve conter o campo numérico "Valor do serviço de cor (R$)".');
+/* Decisao do Alysson (16/11): precificacao saiu da tela de diagnostico.
+   A tela nao deve voltar a exibir campos de valor. */
+conferir(html14.indexOf('Valor da consultoria (R$)') === -1,
+  'Tela 14 nao deve mais exibir o campo "Valor da consultoria (R$)".');
+conferir(html14.indexOf('Valor do serviço de cor (R$)') === -1,
+  'Tela 14 nao deve mais exibir o campo "Valor do serviço de cor (R$)".');
+conferir(html14.indexOf('Diagnóstico') !== -1, 'Tela 14 deve se chamar Diagnóstico.');
 
 /* RN-26: Proibido somar ou totalizar os dois valores */
 conferir(html14.indexOf('Total (R$)') === -1 && html14.indexOf('Valor total') === -1 && html14.indexOf('Total:') === -1,

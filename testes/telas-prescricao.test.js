@@ -226,7 +226,8 @@ conferir(tela10Estilo.html.indexOf('Intensa') !== -1, 'contraste alto deveria da
 var tela11 = renderizar(12, estadoCompleto);
 conferir(tela11.html.indexOf('A altura cede, a temperatura não.') !== -1, 'tela 11 perdeu o destaque obrigatório.');
 conferir(tela11.html.indexOf('Teto de clareamento') !== -1, 'tela 11 não mostra o teto.');
-conferir(tela11.html.indexOf('Faixa da família') !== -1, 'tela 11 não mostra a faixa da família.');
+conferir(tela11.html.indexOf('Faixa da família') === -1, 'tela 11 nao deve mais mostrar a faixa da familia (pedido do Alysson).');
+conferir(tela11.html.indexOf('Teto de clareamento (descrição livre)') !== -1, 'tela 11 deve ter o teto em texto livre.');
 conferir(tela11.html.indexOf('05') !== -1, 'tela 11 não mostra a base natural em duas casas.');
 
 var tela12 = renderizar(13, { familia: 'VC', baseNatural: 1, rota: 'harmonia' });
