@@ -1008,3 +1008,33 @@ a:focus-visible {
     page-break-inside: avoid;
   }
 }
+
+/* ---------- ilustracoes de corte (traco, nunca foto) ---------- */
+.cartao-ilustracoes { margin-top: 18px; }
+.grade-cortes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 10px 0 8px;
+}
+@media (max-width: 560px) {
+  .grade-cortes { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+}
+.cartao-corte {
+  margin: 0;
+  padding: 10px 6px 8px;
+  border: 1px solid var(--linha);
+  border-radius: 14px;
+  background: #fffdf9;
+  text-align: center;
+  color: var(--tinta-suave, #4a423a);
+}
+.cartao-corte figcaption {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--tinta, #2f2a25);
+}
+.ilustracao-corte { width: 100%; max-height: 132px; display: block; margin: 0 auto; }
+.opcao-compacta { padding: 10px 8px; }
+.opcao-compacta .opcao-sub { display: block; font-size: 11.5px; opacity: .72; margin-top: 2px; }

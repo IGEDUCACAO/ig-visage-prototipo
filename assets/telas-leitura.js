@@ -622,6 +622,26 @@
 
   /* ---------- TELA 8 ---------- */
 
+  /* Ilustracoes de corte (traco, nunca foto): mudam com formato e estatura. */
+  function blocoDeCortes(formato, e) {
+    var lib = VISAGE.ilustracoesCorte;
+    if (!lib || typeof lib.cortesDoFormato !== 'function') return '';
+    var estatura = e.estatura || 'media';
+    var cortes = lib.cortesDoFormato(formato.id, estatura);
+    if (!cortes.length) {
+      return '<div class="nota"><b>Sem ilustração para este formato.</b> A tabela do método não separa cortes aqui.</div>';
+    }
+    var cartoes = cortes.map(function (corte) {
+      return '<figure class="cartao-corte">' + corte.svg +
+        '<figcaption>' + esc(corte.nome) + '</figcaption></figure>';
+    }).join('');
+    return '<section class="cartao cartao-ilustracoes" aria-labelledby="tituloCortes">' +
+      '<p class="sobretitulo" id="tituloCortes">Opções de corte · estatura ' + esc(estatura) + '</p>' +
+      '<div class="grade-cortes">' + cartoes + '</div>' +
+      '<p class="hint">Ilustrações de traço, não fotos. Servem para conversar com a cliente sobre direção.</p>' +
+      '</section>';
+  }
+
   function render8(el, ctx) {
     var e = ctx.estado;
     var cards = DADOS.FORMATOS_ROSTO.map(function (formato) {
@@ -634,9 +654,24 @@
         '</button>';
     }).join('');
 
+    var estaturas = (VISAGE.ilustracoesCorte ? VISAGE.ilustracoesCorte.ESTATURAS : []);
+    var botoesEstatura = estaturas.map(function (est) {
+      var ativo = e.estatura === est.id;
+      return '<button type="button" class="opcao opcao-compacta' + (ativo ? ' selecionada' : '') + '"' +
+        ' data-estatura="' + est.id + '" aria-pressed="' + (ativo ? 'true' : 'false') + '">' +
+        '<span class="opcao-titulo">' + esc(est.titulo) + '</span>' +
+        '<span class="opcao-sub">' + esc(est.sub) + '</span>' +
+        '</button>';
+    }).join('');
+
     el.innerHTML =
       '<h2>Formato do rosto</h2>' +
       '<p class="lead">Compare o contorno com as oito formas geométricas. A miniatura ajuda a separar as parecidas.</p>' +
+      '<div class="campo">' +
+        '<label class="rotulo">Altura da cliente (estatura)</label>' +
+        '<div class="grade grade-3">' + botoesEstatura + '</div>' +
+        '<p class="hint">A estatura entra na sugestão de corte: as opções mudam para baixa, média e alta.</p>' +
+      '</div>' +
       '<ol class="guia-rosto">' +
         '<li>Compare a largura da testa, das maçãs e da mandíbula.</li>' +
         '<li>Compare o comprimento com a largura.</li>' +
@@ -645,6 +680,14 @@
       '<div class="grade grade-2 grade-rosto">' + cards + '</div>' +
       '<p class="hint">Losangular tem quatro pontas (losango); Hexagonal tem seis lados, com testa e mandíbula mais retas.</p>' +
       '<div class="nota"><b>Registro apenas.</b> O que o formato direciona aparece na próxima tela.</div>';
+
+    Array.prototype.forEach.call(el.querySelectorAll('[data-estatura]'), function (botao) {
+      botao.addEventListener('click', function () {
+        e.estatura = botao.getAttribute('data-estatura');
+        ctx.salvar();
+        ctx.recarregar();
+      });
+    });
 
     Array.prototype.forEach.call(el.querySelectorAll('[data-formato]'), function (botao) {
       botao.addEventListener('click', function () {
@@ -696,6 +739,7 @@
         itensHtml +
       '</section>' +
       '<p class="hint">Abaixo do direcionamento aparecem só os itens que a tabela separa para este formato. O que ela não separa continua dito na frase inteira — o app não inventa direção.</p>' +
+      blocoDeCortes(formato, e) +
       '<div class="nota"><b>Leitura, não prescrição.</b> Estas são as direções da tabela do método; a decisão final de corte é da profissional.</div>';
   }
 

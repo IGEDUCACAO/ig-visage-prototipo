@@ -324,20 +324,26 @@
     var secao = '<h2>Família e calibração</h2>' +
       '<p class="lead">Calculado a partir do que você registrou. Você confirma — este é o primeiro ponto de validação.</p>';
 
+    /* Ordem pedida pelo Alysson (tela 10): campos preenchiveis em cima,
+       veredito sempre embaixo. */
+    secao +=
+      '<div class="cartao cartao-calculo">' +
+        '<p class="rotulo">' + esc(ROTULO_TEMPERATURA) + '</p>' +
+        controlesDeTemperatura(temperatura) +
+      '</div>';
+
     if (familia) {
       secao +=
+        '<p class="rotulo">Veredito</p>' +
         '<div class="painel-ajuste"><div class="linhas-leitura">' +
           linha(rotulos.familia, familia.nome + ' · ' + familia.sigla) +
           linha(rotulos.calibracao, calibracao || '—') +
           linha('Profundidade × temperatura', leituraTexto(e)) +
           linha('Contraste', e.contraste ? ROTULO_NIVEL[e.contraste] : '—') +
-        '</div></div>' +
-        '<div class="cartao cartao-calculo">' +
-          '<p class="rotulo">' + esc(ROTULO_TEMPERATURA) + '</p>' +
-          controlesDeTemperatura(temperatura) +
-        '</div>';
+        '</div></div>';
     } else {
       secao +=
+        '<p class="rotulo">Veredito</p>' +
         '<div class="cartao cartao-calculo">' +
           '<p class="rotulo">Família ainda não definida</p>' +
           '<p class="texto">A família cruza profundidade × temperatura. ' +
@@ -346,8 +352,6 @@
               : 'Faltam a profundidade da pele (tela 4) e a temperatura lida no Kit de Tecidos.') +
           '</p>' +
           '<p class="texto">Sem temperatura registrada não há família a derivar.</p>' +
-          '<p class="rotulo">' + esc(ROTULO_TEMPERATURA) + '</p>' +
-          controlesDeTemperatura(temperatura) +
         '</div>';
     }
 
