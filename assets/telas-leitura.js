@@ -97,7 +97,20 @@
   function ligarOpcoes(raiz, seletor, aoEscolher) {
     Array.prototype.forEach.call(raiz.querySelectorAll(seletor), function (botao) {
       botao.addEventListener('click', function () {
-        aoEscolher(botao.getAttribute('data-valor'), botao);
+        if (botao.getAttribute('data-ocupado') === '1') return;
+        botao.setAttribute('data-ocupado', '1');
+        Array.prototype.forEach.call(raiz.querySelectorAll(seletor), function (outro) {
+          outro.classList.remove('selecionada', 'selecionando');
+          outro.setAttribute('aria-pressed', 'false');
+        });
+        botao.classList.add('selecionada');
+        botao.setAttribute('aria-pressed', 'true');
+        /* Feedback de seleção antes de virar a tela: sem isso o clique
+           parece não ter resposta (reclamação das telas 4 e 5). */
+        botao.classList.add('selecionando');
+        setTimeout(function () {
+          aoEscolher(botao.getAttribute('data-valor'), botao);
+        }, 240);
       });
     });
   }
@@ -220,7 +233,7 @@
     var registrado = typeof e.desejo === 'string' && e.desejo.trim().length > 0;
 
     el.innerHTML =
-      '<h2>O que ela quer?</h2>' +
+      '<h2>Qual é o desejo dela?</h2>' +
       '<p class="lead">Escreva com as palavras dela. Gíria, hesitação e “não sei” também são registro.</p>' +
       '<div class="campo">' +
         '<label class="rotulo" for="desejo">Desejo, nas palavras da cliente</label>' +
@@ -282,16 +295,22 @@
     }).join('');
 
     el.innerHTML =
-      '<h2>Qual caminho ela escolheu?</h2>' +
+      '<h2>Qual a Rota escolhida?</h2>' +
       '<p class="lead">A rota nasce da conversa. O app não sugere, não pré-seleciona e não infere pelo histórico.</p>' +
       '<div class="opcoes">' + cards + '</div>' +
       '<div class="nota"><b>Nomenclatura (RN-24):</b> “prescrita” vale para Harmonia e Íris. Na Rota Estilo a cor é <b>proposta</b> — chamar de prescrita seria erro conceitual.</div>';
 
     Array.prototype.forEach.call(el.querySelectorAll('[data-rota]'), function (botao) {
       botao.addEventListener('click', function () {
+        if (botao.getAttribute('data-ocupado') === '1') return;
+        botao.setAttribute('data-ocupado', '1');
+        Array.prototype.forEach.call(el.querySelectorAll('[data-rota]'), function (outro) {
+          outro.classList.remove('selecionada', 'selecionando');
+        });
+        botao.classList.add('selecionada', 'selecionando');
         e.rota = botao.getAttribute('data-rota');
         e.rotaRotulo = e.rota === 'estilo' ? 'proposta' : 'prescrita';
-        avancarCom(ctx);
+        setTimeout(function () { avancarCom(ctx); }, 240);
       });
     });
   }
@@ -528,7 +547,7 @@
     }
 
     el.innerHTML =
-      '<h2>Saúde do fio</h2>' +
+      '<h2>Saúde do fio (Como ficou o teste)</h2>' +
       '<p class="lead">Avaliação obrigatória nas três rotas, antes de qualquer prescrição.</p>' +
       '<div class="opcoes">' + opcoes + '</div>' +
       orientacao +

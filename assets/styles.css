@@ -383,6 +383,27 @@ textarea:focus {
   background: #fdf8f0;
   box-shadow: 0 0 0 3px rgba(154, 91, 42, .10);
 }
+/* Feedback de seleção (telas 4 e 5): o clique precisa "responder" antes de
+   a tela virar, senão a troca de tela parece não ter sido ouvida. */
+.opcao.selecionando {
+  animation: opcao-selecionando .42s ease;
+}
+.opcao.selecionando .opcao-marca {
+  animation: marca-selecionando .42s ease;
+}
+@keyframes opcao-selecionando {
+  0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(154, 91, 42, .28); }
+  45%  { transform: scale(1.025); box-shadow: 0 0 0 6px rgba(154, 91, 42, .16); }
+  100% { transform: scale(1); box-shadow: 0 0 0 3px rgba(154, 91, 42, .10); }
+}
+@keyframes marca-selecionando {
+  0%   { transform: scale(.6); }
+  55%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opcao.selecionando, .opcao.selecionando .opcao-marca { animation: none; }
+}
 
 .opcao-marca {
   flex: 0 0 auto;
