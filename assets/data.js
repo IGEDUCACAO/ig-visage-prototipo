@@ -279,6 +279,20 @@
     }
   };
 
+
+  /* Seis opcoes extras por camada (pedido do Alysson, tela de paleta).
+     Sao cores de roupa, nao de cabelo: seguem a temperatura da familia. */
+  var EXTRA_PALETA = {
+    quente: {
+      'cores-de-base': ['Mostarda suave', 'Verde-oliva', 'Terracota clara', 'Caramelo', 'Areia', 'Café com leite'],
+      'cores-de-destaque': ['Vermelho-tijolo', 'Laranja-âmbar', 'Verde-musgo', 'Ocre', 'Coral', 'Bordô quente']
+    },
+    fria: {
+      'cores-de-base': ['Azul-petróleo', 'Cinza-prata', 'Lavanda', 'Ameixa', 'Verde-jade', 'Branco-óptico'],
+      'cores-de-destaque': ['Fúcsia', 'Azul-cobalto', 'Roxo-violeta', 'Esmeralda profundo', 'Rosa-choque', 'Vinho frio']
+    }
+  };
+
   var MATRIZ_PALETAS = [];
   FAMILIAS.forEach(function (familia) {
     var sugestoes = SUGESTOES_PALETA[familia.sigla] || {};
@@ -291,7 +305,7 @@
         nomeCamada: camada.nome,
         criterioContraste: camada.criterioContraste,
         subtom: familia.temperatura,
-        sugestoes: (sugestoes[camada.id] || []).slice(),
+        sugestoes: (sugestoes[camada.id] || []).slice().concat(((EXTRA_PALETA[familia.temperatura] || {})[camada.id] || [])),
         corReferencia: '',
         statusValidacao: 'sugestão — validar com a amostra física'
       });

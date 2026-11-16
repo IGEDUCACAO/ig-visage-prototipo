@@ -1,4 +1,4 @@
-# Pendências do protótipo v2 — núcleo e telas 1 a 9
+# Pendências do protótipo v2 — núcleo e telas 1 a 18
 
 Este arquivo registra o que o núcleo v2 deixou em aberto de forma consciente. Nada aqui foi
 corrigido por conta própria: a regra da Ilda e a ordem do fluxo foram implementadas como estão.
@@ -136,3 +136,31 @@ O estado fica em `localStorage`, chave `visage.v2`; para limpar, use o próprio 
 
 Sem backend, banco, login, upload de foto ou chamada de IA. Telas 10 a 17 não foram implementadas.
 Nenhum servidor de desenvolvimento foi deixado rodando.
+
+## Ajustes do Alysson (16/11) — estado
+
+Feitos neste ciclo (PR 12):
+
+- telas 2 e 3: "Qual é o desejo dela?" e "Qual a Rota escolhida?"; tela 8 com "(Como ficou o teste)".
+- telas 3, 4 e 5: seleção com animação antes de virar a tela.
+- tela 5: escala de cor cosmética em campo descritivo (registro, não cálculo).
+- NOVA tela 6: percentual de cabelos brancos (5 faixas + observação livre). As telas 6-17 foram
+  renumeradas para 7-18 — a numeração vive em `TELAS` (`assets/app.js`) e em `validaEtapa`
+  (`assets/engine.js`); mexer numa sem a outra deixa o Continuar travado.
+- tela 9: seletor de estatura (baixa/média/alta).
+- tela 10: ilustrações de corte em traço (`assets/ilustracoes-corte.js`), 3 por formato × estatura.
+- tela 11: campos preenchíveis acima, veredito abaixo.
+- tela 12: título por rota ("Regra dos 4 tons" na Harmonia, "COR final" em Estilo e Íris), teto de
+  clareamento em texto livre, faixa da família removida.
+- tela 14: vira "Cor final", com campo livre que vai para o dossiê.
+- tela 15: vira "Diagnóstico", sem campos de precificação.
+- tela 17: +6 opções por camada na paleta (dia a dia e destaque).
+
+Regra de ouro do protótipo: campo novo só sobrevive ao recarregar se entrar em `estadoInicial()` e
+em `sanitizarEstado()` (`assets/app.js`). Sem isso o valor é gravado e descartado na volta.
+
+## Ainda pendente (depende de terceiros)
+
+- Documentação nova da Ilda para as telas 9 e 11.
+- Texto e número da RN-22 (hoje o bloqueio de fio sem condição usa o rótulo "RN-22" provisório).
+- Validação da régua de contraste (item 1 abaixo) — é o que explica o "resultado contrário".

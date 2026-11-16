@@ -168,9 +168,9 @@
     var validaOriginal = MOTOR.validaEtapa;
     MOTOR.validaEtapa = function (estado, numeroDaTela) {
       var n = Number(numeroDaTela);
-      if (n === 14) return validar14(estado);
-      if (n === 15) return validar15(estado);
-      if (n === 16) return validar16(estado);
+      if (n === 15) return validar14(estado);
+      if (n === 16) return validar15(estado);
+      if (n === 17) return validar16(estado);
       return validaOriginal(estado, numeroDaTela);
     };
   }
@@ -184,8 +184,8 @@
     var valServico = (e.valorServicoCor != null ? e.valorServicoCor : (e.valor_servico_cor != null ? e.valor_servico_cor : ''));
 
     el.innerHTML =
-      '<h2>Receita e valores</h2>' +
-      '<p class="lead">Registre a fórmula e as etapas técnicas da aplicação. Os valores de consultoria e de serviço são independentes e opcionais.</p>' +
+      '<h2>Diagnóstico</h2>' +
+      '<p class="lead">O que você viu e o que vai fazer: leitura, fórmula e etapas técnicas da aplicação.</p>' +
       '<section class="cartao" aria-labelledby="tituloReceita">' +
         '<p class="sobretitulo" id="tituloReceita">Procedimento técnico</p>' +
         '<div class="campo">' +
@@ -194,21 +194,7 @@
           '<p class="hint">Descreva produtos, proporções de mistura, tempo de pausa e técnica empregada.</p>' +
         '</div>' +
       '</section>' +
-      '<section class="cartao" aria-labelledby="tituloValores">' +
-        '<p class="sobretitulo" id="tituloValores">Precificação (opcional)</p>' +
-        '<div class="grade grade-2">' +
-          '<div class="campo">' +
-            '<label class="rotulo" for="valorConsultoria">Valor da consultoria (R$)</label>' +
-            '<input type="number" id="valorConsultoria" min="0" step="0.01" placeholder="0,00" value="' + esc(valConsultoria) + '">' +
-          '</div>' +
-          '<div class="campo">' +
-            '<label class="rotulo" for="valorServicoCor">Valor do serviço de cor (R$)</label>' +
-            '<input type="number" id="valorServicoCor" min="0" step="0.01" placeholder="0,00" value="' + esc(valServico) + '">' +
-          '</div>' +
-        '</div>' +
-        '<p class="hint">Regra RN-26: os valores da consultoria e do serviço são independentes — nunca somados, nunca totalizados e nunca sugeridos.</p>' +
-      '</section>' +
-      '<div class="nota"><b>Valores independentes (RN-26):</b> O método mantém a precificação da consultoria separada do procedimento de salão para proteger a remuneração de cada etapa. Nenhum totalizador é gerado.</div>';
+      '<div class="nota"><b>Diagnóstico, não orçamento:</b> valores e precificação saíram desta tela — o foco aqui é o que a leitura concluiu e o que o fio recebe.</div>';
 
     if (!el.querySelector) return;
 
@@ -448,9 +434,9 @@
     validar: validar16
   };
 
-  VISAGE.registrarTela(14, def14);
-  VISAGE.registrarTela(15, def15);
-  VISAGE.registrarTela(16, def16);
+  VISAGE.registrarTela(15, def14);
+  VISAGE.registrarTela(16, def15);
+  VISAGE.registrarTela(17, def16);
 
   VISAGE.validarTela14 = validar14;
   VISAGE.validarTela15 = validar15;

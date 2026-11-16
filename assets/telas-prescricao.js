@@ -324,20 +324,26 @@
     var secao = '<h2>Família e calibração</h2>' +
       '<p class="lead">Calculado a partir do que você registrou. Você confirma — este é o primeiro ponto de validação.</p>';
 
+    /* Ordem pedida pelo Alysson (tela 10): campos preenchiveis em cima,
+       veredito sempre embaixo. */
+    secao +=
+      '<div class="cartao cartao-calculo">' +
+        '<p class="rotulo">' + esc(ROTULO_TEMPERATURA) + '</p>' +
+        controlesDeTemperatura(temperatura) +
+      '</div>';
+
     if (familia) {
       secao +=
+        '<p class="rotulo">Veredito</p>' +
         '<div class="painel-ajuste"><div class="linhas-leitura">' +
           linha(rotulos.familia, familia.nome + ' · ' + familia.sigla) +
           linha(rotulos.calibracao, calibracao || '—') +
           linha('Profundidade × temperatura', leituraTexto(e)) +
           linha('Contraste', e.contraste ? ROTULO_NIVEL[e.contraste] : '—') +
-        '</div></div>' +
-        '<div class="cartao cartao-calculo">' +
-          '<p class="rotulo">' + esc(ROTULO_TEMPERATURA) + '</p>' +
-          controlesDeTemperatura(temperatura) +
-        '</div>';
+        '</div></div>';
     } else {
       secao +=
+        '<p class="rotulo">Veredito</p>' +
         '<div class="cartao cartao-calculo">' +
           '<p class="rotulo">Família ainda não definida</p>' +
           '<p class="texto">A família cruza profundidade × temperatura. ' +
@@ -346,8 +352,6 @@
               : 'Faltam a profundidade da pele (tela 4) e a temperatura lida no Kit de Tecidos.') +
           '</p>' +
           '<p class="texto">Sem temperatura registrada não há família a derivar.</p>' +
-          '<p class="rotulo">' + esc(ROTULO_TEMPERATURA) + '</p>' +
-          controlesDeTemperatura(temperatura) +
         '</div>';
     }
 
@@ -387,16 +391,34 @@
       caminho = 'Nenhuma amostra da família cabe no teto — o Continuar leva à declaração do conflito.';
     }
 
+    /* Titulo por rota (pedido do Alysson): Harmonia e "Regra dos 4 tons";
+       Estilo e Iris sao "COR final". */
+    var rota = e.rota || 'harmonia';
+    var titulo = rota === 'harmonia' ? 'Regra dos 4 tons' : 'COR final';
+
     el.innerHTML =
-      '<h2>Teto e faixa</h2>' +
+      '<h2>' + titulo + '</h2>' +
       '<p class="lead">O que a pele pede e o que o fio alcança hoje. O app compara e mostra; quem decide é você.</p>' +
       '<div class="painel-ajuste"><div class="linhas-leitura">' +
         linha('Base natural', MOTOR.alturaDeMercado(e.baseNatural) ? hh(e.baseNatural) : '—') +
         linha('Teto de clareamento', teto === null ? '—' : hh(teto)) +
-        linha('Faixa da família', familia ? faixaTexto(familia) : '—') +
       '</div></div>' +
+      '<div class="campo">' +
+        '<label class="rotulo" for="tetoDescricao">Teto de clareamento (descrição livre)</label>' +
+        '<textarea id="tetoDescricao" class="entrada" rows="3" placeholder="Ex.: consigo chegar ao 8 sem comprometer o fio; acima disso só com descoloração em duas etapas">' + esc(e.tetoDescricao || '') + '</textarea>' +
+        '<p class="hint">Escreva com suas palavras o limite real do fio. A altura acima é referência do app.</p>' +
+      '</div>' +
       '<p class="lead-destaque">A altura cede, a temperatura não.</p>' +
       '<div class="nota"><b>Caminho desta tela:</b> ' + esc(caminho) + '</div>';
+
+    var campoTeto = el.querySelector('#tetoDescricao');
+    if (campoTeto) {
+      campoTeto.addEventListener('input', function () {
+        var texto = String(campoTeto.value || '').trim();
+        if (texto) e.tetoDescricao = texto; else delete e.tetoDescricao;
+        ctx.salvar();
+      });
+    }
   }
 
   /* ---------- TELA 12 ---------- */
@@ -462,8 +484,8 @@
     estadoMontado = e;
 
     var cabecalho =
-      '<h2>Escolha da amostra</h2>' +
-      '<p class="lead">Quem escolhe é ela, com a amostra na mão. Aqui ficam só as amostras da família que cabem no teto.</p>';
+      '<h2>Cor final</h2>' +
+      '<p class="lead">Resumo da cor que sai daqui. A amostra apoia a conversa; a cor final você escreve com suas palavras.</p>';
 
     var corpo;
     if (!amostras.length) {
@@ -502,8 +524,22 @@
     }
 
     el.innerHTML = cabecalho + corpo +
+      '<div class="campo">' +
+        '<label class="rotulo" for="corFinalLivre">Cor final (livre)</label>' +
+        '<textarea id="corFinalLivre" class="entrada" rows="3" placeholder="Ex.: 7.1 com 10% de 6.0, aplicação em duas etapas, sem tocar nas pontas">' + esc(e.corFinalLivre || '') + '</textarea>' +
+        '<p class="hint">Este texto vai para o resumo e para o dossiê.</p>' +
+      '</div>' +
       '<div class="nota"><b>cor de tela é direção;</b> a decisão se confirma com a amostra na mão.</div>' +
       '<div data-tela-prescricao="13" hidden aria-hidden="true"></div>';
+
+    var campoCor = el.querySelector('#corFinalLivre');
+    if (campoCor) {
+      campoCor.addEventListener('input', function () {
+        var texto = String(campoCor.value || '').trim();
+        if (texto) e.corFinalLivre = texto; else delete e.corFinalLivre;
+        ctx.salvar();
+      });
+    }
 
     Array.prototype.forEach.call(el.querySelectorAll('[data-amostra]'), function (botao) {
       botao.addEventListener('click', function () {
@@ -516,10 +552,10 @@
   /* ---------- registro ---------- */
 
   if (VISAGE) {
-    VISAGE.registrarTela(10, { titulo: 'Família e calibração', bloco: 'prescricao', render: render10 });
-    VISAGE.registrarTela(11, { titulo: 'Teto e faixa', bloco: 'prescricao', render: render11 });
-    VISAGE.registrarTela(12, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
-    VISAGE.registrarTela(13, { titulo: 'Escolha da amostra', bloco: 'prescricao', render: render13 });
+    VISAGE.registrarTela(11, { titulo: 'Família e calibração', bloco: 'prescricao', render: render10 });
+    VISAGE.registrarTela(12, { titulo: 'Regra dos 4 tons / COR final', bloco: 'prescricao', render: render11 });
+    VISAGE.registrarTela(13, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
+    VISAGE.registrarTela(14, { titulo: 'Cor final', bloco: 'prescricao', render: render13 });
   }
 
   return {

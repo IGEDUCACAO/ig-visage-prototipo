@@ -86,7 +86,7 @@
   }
 
   function opcao(valor, titulo, sub, selecionado, classeExtra) {
-    return '<button type="button" class="opcao ' + (classeExtra || '') + '"' +
+    return '<button type="button" class="opcao' + (selecionado ? ' selecionada' : '') + (classeExtra ? ' ' + classeExtra : '') + '"' +
       ' data-valor="' + esc(valor) + '" aria-pressed="' + (selecionado ? 'true' : 'false') + '">' +
       '<span class="opcao-marca" aria-hidden="true"></span>' +
       '<span class="opcao-texto"><span class="opcao-titulo">' + esc(titulo) + '</span>' +
@@ -94,10 +94,43 @@
       '</span></button>';
   }
 
+  /* Guarda o texto digitado no estado; campo vazio limpa a chave. */
+  /* Salva o texto enquanto a profissional digita; o avanco e o botao unico
+     do rodape (sem duplicar "Continuar" na tela). */
+  function ligarTexto(raiz, id, estado, chave) {
+    if (!estado) return;
+    var campo = raiz.querySelector('#' + id);
+    if (!campo) return;
+    campo.addEventListener('input', function () { salvarTexto(raiz, id, estado, chave); });
+    campo.addEventListener('change', function () { salvarTexto(raiz, id, estado, chave); });
+  }
+
+  function salvarTexto(raiz, id, estado, chave) {
+    if (!estado) return;
+    var campo = raiz.querySelector('#' + id);
+    if (!campo) return;
+    var valor = String(campo.value == null ? '' : campo.value).trim();
+    if (valor) estado[chave] = valor;
+    else delete estado[chave];
+  }
+
   function ligarOpcoes(raiz, seletor, aoEscolher) {
     Array.prototype.forEach.call(raiz.querySelectorAll(seletor), function (botao) {
       botao.addEventListener('click', function () {
-        aoEscolher(botao.getAttribute('data-valor'), botao);
+        if (botao.getAttribute('data-ocupado') === '1') return;
+        botao.setAttribute('data-ocupado', '1');
+        Array.prototype.forEach.call(raiz.querySelectorAll(seletor), function (outro) {
+          outro.classList.remove('selecionada', 'selecionando');
+          outro.setAttribute('aria-pressed', 'false');
+        });
+        botao.classList.add('selecionada');
+        botao.setAttribute('aria-pressed', 'true');
+        /* Feedback de seleção antes de virar a tela: sem isso o clique
+           parece não ter resposta (reclamação das telas 4 e 5). */
+        botao.classList.add('selecionando');
+        setTimeout(function () {
+          aoEscolher(botao.getAttribute('data-valor'), botao);
+        }, 240);
       });
     });
   }
@@ -220,7 +253,7 @@
     var registrado = typeof e.desejo === 'string' && e.desejo.trim().length > 0;
 
     el.innerHTML =
-      '<h2>O que ela quer?</h2>' +
+      '<h2>Qual é o desejo dela?</h2>' +
       '<p class="lead">Escreva com as palavras dela. Gíria, hesitação e “não sei” também são registro.</p>' +
       '<div class="campo">' +
         '<label class="rotulo" for="desejo">Desejo, nas palavras da cliente</label>' +
@@ -282,16 +315,22 @@
     }).join('');
 
     el.innerHTML =
-      '<h2>Qual caminho ela escolheu?</h2>' +
+      '<h2>Qual a Rota escolhida?</h2>' +
       '<p class="lead">A rota nasce da conversa. O app não sugere, não pré-seleciona e não infere pelo histórico.</p>' +
       '<div class="opcoes">' + cards + '</div>' +
       '<div class="nota"><b>Nomenclatura (RN-24):</b> “prescrita” vale para Harmonia e Íris. Na Rota Estilo a cor é <b>proposta</b> — chamar de prescrita seria erro conceitual.</div>';
 
     Array.prototype.forEach.call(el.querySelectorAll('[data-rota]'), function (botao) {
       botao.addEventListener('click', function () {
+        if (botao.getAttribute('data-ocupado') === '1') return;
+        botao.setAttribute('data-ocupado', '1');
+        Array.prototype.forEach.call(el.querySelectorAll('[data-rota]'), function (outro) {
+          outro.classList.remove('selecionada', 'selecionando');
+        });
+        botao.classList.add('selecionada', 'selecionando');
         e.rota = botao.getAttribute('data-rota');
         e.rotaRotulo = e.rota === 'estilo' ? 'proposta' : 'prescrita';
-        avancarCom(ctx);
+        setTimeout(function () { avancarCom(ctx); }, 240);
       });
     });
   }
@@ -334,6 +373,11 @@
       '<p class="lead">Ancore a base com a amostra na mão dela. O app não estima.</p>' +
       '<div class="grade grade-3">' + opcoes + '</div>' +
       '<p class="hint">A altura 02 não existe no mercado — a lista salta de 01 para 03.</p>' +
+      '<div class="campo">' +
+        '<label class="rotulo" for="corCosmetica">Escala de cor cosmética (descrição livre)</label>' +
+        '<textarea id="corCosmetica" class="entrada" rows="3" placeholder="Ex.: 6.0 com reflexo acobreado, marca X, descoloração residual nos fios anteriores">' + esc(e.corCosmetica || '') + '</textarea>' +
+        '<p class="hint">Descreva o que está na etiqueta e o que você está vendo no fio. É registro, não cálculo.</p>' +
+      '</div>' +
       '<div class="nota"><b>Por que agora:</b> a base natural entra antes do contraste, porque o contraste é calculado a partir dela.</div>';
 
     ligarOpcoes(el, '[data-valor]', function (valor) {
@@ -343,13 +387,51 @@
         e.contrasteAjuste = null;
       }
       e.baseNatural = altura;
-      avancarCom(ctx);
+      ctx.salvar();
+      ctx.recarregar();
     });
+
+    ligarTexto(el, 'corCosmetica', e, 'corCosmetica');
+  }
+
+  /* ---------- TELA 6 — Cabelos brancos ---------- */
+
+  var FAIXAS_BRANCOS = [
+    { id: 'nenhum', titulo: 'Nenhum', sub: '0%' },
+    { id: 'poucos', titulo: 'Poucos', sub: 'até 25%' },
+    { id: 'metade', titulo: 'Metade', sub: '25% a 50%' },
+    { id: 'maioria', titulo: 'Maioria', sub: '50% a 75%' },
+    { id: 'quase-tudo', titulo: 'Quase tudo', sub: 'acima de 75%' }
+  ];
+
+  function render6(el, ctx) {
+    var e = ctx.estado;
+    var opcoes = FAIXAS_BRANCOS.map(function (f) {
+      return opcao(f.id, f.titulo, f.sub, e.brancos === f.id);
+    }).join('');
+
+    el.innerHTML =
+      '<h2>Percentual de cabelos brancos</h2>' +
+      '<p class="lead">Quanto de branco existe na cabeça hoje. Isso muda a leitura da base e o que a química pode fazer.</p>' +
+      '<div class="opcoes">' + opcoes + '</div>' +
+      '<div class="campo">' +
+        '<label class="rotulo" for="brancosObs">Observação (opcional)</label>' +
+        '<textarea id="brancosObs" class="entrada" rows="2" placeholder="Ex.: branco concentrado na frente e nas têmporas">' + esc(e.brancosObs || '') + '</textarea>' +
+      '</div>' +
+      '<div class="nota"><b>Registro, não diagnóstico:</b> a faixa é o que a profissional vê. O app não estima por foto.</div>';
+
+    ligarOpcoes(el, '[data-valor]', function (valor) {
+      e.brancos = valor;
+      ctx.salvar();
+      ctx.recarregar();
+    });
+
+    ligarTexto(el, 'brancosObs', e, 'brancosObs');
   }
 
   /* ---------- TELA 6 ---------- */
 
-  function render6(el, ctx) {
+  function render6Contraste(el, ctx) {
     var e = ctx.estado;
     var calculo;
 
@@ -528,7 +610,7 @@
     }
 
     el.innerHTML =
-      '<h2>Saúde do fio</h2>' +
+      '<h2>Saúde do fio (Como ficou o teste)</h2>' +
       '<p class="lead">Avaliação obrigatória nas três rotas, antes de qualquer prescrição.</p>' +
       '<div class="opcoes">' + opcoes + '</div>' +
       orientacao +
@@ -542,6 +624,26 @@
 
   /* ---------- TELA 8 ---------- */
 
+  /* Ilustracoes de corte (traco, nunca foto): mudam com formato e estatura. */
+  function blocoDeCortes(formato, e) {
+    var lib = VISAGE.ilustracoesCorte;
+    if (!lib || typeof lib.cortesDoFormato !== 'function') return '';
+    var estatura = e.estatura || 'media';
+    var cortes = lib.cortesDoFormato(formato.id, estatura);
+    if (!cortes.length) {
+      return '<div class="nota"><b>Sem ilustração para este formato.</b> A tabela do método não separa cortes aqui.</div>';
+    }
+    var cartoes = cortes.map(function (corte) {
+      return '<figure class="cartao-corte">' + corte.svg +
+        '<figcaption>' + esc(corte.nome) + '</figcaption></figure>';
+    }).join('');
+    return '<section class="cartao cartao-ilustracoes" aria-labelledby="tituloCortes">' +
+      '<p class="sobretitulo" id="tituloCortes">Opções de corte · estatura ' + esc(estatura) + '</p>' +
+      '<div class="grade-cortes">' + cartoes + '</div>' +
+      '<p class="hint">Ilustrações de traço, não fotos. Servem para conversar com a cliente sobre direção.</p>' +
+      '</section>';
+  }
+
   function render8(el, ctx) {
     var e = ctx.estado;
     var cards = DADOS.FORMATOS_ROSTO.map(function (formato) {
@@ -554,9 +656,24 @@
         '</button>';
     }).join('');
 
+    var estaturas = (VISAGE.ilustracoesCorte ? VISAGE.ilustracoesCorte.ESTATURAS : []);
+    var botoesEstatura = estaturas.map(function (est) {
+      var ativo = e.estatura === est.id;
+      return '<button type="button" class="opcao opcao-compacta' + (ativo ? ' selecionada' : '') + '"' +
+        ' data-estatura="' + est.id + '" aria-pressed="' + (ativo ? 'true' : 'false') + '">' +
+        '<span class="opcao-titulo">' + esc(est.titulo) + '</span>' +
+        '<span class="opcao-sub">' + esc(est.sub) + '</span>' +
+        '</button>';
+    }).join('');
+
     el.innerHTML =
       '<h2>Formato do rosto</h2>' +
       '<p class="lead">Compare o contorno com as oito formas geométricas. A miniatura ajuda a separar as parecidas.</p>' +
+      '<div class="campo">' +
+        '<label class="rotulo">Altura da cliente (estatura)</label>' +
+        '<div class="grade grade-3">' + botoesEstatura + '</div>' +
+        '<p class="hint">A estatura entra na sugestão de corte: as opções mudam para baixa, média e alta.</p>' +
+      '</div>' +
       '<ol class="guia-rosto">' +
         '<li>Compare a largura da testa, das maçãs e da mandíbula.</li>' +
         '<li>Compare o comprimento com a largura.</li>' +
@@ -565,6 +682,14 @@
       '<div class="grade grade-2 grade-rosto">' + cards + '</div>' +
       '<p class="hint">Losangular tem quatro pontas (losango); Hexagonal tem seis lados, com testa e mandíbula mais retas.</p>' +
       '<div class="nota"><b>Registro apenas.</b> O que o formato direciona aparece na próxima tela.</div>';
+
+    Array.prototype.forEach.call(el.querySelectorAll('[data-estatura]'), function (botao) {
+      botao.addEventListener('click', function () {
+        e.estatura = botao.getAttribute('data-estatura');
+        ctx.salvar();
+        ctx.recarregar();
+      });
+    });
 
     Array.prototype.forEach.call(el.querySelectorAll('[data-formato]'), function (botao) {
       botao.addEventListener('click', function () {
@@ -616,6 +741,7 @@
         itensHtml +
       '</section>' +
       '<p class="hint">Abaixo do direcionamento aparecem só os itens que a tabela separa para este formato. O que ela não separa continua dito na frase inteira — o app não inventa direção.</p>' +
+      blocoDeCortes(formato, e) +
       '<div class="nota"><b>Leitura, não prescrição.</b> Estas são as direções da tabela do método; a decisão final de corte é da profissional.</div>';
   }
 
@@ -626,8 +752,9 @@
   VISAGE.registrarTela(3, { titulo: 'Rota', bloco: 'abertura', render: render3 });
   VISAGE.registrarTela(4, { titulo: 'Profundidade da pele', bloco: 'leitura', render: render4 });
   VISAGE.registrarTela(5, { titulo: 'Base natural do cabelo', bloco: 'leitura', render: render5 });
-  VISAGE.registrarTela(6, { titulo: 'Contraste (calculado)', bloco: 'leitura', render: render6 });
-  VISAGE.registrarTela(7, { titulo: 'Saúde do fio', bloco: 'leitura', render: render7 });
-  VISAGE.registrarTela(8, { titulo: 'Formato do rosto', bloco: 'rosto', render: render8 });
-  VISAGE.registrarTela(9, { titulo: 'O que o seu formato direciona', bloco: 'rosto', render: render9 });
+  VISAGE.registrarTela(6, { titulo: 'Cabelos brancos', bloco: 'leitura', render: render6 });
+  VISAGE.registrarTela(7, { titulo: 'Contraste (calculado)', bloco: 'leitura', render: render6Contraste });
+  VISAGE.registrarTela(8, { titulo: 'Saúde do fio', bloco: 'leitura', render: render7 });
+  VISAGE.registrarTela(9, { titulo: 'Formato do rosto', bloco: 'rosto', render: render8 });
+  VISAGE.registrarTela(10, { titulo: 'O que o seu formato direciona', bloco: 'rosto', render: render9 });
 })(typeof window !== 'undefined' ? window : this);

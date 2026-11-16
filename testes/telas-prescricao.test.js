@@ -1,4 +1,4 @@
-/* Teste das telas 10 a 13 — node puro, sem framework e sem npm.
+/* Teste das telas 11 a 14 — node puro, sem framework e sem npm.
    Uso: node testes/telas-prescricao.test.js
    Sai com código != 0 se o registro, a calibração, o filtro do teto ou o
    bloqueio das telas 12/13 quebrarem. */
@@ -80,7 +80,7 @@ function codigosDaGrade(html) {
 
 /* ---------- registro ---------- */
 
-[10, 11, 12, 13].forEach(function (numero) {
+[11, 12, 13, 14].forEach(function (numero) {
   var registro = global.window.VISAGE && global.window.VISAGE.telas && global.window.VISAGE.telas[numero];
   conferir(!!registro, 'tela ' + numero + ' não registrada em window.VISAGE.telas.');
   if (!registro) return;
@@ -212,24 +212,25 @@ var estadoCompleto = {
   familia: 'VC'
 };
 
-var tela10 = renderizar(10, estadoCompleto);
+var tela10 = renderizar(11, estadoCompleto);
 conferir(tela10.html.indexOf('Verão Claro · VC') !== -1, 'tela 10 não mostra a família com sigla.');
 conferir(tela10.html.indexOf('Suave') !== -1, 'tela 10 não mostra a calibração Suave para contraste baixo.');
 conferir(tela10.html.indexOf('clara · fria') !== -1, 'tela 10 não mostra profundidade × temperatura.');
 conferir(tela10.html.indexOf('baixo') !== -1, 'tela 10 não mostra o contraste.');
 conferir(tela10.html.indexOf('RN-24') !== -1, 'tela 10 perdeu a ressalva do rótulo por rota (RN-24).');
 
-var tela10Estilo = renderizar(10, { rota: 'estilo', profundidade: 'clara', temperatura: 'fria', contraste: 'alto', familia: 'VC' });
+var tela10Estilo = renderizar(11, { rota: 'estilo', profundidade: 'clara', temperatura: 'fria', contraste: 'alto', familia: 'VC' });
 conferir(tela10Estilo.html.indexOf('Ponto de partida') !== -1, 'na Rota Estilo o rótulo deveria ser "Ponto de partida".');
 conferir(tela10Estilo.html.indexOf('Intensa') !== -1, 'contraste alto deveria dar calibração Intensa.');
 
-var tela11 = renderizar(11, estadoCompleto);
+var tela11 = renderizar(12, estadoCompleto);
 conferir(tela11.html.indexOf('A altura cede, a temperatura não.') !== -1, 'tela 11 perdeu o destaque obrigatório.');
 conferir(tela11.html.indexOf('Teto de clareamento') !== -1, 'tela 11 não mostra o teto.');
-conferir(tela11.html.indexOf('Faixa da família') !== -1, 'tela 11 não mostra a faixa da família.');
+conferir(tela11.html.indexOf('Faixa da família') === -1, 'tela 11 nao deve mais mostrar a faixa da familia (pedido do Alysson).');
+conferir(tela11.html.indexOf('Teto de clareamento (descrição livre)') !== -1, 'tela 11 deve ter o teto em texto livre.');
 conferir(tela11.html.indexOf('05') !== -1, 'tela 11 não mostra a base natural em duas casas.');
 
-var tela12 = renderizar(12, { familia: 'VC', baseNatural: 1, rota: 'harmonia' });
+var tela12 = renderizar(13, { familia: 'VC', baseNatural: 1, rota: 'harmonia' });
 conferir(tela12.html.indexOf('conflito declarado') !== -1, 'tela 12 não declara o conflito.');
 conferir(tela12.html.indexOf('A pele pede') !== -1, 'tela 12 não mostra o que a pele pede.');
 conferir(tela12.html.indexOf('O fio alcança hoje') !== -1, 'tela 12 não mostra o alcance do fio.');
@@ -238,7 +239,7 @@ conferir(tela12.html.indexOf('Adiar a cor e tratar o fio primeiro') !== -1, 'tel
 conferir(tela12.html.indexOf('Toque na amostra') === -1, 'tela 12 não pode repetir a instrução da tela 13.');
 conferir(codigosDaGrade(tela12.html).length === 0, 'tela 12 não pode exibir grade de amostras.');
 
-var tela13 = renderizar(13, viavel);
+var tela13 = renderizar(14, viavel);
 var codigosRender = codigosDaGrade(tela13.html);
 conferir(codigosRender.length > 0, 'tela 13 com amostra viável não renderizou a grade.');
 var teto13 = TELAS.tetoDoEstado(viavel);
@@ -249,7 +250,7 @@ codigosRender.forEach(function (codigo) {
 });
 conferir(tela13.html.indexOf('cor de tela é direção') !== -1, 'tela 13 perdeu a nota da amostra física.');
 
-var tela13Conflito = renderizar(13, { familia: 'VC', baseNatural: 1 });
+var tela13Conflito = renderizar(14, { familia: 'VC', baseNatural: 1 });
 conferir(codigosDaGrade(tela13Conflito.html).length === 0, 'tela 13 em conflito não pode listar amostra.');
 conferir(tela13Conflito.html.indexOf('Nenhuma amostra viável') !== -1, 'tela 13 em conflito precisa dizer que não há amostra viável.');
 

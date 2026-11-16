@@ -44,21 +44,21 @@ var fechamento = require('../assets/telas-fechamento.js');
 
 /* ---------- 2. Verificação de registro das telas 14, 15 e 16 ---------- */
 
-conferir(telasRegistradas[14] != null, 'Tela 14 não foi registrada em window.VISAGE.telas.');
-conferir(telasRegistradas[15] != null, 'Tela 15 não foi registrada em window.VISAGE.telas.');
-conferir(telasRegistradas[16] != null, 'Tela 16 não foi registrada em window.VISAGE.telas.');
+conferir(telasRegistradas[15] != null, 'Tela 14 não foi registrada em window.VISAGE.telas.');
+conferir(telasRegistradas[16] != null, 'Tela 15 não foi registrada em window.VISAGE.telas.');
+conferir(telasRegistradas[17] != null, 'Tela 16 não foi registrada em window.VISAGE.telas.');
 
-conferir(telasRegistradas[14] && typeof telasRegistradas[14].render === 'function', 'Tela 14 precisa de função render.');
-conferir(telasRegistradas[15] && typeof telasRegistradas[15].render === 'function', 'Tela 15 precisa de função render.');
-conferir(telasRegistradas[16] && typeof telasRegistradas[16].render === 'function', 'Tela 16 precisa de função render.');
+conferir(telasRegistradas[15] && typeof telasRegistradas[15].render === 'function', 'Tela 14 precisa de função render.');
+conferir(telasRegistradas[16] && typeof telasRegistradas[16].render === 'function', 'Tela 15 precisa de função render.');
+conferir(telasRegistradas[17] && typeof telasRegistradas[17].render === 'function', 'Tela 16 precisa de função render.');
 
-conferir(telasRegistradas[14] && telasRegistradas[14].bloco === 'fechamento', 'Tela 14 deve pertencer ao bloco fechamento.');
-conferir(telasRegistradas[15] && telasRegistradas[15].bloco === 'fechamento', 'Tela 15 deve pertencer ao bloco fechamento.');
-conferir(telasRegistradas[16] && telasRegistradas[16].bloco === 'fechamento', 'Tela 16 deve pertencer ao bloco fechamento.');
+conferir(telasRegistradas[15] && telasRegistradas[15].bloco === 'fechamento', 'Tela 14 deve pertencer ao bloco fechamento.');
+conferir(telasRegistradas[16] && telasRegistradas[16].bloco === 'fechamento', 'Tela 15 deve pertencer ao bloco fechamento.');
+conferir(telasRegistradas[17] && telasRegistradas[17].bloco === 'fechamento', 'Tela 16 deve pertencer ao bloco fechamento.');
 
 /* ---------- 3. Validação da Tela 14 (Receita e valores) ---------- */
 
-var val14 = (telasRegistradas[14] && telasRegistradas[14].validar) || fechamento.validar14;
+var val14 = (telasRegistradas[15] && telasRegistradas[15].validar) || fechamento.validar14;
 conferir(typeof val14 === 'function', 'Validador da Tela 14 não encontrado.');
 
 /* Casos que devem FALHAR (receita vazia) */
@@ -77,7 +77,7 @@ casos14Invalidos.forEach(function (c) {
   conferir(typeof res.motivo === 'string' && res.motivo.length > 0, 'Validação da 14 inválida deve retornar motivo explicativo: ' + c.desc);
 
   /* Checar também integração via MOTOR.validaEtapa */
-  var resMotor = MOTOR.validaEtapa(c.estado, 14);
+  var resMotor = MOTOR.validaEtapa(c.estado, 15);
   conferir(!resMotor.ok, 'MOTOR.validaEtapa aceitou receita vazia no caso: ' + c.desc);
 });
 
@@ -92,13 +92,13 @@ casos14Validos.forEach(function (c) {
   var res = val14(c.estado);
   conferir(res.ok, 'Validação da 14 deveria aceitar: ' + c.desc + ' — motivo: ' + res.motivo);
 
-  var resMotor = MOTOR.validaEtapa(c.estado, 14);
+  var resMotor = MOTOR.validaEtapa(c.estado, 15);
   conferir(resMotor.ok, 'MOTOR.validaEtapa deveria aceitar na tela 14: ' + c.desc);
 });
 
 /* ---------- 4. Validação da Tela 15 (Manutenção e retorno) ---------- */
 
-var val15 = (telasRegistradas[15] && telasRegistradas[15].validar) || fechamento.validar15;
+var val15 = (telasRegistradas[16] && telasRegistradas[16].validar) || fechamento.validar15;
 conferir(typeof val15 === 'function', 'Validador da Tela 15 não encontrado.');
 
 /* Casos que devem FALHAR (plano ou data vazios) */
@@ -119,7 +119,7 @@ casos15Invalidos.forEach(function (c) {
   conferir(typeof res.motivo === 'string' && res.motivo.length > 0, 'Validação da 15 inválida deve retornar motivo explicativo: ' + c.desc);
 
   /* Checar integração via MOTOR.validaEtapa */
-  var resMotor = MOTOR.validaEtapa(c.estado, 15);
+  var resMotor = MOTOR.validaEtapa(c.estado, 16);
   conferir(!resMotor.ok, 'MOTOR.validaEtapa aceitou plano ou data vazios na tela 15: ' + c.desc);
 });
 
@@ -148,7 +148,7 @@ casos15Validos.forEach(function (c) {
   var res = val15(c.estado);
   conferir(res.ok, 'Validação da 15 deveria aceitar: ' + c.desc + ' — motivo: ' + res.motivo);
 
-  var resMotor = MOTOR.validaEtapa(c.estado, 15);
+  var resMotor = MOTOR.validaEtapa(c.estado, 16);
   conferir(resMotor.ok, 'MOTOR.validaEtapa deveria aceitar na tela 15: ' + c.desc);
 });
 
@@ -163,16 +163,19 @@ function criarElementoStub() {
 }
 
 var el14 = criarElementoStub();
-telasRegistradas[14].render(el14, { estado: {}, salvar: function () {}, atualizar: function () {} });
+telasRegistradas[15].render(el14, { estado: {}, salvar: function () {}, atualizar: function () {} });
 var html14 = el14.innerHTML;
 
 conferir(html14.indexOf('Receita técnica') !== -1, 'Tela 14 deve exibir o rótulo "Receita técnica".');
 conferir(html14.indexOf('placeholder="Fórmula, tempo, oxidante, técnica..."') !== -1,
   'Tela 14 deve conter textarea com placeholder "Fórmula, tempo, oxidante, técnica...".');
-conferir(html14.indexOf('Valor da consultoria (R$)') !== -1,
-  'Tela 14 deve conter o campo numérico "Valor da consultoria (R$)".');
-conferir(html14.indexOf('Valor do serviço de cor (R$)') !== -1,
-  'Tela 14 deve conter o campo numérico "Valor do serviço de cor (R$)".');
+/* Decisao do Alysson (16/11): precificacao saiu da tela de diagnostico.
+   A tela nao deve voltar a exibir campos de valor. */
+conferir(html14.indexOf('Valor da consultoria (R$)') === -1,
+  'Tela 14 nao deve mais exibir o campo "Valor da consultoria (R$)".');
+conferir(html14.indexOf('Valor do serviço de cor (R$)') === -1,
+  'Tela 14 nao deve mais exibir o campo "Valor do serviço de cor (R$)".');
+conferir(html14.indexOf('Diagnóstico') !== -1, 'Tela 14 deve se chamar Diagnóstico.');
 
 /* RN-26: Proibido somar ou totalizar os dois valores */
 conferir(html14.indexOf('Total (R$)') === -1 && html14.indexOf('Valor total') === -1 && html14.indexOf('Total:') === -1,
@@ -181,7 +184,7 @@ conferir(html14.indexOf('Total (R$)') === -1 && html14.indexOf('Valor total') ==
 /* ---------- 6. Render da Tela 15 (HTML e RN-21) ---------- */
 
 var el15 = criarElementoStub();
-telasRegistradas[15].render(el15, { estado: {}, salvar: function () {}, atualizar: function () {} });
+telasRegistradas[16].render(el15, { estado: {}, salvar: function () {}, atualizar: function () {} });
 var html15 = el15.innerHTML;
 
 conferir(html15.indexOf('Plano de manutenção') !== -1,
@@ -204,7 +207,7 @@ conferir(html15.indexOf('value=""') !== -1 || html15.indexOf('id="dataRetorno" v
 /* ---------- 7. Render da Tela 16 (4 blocos, textos obrigatórios e tons da matriz) ---------- */
 
 var el16 = criarElementoStub();
-telasRegistradas[16].render(el16, {
+telasRegistradas[17].render(el16, {
   estado: { familia: 'IP' },
   dados: DADOS,
   salvar: function () {},
@@ -246,7 +249,7 @@ DADOS.MATRIZ_PALETAS.forEach(function (camada) {
 /* Checar para cada uma das 6 famílias da matriz se todos os 4 blocos e tons legítimos são gerados */
 DADOS.FAMILIAS.forEach(function (familia) {
   var elFam = criarElementoStub();
-  telasRegistradas[16].render(elFam, {
+  telasRegistradas[17].render(elFam, {
     estado: { familia: familia.sigla },
     dados: DADOS
   });
