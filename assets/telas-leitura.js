@@ -86,7 +86,7 @@
   }
 
   function opcao(valor, titulo, sub, selecionado, classeExtra) {
-    return '<button type="button" class="opcao ' + (classeExtra || '') + '"' +
+    return '<button type="button" class="opcao' + (selecionado ? ' selecionada' : '') + (classeExtra ? ' ' + classeExtra : '') + '"' +
       ' data-valor="' + esc(valor) + '" aria-pressed="' + (selecionado ? 'true' : 'false') + '">' +
       '<span class="opcao-marca" aria-hidden="true"></span>' +
       '<span class="opcao-texto"><span class="opcao-titulo">' + esc(titulo) + '</span>' +
@@ -95,6 +95,16 @@
   }
 
   /* Guarda o texto digitado no estado; campo vazio limpa a chave. */
+  /* Salva o texto enquanto a profissional digita; o avanco e o botao unico
+     do rodape (sem duplicar "Continuar" na tela). */
+  function ligarTexto(raiz, id, estado, chave) {
+    if (!estado) return;
+    var campo = raiz.querySelector('#' + id);
+    if (!campo) return;
+    campo.addEventListener('input', function () { salvarTexto(raiz, id, estado, chave); });
+    campo.addEventListener('change', function () { salvarTexto(raiz, id, estado, chave); });
+  }
+
   function salvarTexto(raiz, id, estado, chave) {
     if (!estado) return;
     var campo = raiz.querySelector('#' + id);
@@ -368,7 +378,6 @@
         '<textarea id="corCosmetica" class="entrada" rows="3" placeholder="Ex.: 6.0 com reflexo acobreado, marca X, descoloração residual nos fios anteriores">' + esc(e.corCosmetica || '') + '</textarea>' +
         '<p class="hint">Descreva o que está na etiqueta e o que você está vendo no fio. É registro, não cálculo.</p>' +
       '</div>' +
-      '<div class="acoes-inline"><button type="button" class="btn btn-primario" data-acao="continuar">Continuar</button></div>' +
       '<div class="nota"><b>Por que agora:</b> a base natural entra antes do contraste, porque o contraste é calculado a partir dela.</div>';
 
     ligarOpcoes(el, '[data-valor]', function (valor) {
@@ -378,14 +387,11 @@
         e.contrasteAjuste = null;
       }
       e.baseNatural = altura;
-      salvarTexto(el, 'corCosmetica', e, 'corCosmetica');
+      ctx.salvar();
+      ctx.recarregar();
     });
 
-    var continuar = el.querySelector('[data-acao="continuar"]');
-    if (continuar) continuar.addEventListener('click', function () {
-      salvarTexto(el, 'corCosmetica', e, 'corCosmetica');
-      avancarCom(ctx);
-    });
+    ligarTexto(el, 'corCosmetica', e, 'corCosmetica');
   }
 
   /* ---------- TELA 6 — Cabelos brancos ---------- */
@@ -412,19 +418,15 @@
         '<label class="rotulo" for="brancosObs">Observação (opcional)</label>' +
         '<textarea id="brancosObs" class="entrada" rows="2" placeholder="Ex.: branco concentrado na frente e nas têmporas">' + esc(e.brancosObs || '') + '</textarea>' +
       '</div>' +
-      '<div class="acoes-inline"><button type="button" class="btn btn-primario" data-acao="continuar">Continuar</button></div>' +
       '<div class="nota"><b>Registro, não diagnóstico:</b> a faixa é o que a profissional vê. O app não estima por foto.</div>';
 
     ligarOpcoes(el, '[data-valor]', function (valor) {
       e.brancos = valor;
-      salvarTexto(el, 'brancosObs', e, 'brancosObs');
+      ctx.salvar();
+      ctx.recarregar();
     });
 
-    var continuar = el.querySelector('[data-acao="continuar"]');
-    if (continuar) continuar.addEventListener('click', function () {
-      salvarTexto(el, 'brancosObs', e, 'brancosObs');
-      avancarCom(ctx);
-    });
+    ligarTexto(el, 'brancosObs', e, 'brancosObs');
   }
 
   /* ---------- TELA 6 ---------- */

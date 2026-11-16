@@ -124,8 +124,14 @@
         contrasteAjuste: null,
         saudeFio: null,
         formatoRosto: null,
+        estatura: null,
+        brancos: null,
+        brancosObs: null,
+        corCosmetica: null,
         familia: null,
         teto: null,
+        tetoDescricao: null,
+        corFinalLivre: null,
         dataAtendimento: hojeISO()
       };
     }
@@ -171,6 +177,19 @@
 
       var familia = DADOS.familiaPorSigla(bruto.familia);
       if (familia) limpo.familia = familia.sigla;
+
+      if (typeof bruto.brancos === 'string' &&
+          ['nenhum', 'poucos', 'metade', 'maioria', 'quase-tudo'].indexOf(bruto.brancos) !== -1) {
+        limpo.brancos = bruto.brancos;
+      }
+      if (typeof bruto.estatura === 'string' && ['baixa', 'media', 'alta'].indexOf(bruto.estatura) !== -1) {
+        limpo.estatura = bruto.estatura;
+      }
+      ['brancosObs', 'corCosmetica', 'tetoDescricao', 'corFinalLivre'].forEach(function (chave) {
+        if (typeof bruto[chave] === 'string' && bruto[chave].trim()) {
+          limpo[chave] = bruto[chave].trim().slice(0, 600);
+        }
+      });
 
       var teto = Number(bruto.teto);
       if (Number.isInteger(teto) && DADOS.ALTURAS.indexOf(teto) !== -1) limpo.teto = teto;

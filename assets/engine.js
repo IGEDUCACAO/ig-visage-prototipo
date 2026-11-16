@@ -196,6 +196,12 @@
         }
         return { ok: true, motivo: '' };
       case 6:
+        /* Nova tela 6: percentual de cabelos brancos (registro da profissional). */
+        if (['nenhum', 'poucos', 'metade', 'maioria', 'quase-tudo'].indexOf(e.brancos) === -1) {
+          return { ok: false, motivo: 'Registre o percentual de cabelos brancos que você vê.' };
+        }
+        return { ok: true, motivo: '' };
+      case 7:
         if (indiceProfundidade(e.profundidade) === null || !alturaDeMercado(e.baseNatural)) {
           return { ok: false, motivo: 'Faltam a profundidade da pele e a base natural para calcular o contraste.' };
         }
@@ -206,7 +212,7 @@
           return { ok: false, motivo: 'Confirme o contraste calculado ou ajuste manualmente com justificativa.' };
         }
         return { ok: true, motivo: '' };
-      case 7:
+      case 8:
         if (['comporta', 'comprometido', 'sem'].indexOf(e.saudeFio) === -1) {
           return { ok: false, motivo: 'Avalie a saúde do fio antes de seguir.' };
         }
@@ -218,20 +224,20 @@
           };
         }
         return { ok: true, motivo: '' };
-      case 8:
+      case 9:
         if (!formatoValido(e.formatoRosto)) {
           return { ok: false, motivo: 'Escolha uma das oito formas de rosto.' };
         }
         return { ok: true, motivo: '' };
-      case 9:
+      case 10:
         if (!formatoValido(e.formatoRosto)) {
-          return { ok: false, motivo: 'A tela 9 depende do formato escolhido na tela 8.' };
+          return { ok: false, motivo: 'A tela 10 depende do formato escolhido na tela 9.' };
         }
         return { ok: true, motivo: '' };
       default:
-        /* Telas 10 a 17 ainda não têm render registrado: a navegação segue
-           livre e o roteador desenha o cartão "em construção" no lugar. */
-        if (n >= 10 && n <= 17) {
+        /* Telas 11 a 18 seguem com navegação livre; cada uma tem render
+           próprio e as que dependem de dado já validam na origem. */
+        if (n >= 11 && n <= 18) {
           return { ok: true, motivo: '' };
         }
         return { ok: false, motivo: 'Tela inválida: ' + numeroDaTela + '.' };

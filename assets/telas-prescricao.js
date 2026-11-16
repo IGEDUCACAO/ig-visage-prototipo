@@ -409,19 +409,16 @@
         '<p class="hint">Escreva com suas palavras o limite real do fio. A altura acima é referência do app.</p>' +
       '</div>' +
       '<p class="lead-destaque">A altura cede, a temperatura não.</p>' +
-      '<div class="acoes-inline"><button type="button" class="btn btn-primario" data-acao="continuar">Continuar</button></div>' +
       '<div class="nota"><b>Caminho desta tela:</b> ' + esc(caminho) + '</div>';
 
-    var campo = el.querySelector('#tetoDescricao');
-    var continuar = el.querySelector('[data-acao="continuar"]');
-    if (continuar) continuar.addEventListener('click', function () {
-      if (campo) {
-        var texto = String(campo.value || '').trim();
+    var campoTeto = el.querySelector('#tetoDescricao');
+    if (campoTeto) {
+      campoTeto.addEventListener('input', function () {
+        var texto = String(campoTeto.value || '').trim();
         if (texto) e.tetoDescricao = texto; else delete e.tetoDescricao;
-      }
-      ctx.salvar();
-      ctx.recarregar();
-    });
+        ctx.salvar();
+      });
+    }
   }
 
   /* ---------- TELA 12 ---------- */
@@ -532,20 +529,17 @@
         '<textarea id="corFinalLivre" class="entrada" rows="3" placeholder="Ex.: 7.1 com 10% de 6.0, aplicação em duas etapas, sem tocar nas pontas">' + esc(e.corFinalLivre || '') + '</textarea>' +
         '<p class="hint">Este texto vai para o resumo e para o dossiê.</p>' +
       '</div>' +
-      '<div class="acoes-inline"><button type="button" class="btn btn-primario" data-acao="continuar">Continuar</button></div>' +
       '<div class="nota"><b>cor de tela é direção;</b> a decisão se confirma com a amostra na mão.</div>' +
       '<div data-tela-prescricao="13" hidden aria-hidden="true"></div>';
 
     var campoCor = el.querySelector('#corFinalLivre');
-    var continuarCor = el.querySelector('[data-acao="continuar"]');
-    if (continuarCor) continuarCor.addEventListener('click', function () {
-      if (campoCor) {
+    if (campoCor) {
+      campoCor.addEventListener('input', function () {
         var texto = String(campoCor.value || '').trim();
         if (texto) e.corFinalLivre = texto; else delete e.corFinalLivre;
-      }
-      ctx.salvar();
-      ctx.recarregar();
-    });
+        ctx.salvar();
+      });
+    }
 
     Array.prototype.forEach.call(el.querySelectorAll('[data-amostra]'), function (botao) {
       botao.addEventListener('click', function () {
