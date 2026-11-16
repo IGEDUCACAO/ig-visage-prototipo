@@ -231,6 +231,18 @@
     });
   }
 
+  var ROTULOS_BRANCOS = {
+    'nenhum': 'nenhum (0%)',
+    'poucos': 'poucos (até 25%)',
+    'metade': 'cerca de metade (25% a 50%)',
+    'maioria': 'maioria (50% a 75%)',
+    'quase-tudo': 'quase tudo (acima de 75%)'
+  };
+
+  function rotuloBrancos(id) {
+    return ROTULOS_BRANCOS[id] || '';
+  }
+
   function htmlCapa(estado, contexto) {
     var nome = texto(estado.cliente && estado.cliente.nome) || 'Cliente não identificada';
     var contato = texto(estado.cliente && estado.cliente.contato);
@@ -280,8 +292,10 @@
       linhaDado('Profundidade × temperatura', profundidadeETemperatura, 'não registrado') +
       linhaDado('Contraste', contexto.contrasteRotulo, TEXTOS.semContraste) +
       linhaDado('Base natural', contexto.base ? 'base ' + contexto.base : '', TEXTOS.semBase) +
-      linhaDado('Teto de clareamento', contexto.teto ? 'até ' + contexto.teto : '', TEXTOS.semTeto) +
+      linhaDado('Cabelos brancos', rotuloBrancos(e.brancos), 'não registrado') +
+      linhaDado('Teto de clareamento', texto(e.tetoDescricao) || (contexto.teto ? 'até ' + contexto.teto : ''), TEXTOS.semTeto) +
       linhaDado('Faixa alcançável', contexto.faixa, TEXTOS.semFaixa) +
+      (texto(e.corFinalLivre) ? linhaDado('Cor final (descrita)', e.corFinalLivre, '') : '') +
       '</dl>' +
       (contexto.amostra
         ? '<p class="dossie-amostra">Amostra escolhida: <strong>' + esc(contexto.amostra.nome || contexto.amostra.codigo) + '</strong>' +
