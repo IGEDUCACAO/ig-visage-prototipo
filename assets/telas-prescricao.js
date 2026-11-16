@@ -516,10 +516,10 @@
   /* ---------- registro ---------- */
 
   if (VISAGE) {
-    VISAGE.registrarTela(10, { titulo: 'Família e calibração', bloco: 'prescricao', render: render10 });
-    VISAGE.registrarTela(11, { titulo: 'Teto e faixa', bloco: 'prescricao', render: render11 });
-    VISAGE.registrarTela(12, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
-    VISAGE.registrarTela(13, { titulo: 'Escolha da amostra', bloco: 'prescricao', render: render13 });
+    VISAGE.registrarTela(11, { titulo: 'Família e calibração', bloco: 'prescricao', render: render10 });
+    VISAGE.registrarTela(12, { titulo: 'Teto e faixa', bloco: 'prescricao', render: render11 });
+    VISAGE.registrarTela(13, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
+    VISAGE.registrarTela(14, { titulo: 'Escolha da amostra', bloco: 'prescricao', render: render13 });
   }
 
   return {

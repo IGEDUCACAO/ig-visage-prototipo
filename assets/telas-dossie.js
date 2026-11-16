@@ -576,7 +576,7 @@
       bloco: 'fechamento',
       render: render
     };
-    alvo.registrarTela(17, definicao);
+    alvo.registrarTela(18, definicao);
     return definicao;
   }
 

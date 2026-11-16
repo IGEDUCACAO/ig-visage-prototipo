@@ -168,9 +168,9 @@
     var validaOriginal = MOTOR.validaEtapa;
     MOTOR.validaEtapa = function (estado, numeroDaTela) {
       var n = Number(numeroDaTela);
-      if (n === 14) return validar14(estado);
-      if (n === 15) return validar15(estado);
-      if (n === 16) return validar16(estado);
+      if (n === 15) return validar14(estado);
+      if (n === 16) return validar15(estado);
+      if (n === 17) return validar16(estado);
       return validaOriginal(estado, numeroDaTela);
     };
   }
@@ -448,9 +448,9 @@
     validar: validar16
   };
 
-  VISAGE.registrarTela(14, def14);
-  VISAGE.registrarTela(15, def15);
-  VISAGE.registrarTela(16, def16);
+  VISAGE.registrarTela(15, def14);
+  VISAGE.registrarTela(16, def15);
+  VISAGE.registrarTela(17, def16);
 
   VISAGE.validarTela14 = validar14;
   VISAGE.validarTela15 = validar15;

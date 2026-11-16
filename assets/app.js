@@ -24,22 +24,23 @@
 
   var TELAS = [
     { n: 1, titulo: 'Quem está na cadeira?', bloco: 'abertura' },
-    { n: 2, titulo: 'Desejo', bloco: 'abertura' },
-    { n: 3, titulo: 'Rota', bloco: 'abertura' },
+    { n: 2, titulo: 'Qual é o desejo dela?', bloco: 'abertura' },
+    { n: 3, titulo: 'Qual a Rota escolhida?', bloco: 'abertura' },
     { n: 4, titulo: 'Profundidade da pele', bloco: 'leitura' },
     { n: 5, titulo: 'Base natural do cabelo', bloco: 'leitura' },
-    { n: 6, titulo: 'Contraste (calculado)', bloco: 'leitura' },
-    { n: 7, titulo: 'Saúde do fio', bloco: 'leitura' },
-    { n: 8, titulo: 'Formato do rosto', bloco: 'rosto' },
-    { n: 9, titulo: 'O que o seu formato direciona', bloco: 'rosto' },
-    { n: 10, titulo: 'Família e calibração', bloco: 'prescricao' },
-    { n: 11, titulo: 'Teto e faixa', bloco: 'prescricao' },
-    { n: 12, titulo: 'Conflito e decisão', bloco: 'prescricao' },
-    { n: 13, titulo: 'Escolha da amostra', bloco: 'prescricao' },
-    { n: 14, titulo: 'Receita e valores', bloco: 'fechamento' },
-    { n: 15, titulo: 'Manutenção e retorno', bloco: 'fechamento' },
-    { n: 16, titulo: 'Paleta de vestuário', bloco: 'fechamento' },
-    { n: 17, titulo: 'Dossiê final', bloco: 'fechamento' }
+    { n: 6, titulo: 'Cabelos brancos', bloco: 'leitura' },
+    { n: 7, titulo: 'Contraste (calculado)', bloco: 'leitura' },
+    { n: 8, titulo: 'Saúde do fio (Como ficou o teste)', bloco: 'leitura' },
+    { n: 9, titulo: 'Formato do rosto', bloco: 'rosto' },
+    { n: 10, titulo: 'O que o seu formato direciona', bloco: 'rosto' },
+    { n: 11, titulo: 'Família e calibração', bloco: 'prescricao' },
+    { n: 12, titulo: 'Regra dos 4 tons / COR final', bloco: 'prescricao' },
+    { n: 13, titulo: 'Conflito e decisão', bloco: 'prescricao' },
+    { n: 14, titulo: 'Cor final', bloco: 'prescricao' },
+    { n: 15, titulo: 'Diagnóstico', bloco: 'fechamento' },
+    { n: 16, titulo: 'Manutenção e retorno', bloco: 'fechamento' },
+    { n: 17, titulo: 'Paleta de vestuário', bloco: 'fechamento' },
+    { n: 18, titulo: 'Dossiê final', bloco: 'fechamento' }
   ];
 
   var elBloco = document.getElementById('blocoAtual');

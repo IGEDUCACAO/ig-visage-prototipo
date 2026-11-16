@@ -94,6 +94,16 @@
       '</span></button>';
   }
 
+  /* Guarda o texto digitado no estado; campo vazio limpa a chave. */
+  function salvarTexto(raiz, id, estado, chave) {
+    if (!estado) return;
+    var campo = raiz.querySelector('#' + id);
+    if (!campo) return;
+    var valor = String(campo.value == null ? '' : campo.value).trim();
+    if (valor) estado[chave] = valor;
+    else delete estado[chave];
+  }
+
   function ligarOpcoes(raiz, seletor, aoEscolher) {
     Array.prototype.forEach.call(raiz.querySelectorAll(seletor), function (botao) {
       botao.addEventListener('click', function () {
@@ -353,6 +363,12 @@
       '<p class="lead">Ancore a base com a amostra na mão dela. O app não estima.</p>' +
       '<div class="grade grade-3">' + opcoes + '</div>' +
       '<p class="hint">A altura 02 não existe no mercado — a lista salta de 01 para 03.</p>' +
+      '<div class="campo">' +
+        '<label class="rotulo" for="corCosmetica">Escala de cor cosmética (descrição livre)</label>' +
+        '<textarea id="corCosmetica" class="entrada" rows="3" placeholder="Ex.: 6.0 com reflexo acobreado, marca X, descoloração residual nos fios anteriores">' + esc(e.corCosmetica || '') + '</textarea>' +
+        '<p class="hint">Descreva o que está na etiqueta e o que você está vendo no fio. É registro, não cálculo.</p>' +
+      '</div>' +
+      '<div class="acoes-inline"><button type="button" class="btn btn-primario" data-acao="continuar">Continuar</button></div>' +
       '<div class="nota"><b>Por que agora:</b> a base natural entra antes do contraste, porque o contraste é calculado a partir dela.</div>';
 
     ligarOpcoes(el, '[data-valor]', function (valor) {
@@ -362,13 +378,58 @@
         e.contrasteAjuste = null;
       }
       e.baseNatural = altura;
+      salvarTexto(el, 'corCosmetica', e, 'corCosmetica');
+    });
+
+    var continuar = el.querySelector('[data-acao="continuar"]');
+    if (continuar) continuar.addEventListener('click', function () {
+      salvarTexto(el, 'corCosmetica', e, 'corCosmetica');
+      avancarCom(ctx);
+    });
+  }
+
+  /* ---------- TELA 6 — Cabelos brancos ---------- */
+
+  var FAIXAS_BRANCOS = [
+    { id: 'nenhum', titulo: 'Nenhum', sub: '0%' },
+    { id: 'poucos', titulo: 'Poucos', sub: 'até 25%' },
+    { id: 'metade', titulo: 'Metade', sub: '25% a 50%' },
+    { id: 'maioria', titulo: 'Maioria', sub: '50% a 75%' },
+    { id: 'quase-tudo', titulo: 'Quase tudo', sub: 'acima de 75%' }
+  ];
+
+  function render6(el, ctx) {
+    var e = ctx.estado;
+    var opcoes = FAIXAS_BRANCOS.map(function (f) {
+      return opcao(f.id, f.titulo, f.sub, e.brancos === f.id);
+    }).join('');
+
+    el.innerHTML =
+      '<h2>Percentual de cabelos brancos</h2>' +
+      '<p class="lead">Quanto de branco existe na cabeça hoje. Isso muda a leitura da base e o que a química pode fazer.</p>' +
+      '<div class="opcoes">' + opcoes + '</div>' +
+      '<div class="campo">' +
+        '<label class="rotulo" for="brancosObs">Observação (opcional)</label>' +
+        '<textarea id="brancosObs" class="entrada" rows="2" placeholder="Ex.: branco concentrado na frente e nas têmporas">' + esc(e.brancosObs || '') + '</textarea>' +
+      '</div>' +
+      '<div class="acoes-inline"><button type="button" class="btn btn-primario" data-acao="continuar">Continuar</button></div>' +
+      '<div class="nota"><b>Registro, não diagnóstico:</b> a faixa é o que a profissional vê. O app não estima por foto.</div>';
+
+    ligarOpcoes(el, '[data-valor]', function (valor) {
+      e.brancos = valor;
+      salvarTexto(el, 'brancosObs', e, 'brancosObs');
+    });
+
+    var continuar = el.querySelector('[data-acao="continuar"]');
+    if (continuar) continuar.addEventListener('click', function () {
+      salvarTexto(el, 'brancosObs', e, 'brancosObs');
       avancarCom(ctx);
     });
   }
 
   /* ---------- TELA 6 ---------- */
 
-  function render6(el, ctx) {
+  function render6Contraste(el, ctx) {
     var e = ctx.estado;
     var calculo;
 
@@ -645,8 +706,9 @@
   VISAGE.registrarTela(3, { titulo: 'Rota', bloco: 'abertura', render: render3 });
   VISAGE.registrarTela(4, { titulo: 'Profundidade da pele', bloco: 'leitura', render: render4 });
   VISAGE.registrarTela(5, { titulo: 'Base natural do cabelo', bloco: 'leitura', render: render5 });
-  VISAGE.registrarTela(6, { titulo: 'Contraste (calculado)', bloco: 'leitura', render: render6 });
-  VISAGE.registrarTela(7, { titulo: 'Saúde do fio', bloco: 'leitura', render: render7 });
-  VISAGE.registrarTela(8, { titulo: 'Formato do rosto', bloco: 'rosto', render: render8 });
-  VISAGE.registrarTela(9, { titulo: 'O que o seu formato direciona', bloco: 'rosto', render: render9 });
+  VISAGE.registrarTela(6, { titulo: 'Cabelos brancos', bloco: 'leitura', render: render6 });
+  VISAGE.registrarTela(7, { titulo: 'Contraste (calculado)', bloco: 'leitura', render: render6Contraste });
+  VISAGE.registrarTela(8, { titulo: 'Saúde do fio', bloco: 'leitura', render: render7 });
+  VISAGE.registrarTela(9, { titulo: 'Formato do rosto', bloco: 'rosto', render: render8 });
+  VISAGE.registrarTela(10, { titulo: 'O que o seu formato direciona', bloco: 'rosto', render: render9 });
 })(typeof window !== 'undefined' ? window : this);
