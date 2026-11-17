@@ -116,7 +116,10 @@
   }
 
   function rotaDaTela11(familia, teto) {
-    return amostrasViaveis(familia, teto).length > 0 ? 13 : 12;
+    /* Numeração atual (a tela nova "Regra dos 4 tons" entrou como 12):
+       13 = conflito e decisão, 14 = cor final. Com amostra viável não há
+       conflito, então a tela 12 vai direto para a cor final. */
+    return amostrasViaveis(familia, teto).length > 0 ? 14 : 13;
   }
 
   function texto(valor) {

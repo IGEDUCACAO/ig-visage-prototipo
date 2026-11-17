@@ -140,22 +140,25 @@
   }
 
   /* validaEtapa do motor trata as telas 10 a 17 como livres; aqui ficam as
-     regras "obrigatório" das telas 12 e 13. */
+     regras "obrigatório" das telas 13 (decisão do conflito) e 14 (amostra). */
   function validarAvancar(numero, estado) {
     var n = Number(numero);
     var e = estado || {};
 
-    if (n === 12) {
+    if (n === 13) {
       if (!e.decisaoConflito || !DECISOES[e.decisaoConflito.escolha]) {
         return { ok: false, motivo: 'Registre a decisão do conflito antes de seguir: entregar o ponto mais alto ou adiar a cor.' };
       }
       return { ok: true, motivo: '' };
     }
 
-    if (n === 13) {
+    if (n === 14) {
       var viaveis = amostrasDaTela13(e);
+      /* Sem amostra dentro do teto não existe o que escolher: a tela mostra o
+         aviso e a cor final é escrita à mão. Bloquear aqui travava o fluxo
+         para sempre, porque a decisão do conflito é a tela 13. */
       if (!viaveis.length) {
-        return { ok: false, motivo: 'Não há amostra da família dentro do teto para escolher.' };
+        return { ok: true, motivo: '' };
       }
       var escolhida = e.amostraEscolhida;
       var dentro = !!escolhida && viaveis.some(function (amostra) {
@@ -273,7 +276,7 @@
       if (!alvo || alvo.nodeType !== 1 || alvo.id !== 'avancar') return;
 
       var numero = secaoMontada();
-      if (numero !== 12 && numero !== 13) return;
+      if (numero !== 13 && numero !== 14) return;
 
       var cheque = validarAvancar(numero, estadoMontado || {});
       if (cheque.ok) return;
@@ -460,7 +463,7 @@
       '<div class="opcoes">' + opcoes + '</div>' +
       '<p class="estado-desejo' + (decisao ? ' estado-desejo-ativo' : '') + '" role="status">' + esc(statusDecisao) + '</p>' +
       '<div class="nota"><b>RN-20.</b> A decisão é registrada com data e hora e aparece no prontuário.</div>' +
-      '<div data-tela-prescricao="12" hidden aria-hidden="true"></div>';
+      '<div data-tela-prescricao="13" hidden aria-hidden="true"></div>';
 
     Array.prototype.forEach.call(el.querySelectorAll('[data-decisao]'), function (botao) {
       botao.addEventListener('click', function () {
@@ -530,7 +533,7 @@
         '<p class="hint">Este texto vai para o resumo e para o dossiê.</p>' +
       '</div>' +
       '<div class="nota"><b>cor de tela é direção;</b> a decisão se confirma com a amostra na mão.</div>' +
-      '<div data-tela-prescricao="13" hidden aria-hidden="true"></div>';
+      '<div data-tela-prescricao="14" hidden aria-hidden="true"></div>';
 
     var campoCor = el.querySelector('#corFinalLivre');
     if (campoCor) {

@@ -160,12 +160,12 @@ conferir(TELAS.tetoDoEstado(conflito) === 6, 'teto de VC com base 01 deveria ser
 conferir(TELAS.amostrasDaTela13(conflito).length === 0, 'VC com base 01 não tem amostra viável; a lista deveria ser vazia.');
 conferir(TELAS.amostrasDaTela13({}) .length === 0, 'sem família e sem base a tela 13 não pode listar amostra nenhuma.');
 
-/* ---------- tela 12: decisão obrigatória ---------- */
+/* ---------- tela 13: decisão do conflito (obrigatória) ---------- */
 
 var semDecisao = { familia: 'VC', baseNatural: 1 };
-var cheque12 = TELAS.validarAvancar(12, semDecisao);
-conferir(cheque12.ok === false, 'tela 12 permitiu seguir sem decisão registrada.');
-conferir(typeof cheque12.motivo === 'string' && cheque12.motivo.length > 0, 'bloqueio da tela 12 veio sem motivo.');
+var cheque13 = TELAS.validarAvancar(13, semDecisao);
+conferir(cheque13.ok === false, 'tela 13 permitiu seguir sem decisão registrada.');
+conferir(typeof cheque13.motivo === 'string' && cheque13.motivo.length > 0, 'bloqueio da tela 13 veio sem motivo.');
 
 esperaErro('registrarDecisao(estado, "outra")', function () { TELAS.registrarDecisao(semDecisao, 'outra'); }, 'Decisão inválida');
 
@@ -173,15 +173,15 @@ var decisao = TELAS.registrarDecisao(semDecisao, 'adiar', new Date('2026-11-11T1
 conferir(decisao.escolha === 'adiar', 'decisão não guardou a escolha.');
 conferir(decisao.rotulo.indexOf('Adiar a cor') === 0, 'decisão guardou rótulo inesperado: ' + decisao.rotulo);
 conferir(decisao.data === '2026-11-11T12:00:00.000Z', 'RN-20: decisão sem data/hora ISO; veio ' + decisao.data + '.');
-conferir(TELAS.validarAvancar(12, semDecisao).ok === true, 'tela 12 continuou bloqueada depois da decisão.');
+conferir(TELAS.validarAvancar(13, semDecisao).ok === true, 'tela 13 continuou bloqueada depois da decisão.');
 
 semDecisao.decisaoConflito = { escolha: 'inventada' };
-conferir(TELAS.validarAvancar(12, semDecisao).ok === false, 'decisão com escolha inválida liberou a tela 12.');
+conferir(TELAS.validarAvancar(13, semDecisao).ok === false, 'decisão com escolha inválida liberou a tela 13.');
 
-/* ---------- tela 13: seleção obrigatória e dentro do teto ---------- */
+/* ---------- tela 14: seleção obrigatória e dentro do teto ---------- */
 
 var viavel = { familia: 'VC', baseNatural: 5, profundidade: 'clara', temperatura: 'fria' };
-conferir(TELAS.validarAvancar(13, viavel).ok === false, 'tela 13 permitiu seguir sem escolher amostra.');
+conferir(TELAS.validarAvancar(14, viavel).ok === false, 'tela 14 permitiu seguir sem escolher amostra.');
 
 var amostrasViaveis = TELAS.amostrasDaTela13(viavel);
 conferir(amostrasViaveis.length > 0, 'o cenário de teste deveria ter amostra viável.');
@@ -191,10 +191,17 @@ esperaErro('registrarAmostra("10.1") com teto 07', function () { TELAS.registrar
 var escolha = TELAS.registrarAmostra(viavel, amostrasViaveis[0].codigo, new Date('2026-11-11T12:00:00Z'));
 conferir(escolha.codigo === amostrasViaveis[0].codigo, 'amostra escolhida não foi a informada.');
 conferir(typeof escolha.data === 'string' && escolha.data.length > 0, 'amostra escolhida sem data.');
-conferir(TELAS.validarAvancar(13, viavel).ok === true, 'tela 13 continuou bloqueada depois da escolha.');
+conferir(TELAS.validarAvancar(14, viavel).ok === true, 'tela 14 continuou bloqueada depois da escolha.');
 
 viavel.amostraEscolhida = { codigo: '10.1', nome: 'Platinado Cinza', altura: 10 };
-conferir(TELAS.validarAvancar(13, viavel).ok === false, 'amostra fora do teto no estado liberou a tela 13.');
+conferir(TELAS.validarAvancar(14, viavel).ok === false, 'amostra fora do teto no estado liberou a tela 14.');
+
+/* Regressão do travamento na tela 14: sem amostra dentro do teto não há o que
+   escolher, então a tela tem de liberar (a decisão do conflito é a tela 13). */
+var semAmostra = { familia: 'VC', baseNatural: 1, corFinalLivre: 'WESEDX' };
+conferir(TELAS.amostrasDaTela13(semAmostra).length === 0, 'o cenário de regressão deveria ficar sem amostra viável.');
+var cheque14 = TELAS.validarAvancar(14, semAmostra);
+conferir(cheque14.ok === true, 'tela 14 travou sem amostra viável: ' + cheque14.motivo);
 
 /* ---------- telas 10 e 11 não bloqueiam ---------- */
 
@@ -253,6 +260,20 @@ conferir(tela13.html.indexOf('cor de tela é direção') !== -1, 'tela 13 perdeu
 var tela13Conflito = renderizar(14, { familia: 'VC', baseNatural: 1 });
 conferir(codigosDaGrade(tela13Conflito.html).length === 0, 'tela 13 em conflito não pode listar amostra.');
 conferir(tela13Conflito.html.indexOf('Nenhuma amostra viável') !== -1, 'tela 13 em conflito precisa dizer que não há amostra viável.');
+
+/* ---------- marcador da guarda: tem de casar com o número da tela ---------- */
+
+var marco13 = renderizar(13, { familia: 'VC', baseNatural: 1, rota: 'harmonia' });
+conferir(marco13.html.indexOf('data-tela-prescricao="13"') !== -1,
+  'tela 13 não se marcou como 13: a guarda validaria a tela errada ao clicar em Continuar.');
+conferir(marco13.html.indexOf('data-tela-prescricao="12"') === -1,
+  'tela 13 ficou com o marcador antigo (12).');
+
+var marco14 = renderizar(14, semAmostra);
+conferir(marco14.html.indexOf('data-tela-prescricao="14"') !== -1,
+  'tela 14 não se marcou como 14: o Continuar fica travado pela regra da tela anterior.');
+conferir(marco14.html.indexOf('data-tela-prescricao="13"') === -1,
+  'tela 14 ficou com o marcador da tela 13 — é isso que travava o fluxo.');
 
 /* ---------- resultado ---------- */
 

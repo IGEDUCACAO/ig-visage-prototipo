@@ -307,17 +307,21 @@
       return DADOS.familiaPorSigla(e.familia) || null;
     }
 
+    /* Rota da família: com amostra dentro do teto vai direto à cor final (14);
+       sem amostra viável passa pelo conflito (13), que exige decisão. */
+    function rotaDaCor() {
+      var familia = familiaDoEstado(estado);
+      var teto = estado.teto;
+      if (teto === null) teto = MOTOR.tetoDeClareamento(estado.baseNatural, familia ? familia.tetoClareamento : 4);
+      if (familia && teto !== null) return MOTOR.rotaDaTela11(familia, teto);
+      return 12;
+    }
+
     function proximaTela(n) {
       if (n === 7 && estado.saudeFio === 'sem') return null;
-      if (n === 11) {
-        var familia = familiaDoEstado(estado);
-        var teto = estado.teto;
-        if (teto === null) teto = MOTOR.tetoDeClareamento(estado.baseNatural, familia ? familia.tetoClareamento : 4);
-        if (familia && teto !== null) return MOTOR.rotaDaTela11(familia, teto);
-        return 13;
-      }
-      if (n === 12 || n === 13) return 14;
-      if (n === 17) return null;
+      if (n === 11 || n === 12) return rotaDaCor();
+      if (n === 13) return 14;
+      if (n === 18) return null;
       return n + 1;
     }
 
