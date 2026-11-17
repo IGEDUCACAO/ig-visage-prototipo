@@ -163,14 +163,16 @@
 
     el.innerHTML =
       '<h2>Quem está na cadeira?</h2>' +
-      '<p class="lead">Busque a cliente ou crie o cadastro. Tudo o que for registrado fica no prontuário dela — e só você vê.</p>' +
+      '<p class="lead">Busque a cliente cadastrada ou abra o cadastro. Tudo o que for registrado fica no prontuário dela — e só você vê.</p>' +
       '<div class="campo">' +
-        '<label class="rotulo" for="buscaCliente">Buscar por nome ou telefone</label>' +
+        '<label class="rotulo" for="buscaCliente">Buscar cliente cadastrada</label>' +
         '<input type="search" id="buscaCliente" placeholder="Nome ou telefone" autocomplete="off">' +
       '</div>' +
-      '<div class="lista-clientes" id="listaClientes">' + lista + '</div>' +
+      '<p class="hint" id="dicaBusca">Digite o nome ou o telefone para ver os cadastros. A lista de atendimentos recentes saiu desta tela: quem não está aqui entra pelo cadastro.</p>' +
+      '<div class="lista-clientes" id="listaClientes" hidden>' + lista + '</div>' +
       '<p class="vazio" id="listaVazia" hidden>Nenhuma cliente encontrada com esse termo.</p>' +
       '<button type="button" class="btn btn-secundario btn-largo" data-acao="nova-cliente">Cadastrar nova cliente</button>' +
+      '<button type="button" class="btn btn-secundario btn-largo btn-demo" data-acao="cliente-demo">Usar cliente de demonstração</button>' +
       '<div class="painel-novo" id="painelNovo"' + (exibindoForm ? '' : ' hidden') + '>' +
         '<p class="rotulo">Cadastro da nova cliente</p>' +
         '<div class="campo">' +
@@ -199,16 +201,43 @@
 
     var busca = el.querySelector('#buscaCliente');
     var vazia = el.querySelector('#listaVazia');
+    var caixaLista = el.querySelector('#listaClientes');
+    var dica = el.querySelector('#dicaBusca');
     if (busca) {
       busca.addEventListener('input', function () {
         var termo = busca.value.trim().toLowerCase();
         var visiveis = 0;
         Array.prototype.forEach.call(el.querySelectorAll('.cliente-opcao'), function (botao) {
-          var combina = !termo || (botao.getAttribute('data-busca') || '').indexOf(termo) !== -1;
+          var combina = !!termo && (botao.getAttribute('data-busca') || '').indexOf(termo) !== -1;
           botao.hidden = !combina;
           if (combina) visiveis += 1;
         });
-        if (vazia) vazia.hidden = visiveis !== 0;
+        /* Sem termo a tela não lista ninguém: acabaram os "recentes". */
+        if (caixaLista) caixaLista.hidden = !termo;
+        if (dica) dica.hidden = !!termo;
+        if (vazia) vazia.hidden = !termo || visiveis !== 0;
+      });
+    }
+
+    var demo = el.querySelector('[data-acao="cliente-demo"]');
+    if (demo) {
+      demo.addEventListener('click', function () {
+        var cliente = CLIENTES_DEMO[0];
+        if (!cliente) return;
+        modoNovoCliente = false;
+        e.cliente = { nome: cliente.nome, contato: cliente.contato };
+        ctx.salvar();
+        /* Feedback: revela o cadastro escolhido em vez de deixar a tela sem
+           sinal de que o cliente entrou. O Continuar do rodapé avança. */
+        if (caixaLista) caixaLista.hidden = false;
+        if (dica) dica.hidden = true;
+        Array.prototype.forEach.call(el.querySelectorAll('.cliente-opcao'), function (botao) {
+          var ativo = botao.getAttribute('data-cliente') === cliente.nome;
+          botao.hidden = false;
+          botao.classList.toggle('selecionada', ativo);
+          botao.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+        });
+        ctx.atualizar();
       });
     }
 
