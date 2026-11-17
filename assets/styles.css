@@ -870,6 +870,13 @@ textarea:focus {
   margin-top: 10px;
 }
 
+/* Atalho de teste do protótipo: discreto, não é caminho do método. */
+.btn-demo {
+  margin-top: 6px;
+  font-size: 12.5px;
+  opacity: 0.72;
+}
+
 .btn:focus-visible,
 .opcao:focus-visible,
 .opcao-radio:focus-within,
