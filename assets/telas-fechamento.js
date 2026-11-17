@@ -376,6 +376,9 @@
       }
 
       var tons = (entrada && Array.isArray(entrada.sugestoes)) ? entrada.sugestoes : [];
+      /* A base da família e as 6 extras podem repetir um tom (Lavanda na fria):
+         exibe uma vez só, sem mexer na matriz do método. */
+      tons = tons.filter(function (tom, indice) { return tons.indexOf(tom) === indice; });
 
       var itensHtml = '';
       if (tons.length > 0) {
@@ -414,7 +417,7 @@
   /* ---------- Registro das Telas ---------- */
 
   var def14 = {
-    titulo: 'Receita e valores',
+    titulo: 'Diagnóstico',
     bloco: 'fechamento',
     render: render14,
     validar: validar14
