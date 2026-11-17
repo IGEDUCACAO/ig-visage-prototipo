@@ -29,7 +29,7 @@
         ' M26 46 L74 46'
     },
     'bob': {
-      nome: 'Bob',
+      nome: 'Long bob',
       path: ROSTO +
         ' M27 42 C24 54 25 64 27 72 L73 72 C75 64 76 54 73 42 C69 32 60 25 50 25 C40 25 31 32 27 42 Z'
     },
@@ -76,6 +76,10 @@
     { id: 'alta', titulo: 'Alta', sub: 'acima de 1,70 m' }
   ];
 
+  /* Base de imagens: ilustracoes de traco geradas uma vez (assets/cortes/<id>.png)
+     e reaproveitadas. O SVG antigo continua como reserva caso o PNG nao carregue. */
+  var CAMINHO_BASE = 'assets/cortes/';
+
   function svgDoCorte(id, classe) {
     var s = SILHUETAS[id];
     if (!s) return '';
@@ -83,12 +87,21 @@
       '<path d="' + s.path + '"/></svg>';
   }
 
+  function figuraDoCorte(id, classe) {
+    var s = SILHUETAS[id];
+    if (!s) return '';
+    var nome = s.nome || id;
+    return '<img class="' + (classe || 'ilustracao-corte') + '" src="' + CAMINHO_BASE + id + '.png"' +
+      ' alt="Ilustração de corte: ' + nome + '" loading="lazy" decoding="async"' +
+      ' onerror="this.outerHTML=window.VISAGE.ilustracoesCorte.svgDoCorte(\'' + id + '\')">';
+  }
+
   function cortesDoFormato(formatoId, estatura) {
     var mapa = CORTES_POR_FORMATO[formatoId];
     if (!mapa) return [];
     var lista = mapa[estatura] || mapa.media || [];
     return lista.map(function (id) {
-      return { id: id, nome: (SILHUETAS[id] || {}).nome || id, svg: svgDoCorte(id) };
+      return { id: id, nome: (SILHUETAS[id] || {}).nome || id, svg: figuraDoCorte(id) };
     });
   }
 
@@ -97,6 +110,7 @@
     ESTATURAS: ESTATURAS,
     CORTES_POR_FORMATO: CORTES_POR_FORMATO,
     svgDoCorte: svgDoCorte,
+    figuraDoCorte: figuraDoCorte,
     cortesDoFormato: cortesDoFormato
   };
 
