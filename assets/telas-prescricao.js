@@ -1,6 +1,5 @@
-/* Telas 7 e 12 do fluxo da Ilda — bloco Prescrição (Família e Cor final).
-   Também registra as telas 12 (Regra dos 4 tons) e 13 (Conflito), que saíram do
-   fluxo linear e seguem no código com o seu id de registro.
+/* Telas 7 (Família) e 12 (Cor final). As antigas 12/13 ficam arquivadas em 101/102.
+   Família e calibração, teto e faixa, conflito e escolha da amostra.
    Registradas em window.VISAGE.registrarTela(n, {titulo, bloco, render(el, ctx)}).
    As regras ficam em funções puras, exportadas para teste (module.exports no node). */
 (function (root, factory) {
@@ -91,7 +90,7 @@
     return null;
   }
 
-  /* Tela 13: SOMENTE amostras da família que cabem no teto — nunca a matriz inteira. */
+  /* Tela 12 (Cor final): SOMENTE amostras da família que cabem no teto — nunca a matriz inteira. */
   function amostrasDaTela13(estado) {
     var e = estado || {};
     var familia = familiaPrescrita(e);
@@ -140,8 +139,8 @@
     return estado.amostraEscolhida;
   }
 
-  /* validaEtapa do motor trata as telas 10 a 17 como livres; aqui ficam as
-     regras "obrigatório" das telas 13 (decisão do conflito) e 14 (amostra). */
+  /* validaEtapa do motor trata as telas 11 a 18 como livres; aqui ficam as
+     regras "obrigatório" da tela 12 (amostra dentro do teto na Cor final). */
   function validarAvancar(numero, estado) {
     var n = Number(numero);
     var e = estado || {};
@@ -221,7 +220,7 @@
     return profundidade + ' · ' + temperatura;
   }
 
-  /* Grava família e teto no prontuário: o roteador da tela 11 lê exatamente esses campos. */
+  /* Grava família e teto no prontuário: o roteador da tela 7 lê exatamente esses campos. */
   function sincronizar(estado, ctx) {
     var familia = familiaPrescrita(estado);
     var mudou = false;
@@ -244,7 +243,7 @@
     if (typeof ctx.recarregar === 'function') ctx.recarregar();
   }
 
-  /* ---------- guarda do Continuar (telas 12 e 13) ---------- */
+  /* ---------- guarda do Continuar (tela 12, Cor final) ---------- */
 
   var estadoMontado = null;
   var guardaInstalada = false;
@@ -277,9 +276,9 @@
       if (!alvo || alvo.nodeType !== 1 || alvo.id !== 'avancar') return;
 
       var numero = secaoMontada();
-      if (numero !== 13 && numero !== 14) return;
+      if (numero !== 12) return;
 
-      var cheque = validarAvancar(numero, estadoMontado || {});
+      var cheque = validarAvancar(14, estadoMontado || {});
       if (cheque.ok) return;
 
       evento.preventDefault();
@@ -288,7 +287,7 @@
     }, true);
   }
 
-  /* ---------- TELA 7 — Família ---------- */
+  /* ---------- TELA 10 ---------- */
 
   var ROTULO_TEMPERATURA = 'Temperatura (leitura do Kit de Tecidos)';
   var NOTA_TEMPERATURA = 'A temperatura vem do Kit de Tecidos; o app não a estima.';
@@ -328,7 +327,7 @@
     var secao = '<h2>Família</h2>' +
       '<p class="lead">Calculado a partir do que você registrou. Você confirma — este é o primeiro ponto de validação.</p>';
 
-    /* Ordem pedida pelo Alysson (tela 10): campos preenchiveis em cima,
+    /* Ordem pedida pelo Alysson (tela 7): campos preenchiveis em cima,
        veredito sempre embaixo. */
     secao +=
       '<div class="cartao cartao-calculo">' +
@@ -474,7 +473,7 @@
     });
   }
 
-  /* ---------- TELA 13 — Cor final ---------- */
+  /* ---------- TELA 13 ---------- */
 
   function render13(el, ctx) {
     var e = ctx.estado || {};
@@ -499,7 +498,7 @@
           '<p class="texto">' + (familia && teto !== null
             ? 'Nenhuma amostra de ' + esc(familia.nome + ' · ' + familia.sigla) + ' cabe no teto ' + esc(hh(teto)) + '.'
             : 'Faltam a família e o teto para filtrar as amostras.') + '</p>' +
-          '<p class="texto-suave">O app não substitui a família e não recalcula o teto. Volte e confira a família e a base natural antes de escolher.</p>' +
+          '<p class="texto-suave">O app não substitui a família e não recalcula o teto. Volte e confira a família e o teto antes de escolher.</p>' +
         '</div>';
     } else {
       var grade = amostras.map(function (amostra) {
@@ -519,24 +518,25 @@
       }).join('');
 
       corpo =
-        '<p class="rotulo">Sugestões de cores para a sua família</p>' +
         '<p class="lead-destaque">' + esc(amostras.length + (amostras.length === 1 ? ' amostra' : ' amostras') +
           ' de ' + familia.nome + ' · ' + familia.sigla + ' dentro do teto ' + hh(teto) + '.') + '</p>' +
         '<div class="grade grade-3">' + grade + '</div>' +
-        '<p class="rotulo">Cor escolhida pela cliente</p>' +
         '<p class="estado-desejo' + (escolhida ? ' estado-desejo-ativo' : '') + '" role="status">' +
           (escolhida ? 'Amostra escolhida: ' + esc(escolhida) + '.' : 'Escolha pendente — o Continuar fica bloqueado até a seleção.') +
         '</p>';
     }
 
-    el.innerHTML = cabecalho + corpo +
+    el.innerHTML = cabecalho +
+      '<p class="rotulo">Sugestões de cores para a sua família</p>' +
+      corpo +
+      '<p class="rotulo">Cor escolhida pela cliente</p>' +
       '<div class="campo">' +
         '<label class="rotulo" for="corFinalLivre">Cor final (livre)</label>' +
         '<textarea id="corFinalLivre" class="entrada" rows="3" placeholder="Ex.: 7.1 com 10% de 6.0, aplicação em duas etapas, sem tocar nas pontas">' + esc(e.corFinalLivre || '') + '</textarea>' +
         '<p class="hint">Este texto vai para o resumo e para o dossiê.</p>' +
       '</div>' +
       '<div class="nota"><b>cor de tela é direção;</b> a decisão se confirma com a amostra na mão.</div>' +
-      '<div data-tela-prescricao="14" hidden aria-hidden="true"></div>';
+      '<div data-tela-prescricao="12" hidden aria-hidden="true"></div>';
 
     var campoCor = el.querySelector('#corFinalLivre');
     if (campoCor) {
@@ -558,10 +558,11 @@
   /* ---------- registro ---------- */
 
   if (VISAGE) {
-    VISAGE.registrarTela(11, { titulo: 'Família', bloco: 'prescricao', render: render10 });
-    VISAGE.registrarTela(12, { titulo: 'Regra dos 4 tons / COR final', bloco: 'prescricao', render: render11 });
-    VISAGE.registrarTela(13, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
-    VISAGE.registrarTela(14, { titulo: 'Cor final', bloco: 'prescricao', render: render13 });
+    VISAGE.registrarTela(7, { titulo: 'Família', bloco: 'prescricao', render: render10 });
+    VISAGE.registrarTela(12, { titulo: 'Cor final', bloco: 'prescricao', render: render13 });
+    /* Fora do fluxo linear: o código fica nos arquivos, arquivado em 101/102. */
+    VISAGE.registrarTela(101, { titulo: 'Regra dos 4 tons', bloco: 'prescricao', render: render11 });
+    VISAGE.registrarTela(102, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
   }
 
   return {

@@ -1,4 +1,4 @@
-/* Telas 14, 15 e 16 — bloco Fechamento.
+/* Telas arquivadas 103 a 105 — bloco Fechamento, fora do fluxo linear.
    Registradas em window.VISAGE.registrarTela(n, {titulo, bloco, render(el, ctx)}).
    Regras de negócio:
    - RN-21: campo de data manual; não sugere data automaticamente.
@@ -437,9 +437,10 @@
     validar: validar16
   };
 
-  VISAGE.registrarTela(15, def14);
-  VISAGE.registrarTela(16, def15);
-  VISAGE.registrarTela(17, def16);
+  /* Fora do fluxo linear: o código fica nos arquivos, arquivado em 103+. */
+  VISAGE.registrarTela(103, def14);
+  VISAGE.registrarTela(104, def15);
+  VISAGE.registrarTela(105, def16);
 
   VISAGE.validarTela14 = validar14;
   VISAGE.validarTela15 = validar15;
