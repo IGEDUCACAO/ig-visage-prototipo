@@ -102,6 +102,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+img,
+svg {
+  max-width: 100%;
+}
+
 html, body {
   margin: 0;
   min-height: 100%;
@@ -238,6 +243,8 @@ body {
   text-transform: uppercase;
   white-space: nowrap;
   max-width: 46%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: right;
 }
 
@@ -334,17 +341,20 @@ h3 {
 }
 
 .tela h2 {
-  margin: 0 0 8px;
-  font-size: 24px;
-  line-height: 1.2;
+  margin: 0 0 10px;
+  font-size: 27px;
+  line-height: 1.16;
   letter-spacing: -.015em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 .tela h3 {
   margin: 0 0 8px;
-  font-size: 17.5px;
+  font-size: 18px;
   line-height: 1.3;
   letter-spacing: -.01em;
+  text-wrap: balance;
 }
 
 .titulo {
@@ -354,10 +364,11 @@ h3 {
 }
 
 .lead {
-  margin: 0 0 18px;
-  font-size: 14px;
+  margin: 0 0 20px;
+  font-size: 16px;
   line-height: 1.55;
   color: var(--ink2);
+  max-width: 48ch;
 }
 
 .lead-destaque {
@@ -367,11 +378,12 @@ h3 {
   background: var(--nude);
   color: var(--ink2);
   font-size: 14px;
-  margin-bottom: 14px;
+  line-height: 1.55;
+  margin-bottom: 16px;
 }
 
 .texto {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 14px;
   line-height: 1.55;
   color: var(--ink2);
@@ -452,6 +464,20 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(219, 106, 55, .18);
 }
 
+input:disabled,
+textarea:disabled {
+  border-color: var(--line-forte);
+  border-style: dashed;
+  background: var(--nude);
+  color: var(--ink2);
+  cursor: not-allowed;
+}
+
+input:disabled::placeholder,
+textarea:disabled::placeholder {
+  color: var(--ink2);
+}
+
 /* ---------- opções ---------- */
 
 .opcoes {
@@ -477,19 +503,30 @@ textarea:focus {
   cursor: pointer;
   transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
 }
-.opcao:hover {
+.opcao:hover:not(:disabled) {
   border-color: var(--laranja);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow);
+  background: var(--card);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(67, 28, 91, .10);
 }
-.opcao:active {
+.opcao:active:not(:disabled) {
   transform: translateY(0) scale(.995);
+  box-shadow: 0 2px 8px rgba(67, 28, 91, .08);
 }
 .opcao.selecionada {
   border: 2px solid var(--roxo);
   padding: 12px 15px;
   background: var(--nude);
   box-shadow: 0 0 0 3px rgba(67, 28, 91, .10);
+}
+.opcao.selecionada .opcao-titulo {
+  color: var(--roxo);
+}
+/* O hover não pode apagar a seleção. */
+.opcao.selecionada:hover:not(:disabled) {
+  border-color: var(--roxo);
+  background: var(--nude);
+  box-shadow: inset 0 0 0 1px var(--roxo), 0 8px 20px rgba(67, 28, 91, .14);
 }
 /* Feedback de seleção (telas 4 e 5): o clique precisa "responder" antes de
    a tela virar, senão a troca de tela parece não ter sido ouvida. */
@@ -542,6 +579,7 @@ textarea:focus {
   font-size: 15px;
   font-weight: 600;
   line-height: 1.3;
+  overflow-wrap: break-word;
 }
 
 .opcao-sub {
@@ -599,6 +637,37 @@ textarea:focus {
 .opcao-perigo.selecionada .opcao-marca {
   border-color: var(--vinho);
   background: var(--vinho);
+  box-shadow: inset 0 0 0 3px var(--card);
+}
+.opcao-perigo.selecionada:hover:not(:disabled) {
+  border-color: var(--vinho);
+  background: rgba(140, 31, 61, .08);
+}
+
+/* Estado desabilitado: cor, borda e cursor próprios — não só opacidade. */
+.opcao:disabled,
+.opcao[aria-disabled="true"] {
+  border-style: dashed;
+  border-color: var(--line-forte);
+  background: var(--nude);
+  color: var(--ink2);
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+.opcao:disabled .opcao-titulo,
+.opcao[aria-disabled="true"] .opcao-titulo {
+  color: var(--ink2);
+}
+.opcao:disabled .opcao-sub,
+.opcao[aria-disabled="true"] .opcao-sub {
+  color: var(--ink2);
+}
+.opcao:disabled .opcao-marca,
+.opcao[aria-disabled="true"] .opcao-marca {
+  border-color: var(--line-forte);
+  background: var(--card);
+  box-shadow: none;
 }
 
 /* ---------- grades ---------- */
@@ -735,7 +804,7 @@ textarea:focus {
 }
 
 .nota {
-  margin: 16px 0 0;
+  margin: 18px 0 0;
   padding: 12px 14px;
   border-left: 3px solid var(--ink2);
   border-radius: 0 12px 12px 0;
@@ -791,13 +860,21 @@ textarea:focus {
   cursor: pointer;
   transition: border-color .15s ease, background .15s ease;
 }
-.opcao-radio:hover {
+.opcao-radio:hover:not(:has(input:disabled)) {
   border-color: var(--laranja);
 }
 .opcao-radio:has(input:checked) {
   border: 2px solid var(--roxo);
   padding: 9px 11px;
   background: var(--nude);
+  box-shadow: inset 0 0 0 1px var(--roxo);
+}
+.opcao-radio:has(input:disabled) {
+  border-style: dashed;
+  border-color: var(--line-forte);
+  background: var(--nude);
+  color: var(--ink2);
+  cursor: not-allowed;
 }
 .opcao-radio input[type="radio"] {
   width: 18px;
@@ -821,7 +898,7 @@ textarea:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 18px;
 }
 .acoes-inline .btn {
   flex: 1 1 180px;
@@ -890,6 +967,7 @@ textarea:focus {
   font-size: 14px;
   line-height: 1.45;
   color: var(--ink);
+  overflow-wrap: break-word;
 }
 
 .linha-vazia .linha-valor {
@@ -954,13 +1032,18 @@ textarea:focus {
 .btn-primario:active:not(:disabled) {
   transform: translateY(0);
 }
-.btn-primario:disabled {
+.btn:disabled {
+  border-style: dashed;
+  border-color: var(--line-forte);
   background: var(--nude-2);
   color: var(--ink2);
   box-shadow: none;
+  transform: none;
   cursor: not-allowed;
 }
 .btn-primario:disabled.btn-bloqueado {
+  border-style: solid;
+  border-color: var(--vinho);
   background: var(--vinho);
   color: #fff;
   cursor: not-allowed;
@@ -971,14 +1054,14 @@ textarea:focus {
   background: transparent;
   color: var(--ink2);
 }
-.btn-secundario:hover {
+.btn-secundario:hover:not(:disabled) {
   border-color: var(--ink2);
   background: var(--nude);
 }
 
 .btn-largo {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 14px;
 }
 
 /* Atalho de teste do protótipo: discreto, não é caminho do método. */
@@ -993,8 +1076,9 @@ textarea:focus {
 .opcao-radio:focus-within,
 input:focus-visible,
 textarea:focus-visible,
-a:focus-visible {
-  outline: 3px solid rgba(219, 106, 55, .42);
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2.5px solid var(--laranja);
   outline-offset: 2px;
 }
 
@@ -1042,6 +1126,12 @@ a:focus-visible {
 @media (max-width: 380px) {
   .tela {
     padding: 18px 16px 26px;
+  }
+  .tela h2 {
+    font-size: 24px;
+  }
+  .lead {
+    font-size: 15.5px;
   }
   .topo,
   .rodape {
@@ -1164,4 +1254,4 @@ a:focus-visible {
 }
 .ilustracao-corte { width: 100%; height: 132px; max-height: 132px; object-fit: contain; object-position: center bottom; display: block; margin: 0 auto; }
 .opcao-compacta { padding: 10px 8px; }
-.opcao-compacta .opcao-sub { display: block; font-size: 12px; opacity: .72; margin-top: 2px; }
+.opcao-compacta .opcao-sub { display: block; font-size: 12px; color: var(--ink2); margin-top: 2px; }
