@@ -22,25 +22,25 @@
     { id: 'fechamento', letra: 'E', nome: 'Fechamento' }
   ];
 
+  /* Ordem final do atendimento, ditada pela cliente (Ilda Guimarães):
+     12 telas de leitura mais o dossiê como entrega. `n` é a posição no fluxo
+     e `chave` é o registro interno da tela — as telas que saíram da sequência
+     (regra dos 4 tons, conflito, diagnóstico, manutenção, paleta) continuam
+     registradas, apenas fora do percurso. */
   var TELAS = [
-    { n: 1, titulo: 'Quem está na cadeira?', bloco: 'abertura' },
-    { n: 2, titulo: 'Qual é o desejo dela?', bloco: 'abertura' },
-    { n: 3, titulo: 'Qual a Rota escolhida?', bloco: 'abertura' },
-    { n: 4, titulo: 'Profundidade da pele', bloco: 'leitura' },
-    { n: 5, titulo: 'Base natural do cabelo', bloco: 'leitura' },
-    { n: 6, titulo: 'Cabelos brancos', bloco: 'leitura' },
-    { n: 7, titulo: 'Contraste (calculado)', bloco: 'leitura' },
-    { n: 8, titulo: 'Saúde do fio (Como ficou o teste)', bloco: 'leitura' },
-    { n: 9, titulo: 'Formato do rosto', bloco: 'rosto' },
-    { n: 10, titulo: 'O que o seu formato direciona', bloco: 'rosto' },
-    { n: 11, titulo: 'Família e calibração', bloco: 'prescricao' },
-    { n: 12, titulo: 'Regra dos 4 tons / COR final', bloco: 'prescricao' },
-    { n: 13, titulo: 'Conflito e decisão', bloco: 'prescricao' },
-    { n: 14, titulo: 'Cor final', bloco: 'prescricao' },
-    { n: 15, titulo: 'Diagnóstico', bloco: 'fechamento' },
-    { n: 16, titulo: 'Manutenção e retorno', bloco: 'fechamento' },
-    { n: 17, titulo: 'Paleta de vestuário', bloco: 'fechamento' },
-    { n: 18, titulo: 'Dossiê final', bloco: 'fechamento' }
+    { n: 1, chave: 1, titulo: 'Quem está na cadeira?', bloco: 'abertura' },
+    { n: 2, chave: 2, titulo: 'Qual é o desejo dela?', bloco: 'abertura' },
+    { n: 3, chave: 3, titulo: 'Rota escolhida', bloco: 'abertura' },
+    { n: 4, chave: 4, titulo: 'Profundidade da pele', bloco: 'leitura' },
+    { n: 5, chave: 5, titulo: 'Base natural', bloco: 'leitura' },
+    { n: 6, chave: 7, titulo: 'Contraste', bloco: 'leitura' },
+    { n: 7, chave: 11, titulo: 'Família', bloco: 'prescricao' },
+    { n: 8, chave: 9, titulo: 'Formato de rosto', bloco: 'rosto' },
+    { n: 9, chave: 10, titulo: 'O que o seu formato direciona', bloco: 'rosto' },
+    { n: 10, chave: 6, titulo: 'Percentual de cabelos brancos', bloco: 'leitura' },
+    { n: 11, chave: 8, titulo: 'Como ficou o teste', bloco: 'leitura' },
+    { n: 12, chave: 14, titulo: 'Cor final', bloco: 'prescricao' },
+    { n: 13, chave: 18, titulo: 'Dossiê final', bloco: 'fechamento' }
   ];
 
   var elBloco = document.getElementById('blocoAtual');
@@ -296,6 +296,13 @@
       return TELAS[n - 1] || null;
     }
 
+    /* A tela exibida é uma posição no fluxo (1..13); a validação e o desenho
+       usam a chave registrada, que preserva a numeração interna original. */
+    function chaveDaTela(n) {
+      var meta = metaDaTela(n);
+      return (meta && meta.chave) || n;
+    }
+
     function blocoPorId(id) {
       for (var i = 0; i < BLOCOS.length; i++) {
         if (BLOCOS[i].id === id) return BLOCOS[i];
@@ -318,15 +325,16 @@
     }
 
     function proximaTela(n) {
-      if (n === 7 && estado.saudeFio === 'sem') return null;
-      if (n === 11 || n === 12) return rotaDaCor();
-      if (n === 13) return 14;
-      if (n === 18) return null;
+      /* RN-22: fio sem condição para receber cor interrompe o fluxo na tela
+         do teste (posição 11). Fora isso o percurso é sequencial até o
+         dossiê, que encerra o atendimento. */
+      if (n === 11 && estado.saudeFio === 'sem') return null;
+      if (n >= TELAS.length) return null;
       return n + 1;
     }
 
     function avancar() {
-      var cheque = MOTOR.validaEtapa(estado, telaAtual);
+      var cheque = MOTOR.validaEtapa(estado, chaveDaTela(telaAtual));
       if (!cheque.ok) {
         elMotivo.textContent = cheque.motivo;
         elTela.focus();
@@ -433,7 +441,7 @@
       atualizarProgresso(meta.bloco);
 
       elTela.innerHTML = '';
-      var definicao = telasRegistradas[telaAtual];
+      var definicao = telasRegistradas[chaveDaTela(telaAtual)];
 
       if (!definicao || typeof definicao.render !== 'function') {
         elTela.innerHTML = cartaoEmConstrucao(telaAtual, meta, bloco);
@@ -482,7 +490,7 @@
     }
 
     function atualizarRodape() {
-      var cheque = MOTOR.validaEtapa(estado, telaAtual);
+      var cheque = MOTOR.validaEtapa(estado, chaveDaTela(telaAtual));
       var bloqueioTratamento = cheque.bloqueio === 'tratamento';
 
       elAvancar.disabled = !cheque.ok;
