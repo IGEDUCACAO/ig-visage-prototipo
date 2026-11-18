@@ -37,13 +37,13 @@ function conferir(condicao, mensagem) {
 /* Ordem e títulos exatamente como a Ilda ditou. */
 var ESPERADO = [
   'Quem está na cadeira?',
-  'Qual o desejo dela?',
+  'Qual é o desejo dela?',
   'Rota escolhida',
   'Profundidade da pele',
-  'Base natural do cabelo',
+  'Base natural',
   'Contraste',
   'Família',
-  'Formato do rosto',
+  'Formato de rosto',
   'O que o seu formato direciona',
   'Percentual de cabelos brancos',
   'Como ficou o teste',
