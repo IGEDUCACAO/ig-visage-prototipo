@@ -1,31 +1,34 @@
-/* Entrada agregadora de `node --test testes/`.
-   Este build do Node resolve o diretório como módulo em vez de procurar os
-   arquivos *.test.js; por isso o diretório precisa de um index. Cada teste
-   roda em processo próprio (mesmo isolamento do runner) e a falha de qualquer
-   um derruba o agregado. `node --test` sem argumento continua descobrindo os
-   arquivos *.test.js diretamente. */
+/* Agregador para `node --test testes/`.
+   O runner do Node trata o diretório como entry point (resolve este index),
+   então cada arquivo de teste roda em subprocesso próprio — mesmo isolamento
+   de `node --test testes/*.js`, com o exit code agregado. */
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var spawnSync = require('child_process').spawnSync;
+var spawnSync = require('node:child_process').spawnSync;
+var fs = require('node:fs');
+var path = require('node:path');
 
-var arquivos = fs.readdirSync(__dirname).filter(function (nome) {
+var dir = __dirname;
+var arquivos = fs.readdirSync(dir).filter(function (nome) {
   return /\.test\.js$/.test(nome);
 }).sort();
 
 if (!arquivos.length) {
-  console.error('Nenhum arquivo *.test.js em testes/.');
+  console.error('testes: nenhum arquivo *.test.js encontrado em ' + dir + '.');
   process.exitCode = 1;
 } else {
-  arquivos.forEach(function (nome) {
-    var resultado = spawnSync(process.execPath, [path.join(__dirname, nome)], { stdio: 'inherit' });
-    var passou = resultado.status === 0;
-    if (!passou) process.exitCode = 1;
-    console.log((passou ? 'ok' : 'FALHOU') + ' — testes/' + nome);
+  var falhas = [];
+  arquivos.forEach(function (arquivo) {
+    var resultado = spawnSync(process.execPath, [path.join(dir, arquivo)], { stdio: 'inherit' });
+    if (resultado.status !== 0) {
+      falhas.push(arquivo);
+      console.error('FALHOU: ' + arquivo);
+    }
   });
 
-  console.log(process.exitCode
-    ? 'TESTES: ' + arquivos.length + ' arquivos, com falha.'
-    : 'TESTES: ' + arquivos.length + ' arquivos, todos passaram.');
+  console.log('testes: ' + (arquivos.length - falhas.length) + '/' + arquivos.length + ' arquivos ok');
+  if (falhas.length) {
+    console.error('testes com falha: ' + falhas.join(', '));
+    process.exitCode = 1;
+  }
 }

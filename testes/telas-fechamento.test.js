@@ -44,21 +44,21 @@ var fechamento = require('../assets/telas-fechamento.js');
 
 /* ---------- 2. Verificação de registro das telas 14, 15 e 16 ---------- */
 
-conferir(telasRegistradas[15] != null, 'Tela 14 não foi registrada em window.VISAGE.telas.');
-conferir(telasRegistradas[16] != null, 'Tela 15 não foi registrada em window.VISAGE.telas.');
-conferir(telasRegistradas[17] != null, 'Tela 16 não foi registrada em window.VISAGE.telas.');
+conferir(telasRegistradas[103] != null, 'Tela 14 não foi registrada em window.VISAGE.telas.');
+conferir(telasRegistradas[104] != null, 'Tela 15 não foi registrada em window.VISAGE.telas.');
+conferir(telasRegistradas[105] != null, 'Tela 16 não foi registrada em window.VISAGE.telas.');
 
-conferir(telasRegistradas[15] && typeof telasRegistradas[15].render === 'function', 'Tela 14 precisa de função render.');
-conferir(telasRegistradas[16] && typeof telasRegistradas[16].render === 'function', 'Tela 15 precisa de função render.');
-conferir(telasRegistradas[17] && typeof telasRegistradas[17].render === 'function', 'Tela 16 precisa de função render.');
+conferir(telasRegistradas[103] && typeof telasRegistradas[103].render === 'function', 'Tela 14 precisa de função render.');
+conferir(telasRegistradas[104] && typeof telasRegistradas[104].render === 'function', 'Tela 15 precisa de função render.');
+conferir(telasRegistradas[105] && typeof telasRegistradas[105].render === 'function', 'Tela 16 precisa de função render.');
 
-conferir(telasRegistradas[15] && telasRegistradas[15].bloco === 'fechamento', 'Tela 14 deve pertencer ao bloco fechamento.');
-conferir(telasRegistradas[16] && telasRegistradas[16].bloco === 'fechamento', 'Tela 15 deve pertencer ao bloco fechamento.');
-conferir(telasRegistradas[17] && telasRegistradas[17].bloco === 'fechamento', 'Tela 16 deve pertencer ao bloco fechamento.');
+conferir(telasRegistradas[103] && telasRegistradas[103].bloco === 'fechamento', 'Tela 14 deve pertencer ao bloco fechamento.');
+conferir(telasRegistradas[104] && telasRegistradas[104].bloco === 'fechamento', 'Tela 15 deve pertencer ao bloco fechamento.');
+conferir(telasRegistradas[105] && telasRegistradas[105].bloco === 'fechamento', 'Tela 16 deve pertencer ao bloco fechamento.');
 
 /* ---------- 3. Validação da Tela 14 (Receita e valores) ---------- */
 
-var val14 = (telasRegistradas[15] && telasRegistradas[15].validar) || fechamento.validar14;
+var val14 = (telasRegistradas[103] && telasRegistradas[103].validar) || fechamento.validar14;
 conferir(typeof val14 === 'function', 'Validador da Tela 14 não encontrado.');
 
 /* Casos que devem FALHAR (receita vazia) */
@@ -98,7 +98,7 @@ casos14Validos.forEach(function (c) {
 
 /* ---------- 4. Validação da Tela 15 (Manutenção e retorno) ---------- */
 
-var val15 = (telasRegistradas[16] && telasRegistradas[16].validar) || fechamento.validar15;
+var val15 = (telasRegistradas[104] && telasRegistradas[104].validar) || fechamento.validar15;
 conferir(typeof val15 === 'function', 'Validador da Tela 15 não encontrado.');
 
 /* Casos que devem FALHAR (plano ou data vazios) */
@@ -163,7 +163,7 @@ function criarElementoStub() {
 }
 
 var el14 = criarElementoStub();
-telasRegistradas[15].render(el14, { estado: {}, salvar: function () {}, atualizar: function () {} });
+telasRegistradas[103].render(el14, { estado: {}, salvar: function () {}, atualizar: function () {} });
 var html14 = el14.innerHTML;
 
 conferir(html14.indexOf('Receita técnica') !== -1, 'Tela 14 deve exibir o rótulo "Receita técnica".');
@@ -184,7 +184,7 @@ conferir(html14.indexOf('Total (R$)') === -1 && html14.indexOf('Valor total') ==
 /* ---------- 6. Render da Tela 15 (HTML e RN-21) ---------- */
 
 var el15 = criarElementoStub();
-telasRegistradas[16].render(el15, { estado: {}, salvar: function () {}, atualizar: function () {} });
+telasRegistradas[104].render(el15, { estado: {}, salvar: function () {}, atualizar: function () {} });
 var html15 = el15.innerHTML;
 
 conferir(html15.indexOf('Plano de manutenção') !== -1,
@@ -207,7 +207,7 @@ conferir(html15.indexOf('value=""') !== -1 || html15.indexOf('id="dataRetorno" v
 /* ---------- 7. Render da Tela 16 (4 blocos, textos obrigatórios e tons da matriz) ---------- */
 
 var el16 = criarElementoStub();
-telasRegistradas[17].render(el16, {
+telasRegistradas[105].render(el16, {
   estado: { familia: 'IP' },
   dados: DADOS,
   salvar: function () {},
@@ -249,7 +249,7 @@ DADOS.MATRIZ_PALETAS.forEach(function (camada) {
 /* Checar para cada uma das 6 famílias da matriz se todos os 4 blocos e tons legítimos são gerados */
 DADOS.FAMILIAS.forEach(function (familia) {
   var elFam = criarElementoStub();
-  telasRegistradas[17].render(elFam, {
+  telasRegistradas[105].render(elFam, {
     estado: { familia: familia.sigla },
     dados: DADOS
   });

@@ -1,4 +1,4 @@
-/* Telas 1 a 5 e 8 a 11 do fluxo (blocos Abertura, Leitura e Rosto).
+/* Telas 1 a 6 e 8 a 11 — blocos Abertura, Leitura e Rosto (ordem da Ilda).
    Registradas em window.VISAGE.registrarTela(n, {titulo, bloco, render(el, ctx)}). */
 (function (root) {
   'use strict';
@@ -421,7 +421,7 @@
     ligarTexto(el, 'corCosmetica', e, 'corCosmetica');
   }
 
-  /* ---------- TELA 10 — Percentual de cabelos brancos ---------- */
+  /* ---------- TELA 6 — Cabelos brancos ---------- */
 
   var FAIXAS_BRANCOS = [
     { id: 'nenhum', titulo: 'Nenhum', sub: '0%' },
@@ -456,7 +456,7 @@
     ligarTexto(el, 'brancosObs', e, 'brancosObs');
   }
 
-  /* ---------- TELA 6 — Contraste ---------- */
+  /* ---------- TELA 6 ---------- */
 
   function render6Contraste(el, ctx) {
     var e = ctx.estado;
@@ -613,7 +613,7 @@
     }
   }
 
-  /* ---------- TELA 11 — Como ficou o teste ---------- */
+  /* ---------- TELA 7 ---------- */
 
   function render7(el, ctx) {
     var e = ctx.estado;
@@ -649,7 +649,7 @@
     });
   }
 
-  /* ---------- TELA 8 — Formato de rosto ---------- */
+  /* ---------- TELA 8 ---------- */
 
   /* Ilustracoes de corte (traco, nunca foto): mudam com formato e estatura. */
   function blocoDeCortes(formato, e) {
@@ -726,7 +726,7 @@
     });
   }
 
-  /* ---------- TELA 9 — O que o seu formato direciona ---------- */
+  /* ---------- TELA 9 ---------- */
 
   function render9(el, ctx) {
     var e = ctx.estado;
@@ -775,13 +775,13 @@
   /* ---------- registro ---------- */
 
   VISAGE.registrarTela(1, { titulo: 'Quem está na cadeira?', bloco: 'abertura', render: render1 });
-  VISAGE.registrarTela(2, { titulo: 'Qual o desejo dela?', bloco: 'abertura', render: render2 });
+  VISAGE.registrarTela(2, { titulo: 'Qual é o desejo dela?', bloco: 'abertura', render: render2 });
   VISAGE.registrarTela(3, { titulo: 'Rota escolhida', bloco: 'abertura', render: render3 });
   VISAGE.registrarTela(4, { titulo: 'Profundidade da pele', bloco: 'leitura', render: render4 });
-  VISAGE.registrarTela(5, { titulo: 'Base natural do cabelo', bloco: 'leitura', render: render5 });
-  VISAGE.registrarTela(6, { titulo: 'Percentual de cabelos brancos', bloco: 'leitura', render: render6 });
-  VISAGE.registrarTela(7, { titulo: 'Contraste', bloco: 'leitura', render: render6Contraste });
-  VISAGE.registrarTela(8, { titulo: 'Como ficou o teste', bloco: 'leitura', render: render7 });
-  VISAGE.registrarTela(9, { titulo: 'Formato de rosto', bloco: 'rosto', render: render8 });
-  VISAGE.registrarTela(10, { titulo: 'O que o seu formato direciona', bloco: 'rosto', render: render9 });
+  VISAGE.registrarTela(5, { titulo: 'Base natural', bloco: 'leitura', render: render5 });
+  VISAGE.registrarTela(6, { titulo: 'Contraste', bloco: 'leitura', render: render6Contraste });
+  VISAGE.registrarTela(8, { titulo: 'Formato de rosto', bloco: 'rosto', render: render8 });
+  VISAGE.registrarTela(9, { titulo: 'O que o seu formato direciona', bloco: 'rosto', render: render9 });
+  VISAGE.registrarTela(10, { titulo: 'Percentual de cabelos brancos', bloco: 'leitura', render: render6 });
+  VISAGE.registrarTela(11, { titulo: 'Como ficou o teste', bloco: 'leitura', render: render7 });
 })(typeof window !== 'undefined' ? window : this);

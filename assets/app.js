@@ -4,14 +4,40 @@
 (function (root) {
   'use strict';
 
+  var VISAGE = root.VISAGE = root.VISAGE || {};
+
+  /* Ordem final das 12 telas de leitura, ditada pela Ilda em 18/11/2026. */
+  var TELAS = [
+    { n: 1, titulo: 'Quem está na cadeira?', bloco: 'abertura' },
+    { n: 2, titulo: 'Qual é o desejo dela?', bloco: 'abertura' },
+    { n: 3, titulo: 'Rota escolhida', bloco: 'abertura' },
+    { n: 4, titulo: 'Profundidade da pele', bloco: 'leitura' },
+    { n: 5, titulo: 'Base natural', bloco: 'leitura' },
+    { n: 6, titulo: 'Contraste', bloco: 'leitura' },
+    { n: 7, titulo: 'Família', bloco: 'prescricao' },
+    { n: 8, titulo: 'Formato de rosto', bloco: 'rosto' },
+    { n: 9, titulo: 'O que o seu formato direciona', bloco: 'rosto' },
+    { n: 10, titulo: 'Percentual de cabelos brancos', bloco: 'leitura' },
+    { n: 11, titulo: 'Como ficou o teste', bloco: 'leitura' },
+    { n: 12, titulo: 'Cor final', bloco: 'prescricao' }
+  ];
+
+  /* O Dossiê fica fora da contagem das 12 telas, como etapa final 13. */
+  var TELA_DOSSIE = { n: 13, titulo: 'Dossiê final', bloco: 'fechamento' };
+  var ULTIMA_TELA = TELA_DOSSIE.n;
+  var PRIMEIRA_TELA_ARQUIVADA = 100;
+
+  VISAGE.TELAS = TELAS;
+  VISAGE.TELA_DOSSIE = TELA_DOSSIE;
+
   if (typeof document === 'undefined') return;
 
   var DADOS = root.VISAGE_DATA;
   var MOTOR = root.VISAGE_ENGINE;
   var CHAVE = 'visage.v2';
   var VERSAO = 2;
+  var ORDEM = 'ilda-12';
 
-  var VISAGE = root.VISAGE = root.VISAGE || {};
   var telasRegistradas = VISAGE.telas = VISAGE.telas || {};
 
   var BLOCOS = [
@@ -22,31 +48,11 @@
     { id: 'fechamento', letra: 'E', nome: 'Fechamento' }
   ];
 
-  /* Fluxo oficial ditado pela Ilda, na ordem e com os títulos exatos das 12 telas.
-     `tela` é o id com que assets/telas-*.js registra o render daquela tela.
-     As telas que saíram do fluxo linear (Regra dos 4 tons, Conflito e decisão,
-     Diagnóstico, Manutenção e Paleta) continuam registradas com o seu id. */
-  var TELAS = [
-    { n: 1, titulo: 'Quem está na cadeira?', bloco: 'abertura', tela: 1 },
-    { n: 2, titulo: 'Qual é o desejo dela?', bloco: 'abertura', tela: 2 },
-    { n: 3, titulo: 'Rota escolhida', bloco: 'abertura', tela: 3 },
-    { n: 4, titulo: 'Profundidade da pele', bloco: 'leitura', tela: 4 },
-    { n: 5, titulo: 'Base natural', bloco: 'leitura', tela: 5 },
-    { n: 6, titulo: 'Contraste', bloco: 'leitura', tela: 7 },
-    { n: 7, titulo: 'Família', bloco: 'prescricao', tela: 11 },
-    { n: 8, titulo: 'Formato de rosto', bloco: 'rosto', tela: 9 },
-    { n: 9, titulo: 'O que o seu formato direciona', bloco: 'rosto', tela: 10 },
-    { n: 10, titulo: 'Percentual de cabelos brancos', bloco: 'leitura', tela: 6 },
-    { n: 11, titulo: 'Como ficou o teste', bloco: 'leitura', tela: 8 },
-    { n: 12, titulo: 'Cor final', bloco: 'prescricao', tela: 14 }
-  ];
-
-  /* O dossiê continua acessível como etapa 13, fora da contagem das 12 telas. */
-  var TELA_DOSSIE = 13;
-  var TOTAL_TELAS = TELAS.length + 1;
-  var MAX_REGISTRO = 18;
-
-  VISAGE.TELAS = TELAS;
+  /* Sessões salvas antes da reordenação guardam o número antigo da tela. */
+  var MAPA_TELAS_ANTIGAS = {
+    1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 10, 7: 6, 8: 11, 9: 8, 10: 9,
+    11: 7, 12: 1, 13: 1, 14: 12, 15: 1, 16: 1, 17: 1, 18: 13
+  };
 
   var elBloco = document.getElementById('blocoAtual');
   var elProgresso = document.getElementById('progresso');
@@ -94,6 +100,7 @@
     var aviso = sessao.aviso || '';
     var falhaSalvarAvisada = false;
     var rolarParaTopo = true;
+    var VALIDA_COMO = { 6: 7, 7: 11, 8: 9, 9: 10, 10: 6, 11: 8 };
 
     montarProgresso();
     elVoltar.addEventListener('click', voltar);
@@ -238,20 +245,29 @@
       }
 
       var tela = Number(pacote.telaAtual);
-      if (!Number.isInteger(tela) || tela < 1 || tela > TOTAL_TELAS) tela = 1;
+      var trilha = Array.isArray(pacote.trilha) ? pacote.trilha.map(Number) : [];
+      var avisoMigracao = '';
+      if (pacote.ordem !== ORDEM) {
+        /* Sessão anterior à ordem da Ilda: leva a posição para a tela equivalente. */
+        tela = MAPA_TELAS_ANTIGAS[tela] || 1;
+        trilha = trilha.map(function (numero) { return MAPA_TELAS_ANTIGAS[numero] || 1; });
+        avisoMigracao = 'O fluxo foi reorganizado na ordem nova. A sessão salva foi retomada na tela equivalente.';
+      }
+      if (!Number.isInteger(tela) || tela < 1 || tela > ULTIMA_TELA) tela = 1;
 
-      var trilha = Array.isArray(pacote.trilha) ? pacote.trilha.filter(function (n) {
-        return Number.isInteger(n) && n >= 1 && n <= TOTAL_TELAS;
-      }) : [];
+      trilha = trilha.filter(function (n) {
+        return Number.isInteger(n) && n >= 1 && n <= ULTIMA_TELA;
+      });
       if (!trilha.length || trilha[trilha.length - 1] !== tela) trilha = [tela];
 
-      return { estado: limpo, telaAtual: tela, trilha: trilha, aviso: '' };
+      return { estado: limpo, telaAtual: tela, trilha: trilha, aviso: avisoMigracao };
     }
 
     function salvar() {
       try {
         root.localStorage.setItem(CHAVE, JSON.stringify({
           v: VERSAO,
+          ordem: ORDEM,
           estado: estado,
           telaAtual: telaAtual,
           trilha: trilha
@@ -286,7 +302,8 @@
 
     function registrarTela(n, definicao) {
       var numero = Number(n);
-      if (!Number.isInteger(numero) || numero < 1 || numero > MAX_REGISTRO) {
+      var arquivada = numero >= PRIMEIRA_TELA_ARQUIVADA;
+      if (!Number.isInteger(numero) || numero < 1 || (!arquivada && numero > ULTIMA_TELA)) {
         throw new Error('Tela inválida para registro: ' + n);
       }
       if (!definicao || typeof definicao.render !== 'function') {
@@ -298,7 +315,7 @@
     /* ---------- roteamento ---------- */
 
     function metaDaTela(n) {
-      if (n === TELA_DOSSIE) return { titulo: 'Dossiê final', bloco: 'fechamento', tela: 18 };
+      if (n === ULTIMA_TELA) return TELA_DOSSIE;
       return TELAS[n - 1] || null;
     }
 
@@ -309,34 +326,31 @@
       return BLOCOS[0];
     }
 
-    function familiaDoEstado(e) {
-      return DADOS.familiaPorSigla(e.familia) || null;
-    }
-
-    /* Roteador das telas 12 (Regra dos 4 tons) e 13 (Conflito), que saíram do
-       fluxo linear da Ilda. Fica no código junto com os renders delas, mas o
-       fluxo atual segue reto da tela 12 (Cor final) para o dossiê. */
-    function rotaDaCor() {
-      var familia = familiaDoEstado(estado);
-      var teto = estado.teto;
-      if (teto === null) teto = MOTOR.tetoDeClareamento(estado.baseNatural, familia ? familia.tetoClareamento : 4);
-      if (familia && teto !== null) return MOTOR.rotaDaTela11(familia, teto);
-      return 12;
-    }
-
     function proximaTela(n) {
+      if (n === 11 && estado.saudeFio === 'sem') return null;
+      if (n === 12) return TELA_DOSSIE.n;
+      if (n === TELA_DOSSIE.n) return null;
       return n + 1;
     }
 
+    /* O motor valida pela numeração antiga; aqui a tela nova vira a equivalente. */
+    function validaEtapaAtual() {
+      var numero = VALIDA_COMO[telaAtual] || telaAtual;
+      var cheque = MOTOR.validaEtapa(estado, numero);
+      if (!cheque.ok && cheque.motivo === 'A tela 10 depende do formato escolhido na tela 9.') {
+        cheque.motivo = 'A tela 9 depende do formato escolhido na tela 8.';
+      }
+      return cheque;
+    }
+
     function avancar() {
-      var meta = metaDaTela(telaAtual);
-      var cheque = MOTOR.validaEtapa(estado, meta ? meta.tela : telaAtual);
+      var cheque = validaEtapaAtual();
       if (!cheque.ok) {
         elMotivo.textContent = cheque.motivo;
         elTela.focus();
         return;
       }
-      if (telaAtual === TOTAL_TELAS) {
+      if (telaAtual === ULTIMA_TELA) {
         reiniciar();
         return;
       }
@@ -371,7 +385,7 @@
 
     function irPara(n) {
       var alvo = Number(n);
-      if (!Number.isInteger(alvo) || alvo < 1 || alvo > TOTAL_TELAS) {
+      if (!Number.isInteger(alvo) || alvo < 1 || alvo > ULTIMA_TELA) {
         elMotivo.textContent = 'Tela inválida: ' + n + '.';
         return false;
       }
@@ -433,13 +447,11 @@
 
       elBloco.textContent = 'Bloco ' + bloco.letra + ' · ' + bloco.nome;
       elTelaNome.textContent = meta.titulo;
-      elTelaNum.textContent = telaAtual === TELA_DOSSIE
-        ? 'Etapa ' + TELA_DOSSIE + ' · dossiê final'
-        : 'Tela ' + telaAtual + ' de ' + TELAS.length;
+      elTelaNum.textContent = 'Tela ' + telaAtual + ' de ' + ULTIMA_TELA;
       atualizarProgresso(meta.bloco);
 
       elTela.innerHTML = '';
-      var definicao = telasRegistradas[meta.tela];
+      var definicao = telasRegistradas[telaAtual];
 
       if (!definicao || typeof definicao.render !== 'function') {
         elTela.innerHTML = cartaoEmConstrucao(telaAtual, meta, bloco);
@@ -462,13 +474,14 @@
         elTela.scrollTop = 0;
         rolarParaTopo = false;
       }
-      document.title = 'Tela ' + telaAtual + ' · ' + meta.titulo + ' — Art Visage Harmonie';    }
+      document.title = 'Tela ' + telaAtual + ' · ' + meta.titulo + ' — Art Visage Harmonie';
+    }
 
     function cartaoEmConstrucao(n, meta, bloco) {
       return '<section class="cartao cartao-construcao" aria-labelledby="titulo-construcao">' +
         '<p class="sobretitulo">Bloco ' + bloco.letra + ' · ' + bloco.nome + '</p>' +
         '<h2 id="titulo-construcao">Tela ' + n + ' — em construção</h2>' +
-        '<p class="texto">Esta etapa não está disponível nesta versão do protótipo.</p>' +
+        '<p class="texto">Esta tela ainda não faz parte desta entrega do protótipo.</p>' +
         '<p class="texto-suave">O botão Continuar segue disponível: ele apenas percorre as telas em construção. Voltar retorna ao fluxo já entregue.</p>' +
         '</section>';
     }
@@ -487,12 +500,11 @@
     }
 
     function atualizarRodape() {
-      var meta = metaDaTela(telaAtual);
-      var cheque = MOTOR.validaEtapa(estado, meta ? meta.tela : telaAtual);
+      var cheque = validaEtapaAtual();
       var bloqueioTratamento = cheque.bloqueio === 'tratamento';
 
       elAvancar.disabled = !cheque.ok;
-      elAvancar.textContent = telaAtual === TOTAL_TELAS
+      elAvancar.textContent = telaAtual === ULTIMA_TELA
         ? 'Reiniciar demonstração'
         : (bloqueioTratamento ? 'Prescrição bloqueada' : 'Continuar');
       elAvancar.classList.toggle('btn-bloqueado', bloqueioTratamento);
