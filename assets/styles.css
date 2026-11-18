@@ -371,12 +371,13 @@ textarea:focus {
 }
 
 .opcao {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
   min-height: 54px;
-  padding: 14px 16px;
+  padding: 14px 16px 14px 20px;
   border: 1.5px solid var(--line);
   border-radius: 14px;
   background: var(--card);
@@ -386,6 +387,22 @@ textarea:focus {
   text-align: left;
   cursor: pointer;
   transition: transform .18s cubic-bezier(.2, .7, .3, 1), border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+/* Marca de seleção: a fileira da esquerda resolve antes do circulo, na tela 3
+   onde o texto ocupa toda a largura. */
+.opcao::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: transparent;
+  transition: background .18s ease;
+}
+.opcao.selecionada::before {
+  background: var(--terra);
 }
 .opcao:hover {
   border-color: #c9a97c;
@@ -487,7 +504,8 @@ textarea:focus {
 
 .selo {
   display: inline-block;
-  padding: 4px 8px;
+  padding: 4px 9px;
+  border: 1px solid rgba(90, 70, 45, .10);
   border-radius: 999px;
   background: #f0e6d6;
   color: #6b4f2d;
