@@ -20,6 +20,7 @@ console.error = erroOriginal;
 
 require('../assets/telas-leitura.js');
 require('../assets/telas-prescricao.js');
+require('../assets/telas-fechamento.js');
 
 var VISAGE = global.window.VISAGE;
 
@@ -100,6 +101,9 @@ TELAS.forEach(function (tela, posicao) {
 [12, 13, 15, 16, 17].forEach(function (idForaDoFluxo) {
   conferir(!ids[idForaDoFluxo],
     'A tela de registro ' + idForaDoFluxo + ' saiu do fluxo linear e não pode voltar a ele.');
+  var fora = VISAGE.telas && VISAGE.telas[idForaDoFluxo];
+  conferir(!!fora && typeof fora.render === 'function',
+    'A tela de registro ' + idForaDoFluxo + ' saiu do fluxo, mas precisa continuar registrada no código.');
 });
 
 /* ---------- o h2 de cada tela é o título oficial do fluxo ---------- */
