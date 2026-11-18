@@ -418,6 +418,31 @@
       '</section>';
   }
 
+  /* Fechamento: o que o dossiê precisa e que saiu do percurso de 12 telas.
+     A profissional preenche aqui mesmo, na última etapa, e o documento se
+     atualiza na hora — antes os campos apareciam como "não registrado" sem
+     nenhum lugar para digitar. */
+  function htmlFechamento(estado) {
+    function campo(id, rotulo, valor, tipo) {
+      var conteudo = tipo === 'area'
+        ? '<textarea id="dossie-campo-' + id + '" data-campo="' + id + '" rows="3" placeholder="' + esc(rotulo) + '">' + esc(valor) + '</textarea>'
+        : '<input id="dossie-campo-' + id + '" data-campo="' + id + '" type="' + (tipo || 'text') + '" value="' + esc(valor) + '" placeholder="' + esc(rotulo) + '">';
+      return '<label class="dossie-campo" for="dossie-campo-' + id + '"><span>' + esc(rotulo) + '</span>' + conteudo + '</label>';
+    }
+
+    return '<section class="dossie-secao dossie-secao-campos">' +
+      '<h3><span class="dossie-num">08</span> Fechamento' +
+        '<small>preencha antes de gerar o PDF</small></h3>' +
+      '<div class="dossie-campos">' +
+        campo('receita', 'Receita técnica (fórmula, tempo, oxidante, técnica)', texto(estado.receita || estado.receitaTecnica), 'area') +
+        campo('dataRetorno', 'Data de retorno', texto(estado.dataRetorno), 'date') +
+        campo('manutencao', 'Plano de manutenção', texto(estado.manutencao || estado.planoManutencao)) +
+        campo('cuidados', 'Cuidados diários', texto(estado.cuidadosDiarios || estado.cuidados)) +
+        campo('observar', 'O que observar antes de voltar', texto(estado.observar || estado.oQueObservar)) +
+      '</div>' +
+      '</section>';
+  }
+
   function htmlAcoes() {
     return '<div class="dossie-acoes" role="group" aria-label="Ações do dossiê">' +
       '<button type="button" class="btn btn-primario" data-acao="gerar-pdf">Gerar PDF</button>' +
@@ -451,6 +476,13 @@
     '.dossie-dado dd { margin: 0; font-size: 14px; line-height: 1.4; color: var(--ink); }',
     '.dossie-dado-vazio dd { color: #94836f; font-style: italic; }',
     '.dossie-amostra { margin: 16px 0 0; font-size: 12.5px; color: var(--ink2); }',
+    '.dossie-secao-campos { background: #fdfaf4; }',
+    '.dossie-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }',
+    '.dossie-campo { display: flex; flex-direction: column; gap: 5px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--label); }',
+    '.dossie-campo:first-child { grid-column: 1 / -1; }',
+    '.dossie-campo input, .dossie-campo textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line-forte); border-radius: 9px; background: #fff; font-family: var(--sans); font-size: 13.5px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink); }',
+    '.dossie-campo textarea { resize: vertical; min-height: 62px; line-height: 1.5; }',
+    '@media print { .dossie-secao-campos { display: none; } }',
     '.dossie-conflito { margin: 12px 0 0; }',
     '.dossie-formato-nome { margin: 0 0 6px; font-family: var(--serif); font-size: 24px; color: var(--ink); }',
     '.dossie-direcionamento { margin: 0 0 14px; font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.55; color: #4a3a2a; }',
@@ -520,6 +552,7 @@
       htmlPaleta(contexto) +
       htmlReceita(estado) +
       htmlManutencao(estado) +
+      htmlFechamento(estado) +
       htmlTermo(contexto) +
       '</article>' +
       htmlAcoes();
@@ -569,6 +602,19 @@
   function render(el, ctx) {
     var estado = ctx && ctx.estado ? ctx.estado : {};
     el.innerHTML = montarTela(estado);
+
+    var campos = el && typeof el.querySelectorAll === 'function' ? el.querySelectorAll('[data-campo]') : [];
+    Array.prototype.forEach.call(campos, function (campo) {
+      campo.addEventListener('change', function () {
+        var chave = campo.getAttribute('data-campo');
+        if (!chave) return;
+        estado[chave] = campo.value;
+        if (RAIZ.VISAGE && typeof RAIZ.VISAGE.salvar === 'function') {
+          try { RAIZ.VISAGE.salvar(); } catch (err) { /* storage indisponível não pode travar o preenchimento */ }
+        }
+        render(el, ctx);
+      });
+    });
 
     var gerar = el.querySelector('[data-acao="gerar-pdf"]');
     if (gerar) {

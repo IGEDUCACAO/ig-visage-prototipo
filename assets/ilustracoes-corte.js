@@ -1,60 +1,75 @@
-/* Ilustracoes de corte — traco de linha, sem foto (pedido do Alysson).
-   Cada silhueta e um desenho de massa de cabelo em viewBox 0 0 100 130.
-   O mapa CORTES_POR_FORMATO diz quais cortes combinam com cada formato de
-   rosto e com a estatura da cliente. */
+/* Ilustrações de corte — desenhadas de FRENTE.
+   O desenho é um rosto visto de frente (olhos, nariz, boca, ombros), com a
+   massa de cabelo do corte por cima. Nada de perfil: a cliente precisa se
+   reconhecer na sugestão de corte. */
 (function (global) {
   'use strict';
 
   var VISAGE = global.VISAGE = global.VISAGE || {};
 
-  var ROSTO = 'M50 30 C61 30 68 39 68 51 C68 63 60 74 50 78 C40 74 32 63 32 51 C32 39 39 30 50 30 Z';
+  var ROSTO = 'M50 28 C60.5 28 67 37 67 48.5 C67 59 62.5 68 56.5 73 C54 75.5 52 76.5 50 76.5 C48 76.5 46 75.5 43.5 73 C37.5 68 33 59 33 48.5 C33 37 39.5 28 50 28 Z';
+
+  /* Pescoço, ombros e traços do rosto — iguais para todos os cortes. */
+  var CORPO =
+    ' M43 74 C43 79 43 82 43 85 M57 74 C57 79 57 82 57 85' +
+    ' M18 130 C19 111 32 99 50 99 C68 99 81 111 82 130';
+  var TRACOS =
+    ' M39.5 44.5 C42 43 45 43 47 44.5' +
+    ' M53 44.5 C55 43 58 43 60.5 44.5' +
+    ' M40.5 50.5 C42.6 47.6 45.4 47.6 47.5 50.5 C45.4 53.2 42.6 53.2 40.5 50.5 Z' +
+    ' M52.5 50.5 C54.6 47.6 57.4 47.6 59.5 50.5 C57.4 53.2 54.6 53.2 52.5 50.5 Z' +
+    ' M50 55 C50 58 50 59.5 50 60.5 M47 62.4 C49 63.6 51 63.6 53 62.4' +
+    ' M45.5 67 C48.5 69.2 51.5 69.2 54.5 67';
 
   var SILHUETAS = {
     'longo-liso': {
       nome: 'Longo liso',
       path: ROSTO +
-        ' M30 44 C26 66 27 96 30 122 L42 118 C38 96 37 68 38 48' +
-        ' M70 44 C74 66 73 96 70 122 L58 118 C62 96 63 68 62 48'
+        ' M50 20 C36 20 26 31 26 47 C24 66 24 92 26 124 L40 124 C37 100 36.5 74 37.5 54 C38 42 43 34 50 34 C57 34 62 42 62.5 54 C63.5 74 63 100 60 124 L74 124 C76 92 76 66 74 47 C74 31 64 20 50 20 Z' +
+        ' M50 21.5 L50 32'
     },
     'longo-camadas': {
       nome: 'Longo em camadas',
       path: ROSTO +
-        ' M30 42 C24 60 26 82 22 100 C28 96 30 92 32 86 C30 100 34 110 36 118' +
-        ' M70 42 C76 60 74 82 78 100 C72 96 70 92 68 86 C70 100 66 110 64 118'
+        ' M50 20 C35 20 25 32 25 48 C23 64 27 84 23 104 C29 100 31 96 33 90 C31 104 35 116 37 122 L44 118 C40 104 38 88 39 70 C39.5 52 42 36 50 34 C58 36 60.5 52 61 70 C62 88 60 104 56 118 L63 122 C65 116 69 104 67 90 C69 96 71 100 77 104 C73 84 77 64 75 48 C75 32 65 20 50 20 Z' +
+        ' M39 60 C37.5 78 37 96 39 112 M61 60 C62.5 78 63 96 61 112'
     },
     'chanel': {
       nome: 'Chanel',
       path: ROSTO +
-        ' M26 40 C22 56 24 70 26 82 L74 82 C76 70 78 56 74 40 C70 30 61 24 50 24 C39 24 30 30 26 40 Z' +
-        ' M26 46 L74 46'
+        ' M50 20 C36 20 27 31 27 46 C26 60 27 72 28 82 L72 82 C73 72 74 60 73 46 C73 31 64 20 50 20 Z' +
+        ' M28 77.5 C36 79.5 44 80 50 80 C56 80 64 79.5 72 77.5'
     },
     'bob': {
       nome: 'Long bob',
       path: ROSTO +
-        ' M27 42 C24 54 25 64 27 72 L73 72 C75 64 76 54 73 42 C69 32 60 25 50 25 C40 25 31 32 27 42 Z'
+        ' M50 20 C35 20 26 32 26 48 C25 64 26 78 27 92 L73 92 C74 78 75 64 74 48 C74 32 65 20 50 20 Z' +
+        ' M27 87 C36 89.5 44 90 50 90 C56 90 64 89.5 73 87'
     },
     'pixie': {
       nome: 'Pixie',
       path: ROSTO +
-        ' M30 40 C30 28 40 22 50 22 C60 22 70 28 70 40 C70 44 66 42 62 40 C56 36 44 36 38 40 C34 43 30 45 30 40 Z'
+        ' M50 21 C38 21 30 29 30 41 C30 45 31 48 32 50 C31 44 33 36 39 33 C45 30 55 30 61 33 C67 36 69 44 68 50 C69 48 70 45 70 41 C70 29 62 21 50 21 Z' +
+        ' M61 31 C65.5 34 67.5 39 67.5 43'
     },
     'medio-ondulado': {
       nome: 'Médio ondulado',
       path: ROSTO +
-        ' M28 42 C22 50 26 58 22 64 C28 66 30 62 32 58 C30 70 34 76 32 84' +
-        ' M72 42 C78 50 74 58 78 64 C72 66 70 62 68 58 C70 70 66 76 68 84'
+        ' M50 20 C35 20 25 32 25 48 C23 62 27 70 24 80 C30 78 33 74 34 68 C33 80 36 88 34 96 L44 92 C39 84 38 72 39 60 C39.5 48 42 36 50 34 C58 36 60.5 48 61 60 C62 72 61 84 56 92 L66 96 C64 88 67 80 66 68 C67 74 70 78 76 80 C73 70 77 62 75 48 C75 32 65 20 50 20 Z' +
+        ' M31 56 C33 62 31 68 33 74 M69 56 C67 62 69 68 67 74'
     },
     'franja-cortina': {
       nome: 'Franja cortina',
       path: ROSTO +
-        ' M30 40 C30 26 40 20 50 20 C60 20 70 26 70 40' +
-        ' M50 22 C46 32 40 36 34 40 C40 44 46 42 50 36 C54 42 60 44 66 40 C60 36 54 32 50 22 Z'
+        ' M50 20 C36 20 26 31 26 47 C24 66 24 92 26 124 L40 124 C37 100 36.5 74 37.5 54 C38 42 43 34 50 34 C57 34 62 42 62.5 54 C63.5 74 63 100 60 124 L74 124 C76 92 76 66 74 47 C74 31 64 20 50 20 Z' +
+        ' M50 22 C46 30 40 34 33 37 C38 41 45 39 48.5 32 Z' +
+        ' M50 22 C54 30 60 34 67 37 C62 41 55 39 51.5 32 Z'
     },
     'coque-alto': {
       nome: 'Coque alto',
       path: ROSTO +
-        ' M34 40 C34 26 42 20 50 20 C58 20 66 26 66 40' +
-        ' M50 20 C50 10 56 6 60 8 C66 10 66 18 60 20 C56 21 52 21 50 20 Z'
+        ' M50 22 C39 22 32 30 32 41 C32 45 33 48 34 50 C33 44 35 37 41 34 C47 31 53 31 59 34 C65 37 67 44 66 50 C67 48 68 45 68 41 C68 30 61 22 50 22 Z' +
+        ' M50 21 C47 9 56 3 62 6 C69 10 68 20 60 21.5'
     }
   };
 
@@ -76,24 +91,24 @@
     { id: 'alta', titulo: 'Alta', sub: 'acima de 1,70 m' }
   ];
 
-  /* Base de imagens: ilustracoes de traco geradas uma vez (assets/cortes/<id>.png)
-     e reaproveitadas. O SVG antigo continua como reserva caso o PNG nao carregue. */
-  var CAMINHO_BASE = 'assets/cortes/';
-
   function svgDoCorte(id, classe) {
     var s = SILHUETAS[id];
     if (!s) return '';
-    return '<svg class="' + (classe || 'ilustracao-corte') + '" viewBox="0 0 100 130" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="' + s.path + '"/></svg>';
+    return '<svg class="' + (classe || 'ilustracao-corte') + '" viewBox="0 0 100 130" aria-hidden="true" focusable="false">' +
+      '<g class="ilustracao-corpo" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".45">' +
+        '<path d="' + CORPO + '"/>' +
+        '<path d="' + TRACOS + '"/>' +
+      '</g>' +
+      '<path class="ilustracao-cabelo" d="' + s.path + '" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '</svg>';
   }
 
+  /* A ilustração agora é sempre o desenho de frente; o PNG antigo (de perfil)
+     saiu do app — a cliente precisa ver o rosto dela encarando a tela. */
   function figuraDoCorte(id, classe) {
     var s = SILHUETAS[id];
     if (!s) return '';
-    var nome = s.nome || id;
-    return '<img class="' + (classe || 'ilustracao-corte') + '" src="' + CAMINHO_BASE + id + '.png"' +
-      ' alt="Ilustração de corte: ' + nome + '" loading="lazy" decoding="async"' +
-      ' onerror="this.outerHTML=window.VISAGE.ilustracoesCorte.svgDoCorte(\'' + id + '\')">';
+    return svgDoCorte(id, classe);
   }
 
   function cortesDoFormato(formatoId, estatura) {
