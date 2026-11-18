@@ -29,6 +29,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+img,
+svg {
+  max-width: 100%;
+}
+
 html, body {
   margin: 0;
   min-height: 100%;
@@ -146,6 +151,8 @@ body {
   text-transform: uppercase;
   white-space: nowrap;
   max-width: 46%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: right;
 }
 
@@ -231,28 +238,32 @@ body {
 }
 
 .tela h2 {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-family: var(--serif);
-  font-size: 24px;
-  line-height: 1.2;
+  font-size: 27px;
+  line-height: 1.16;
   font-weight: 700;
-  letter-spacing: -.01em;
+  letter-spacing: -.015em;
   color: var(--ink);
+  text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 .tela h3 {
   margin: 0 0 8px;
   font-family: var(--serif);
-  font-size: 17.5px;
+  font-size: 18px;
   line-height: 1.3;
   color: var(--ink);
+  text-wrap: balance;
 }
 
 .lead {
-  margin: 0 0 18px;
-  font-size: 13.5px;
+  margin: 0 0 20px;
+  font-size: 15px;
   line-height: 1.55;
   color: var(--ink2);
+  max-width: 48ch;
 }
 
 .lead-destaque {
@@ -261,13 +272,14 @@ body {
   border-radius: 0 12px 12px 0;
   background: #fdf8f0;
   color: #4a3a2a;
-  font-size: 13.5px;
-  margin-bottom: 14px;
+  font-size: 14px;
+  line-height: 1.55;
+  margin-bottom: 16px;
 }
 
 .texto {
-  margin: 0 0 10px;
-  font-size: 13px;
+  margin: 0 0 12px;
+  font-size: 14px;
   line-height: 1.55;
   color: var(--ink2);
 }
@@ -342,7 +354,21 @@ input:focus,
 textarea:focus {
   outline: none;
   border-color: var(--terra);
-  box-shadow: 0 0 0 3px rgba(154, 91, 42, .14);
+  box-shadow: 0 0 0 3px rgba(154, 91, 42, .18);
+}
+
+input:disabled,
+textarea:disabled {
+  border-color: #cdbfa9;
+  border-style: dashed;
+  background: #f1eae0;
+  color: #5a5045;
+  cursor: not-allowed;
+}
+
+input:disabled::placeholder,
+textarea:disabled::placeholder {
+  color: #6d6156;
 }
 
 /* ---------- opções ---------- */
@@ -370,18 +396,29 @@ textarea:focus {
   cursor: pointer;
   transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
 }
-.opcao:hover {
+.opcao:hover:not(:disabled) {
   border-color: #c9a97c;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow);
+  background: #fffefb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(90, 70, 45, .11);
 }
-.opcao:active {
+.opcao:active:not(:disabled) {
   transform: translateY(0) scale(.995);
+  box-shadow: 0 2px 8px rgba(90, 70, 45, .10);
 }
 .opcao.selecionada {
   border-color: var(--terra);
-  background: #fdf8f0;
-  box-shadow: 0 0 0 3px rgba(154, 91, 42, .10);
+  background: #f7eada;
+  box-shadow: inset 0 0 0 1.5px var(--terra), 0 2px 10px rgba(154, 91, 42, .14);
+}
+.opcao.selecionada .opcao-titulo {
+  color: var(--terra-d);
+}
+/* O hover não pode apagar a seleção. */
+.opcao.selecionada:hover:not(:disabled) {
+  border-color: var(--terra);
+  background: #f7eada;
+  box-shadow: inset 0 0 0 1.5px var(--terra), 0 8px 20px rgba(154, 91, 42, .18);
 }
 /* Feedback de seleção (telas 4 e 5): o clique precisa "responder" antes de
    a tela virar, senão a troca de tela parece não ter sido ouvida. */
@@ -415,9 +452,9 @@ textarea:focus {
   transition: background .15s ease, border-color .15s ease;
 }
 .opcao.selecionada .opcao-marca {
-  border-color: var(--terra);
+  border-color: var(--terra-d);
   background: var(--terra);
-  box-shadow: inset 0 0 0 3px #fdf8f0;
+  box-shadow: inset 0 0 0 3px #f7eada;
 }
 
 .opcao-texto {
@@ -433,6 +470,7 @@ textarea:focus {
   font-size: 15px;
   font-weight: 600;
   line-height: 1.3;
+  overflow-wrap: break-word;
 }
 
 .opcao-sub {
@@ -483,12 +521,44 @@ textarea:focus {
 
 .opcao-perigo.selecionada {
   border-color: #a2432c;
-  background: #fdf1ec;
-  box-shadow: 0 0 0 3px rgba(162, 67, 44, .12);
+  background: #f9e7df;
+  box-shadow: inset 0 0 0 1.5px #a2432c, 0 2px 10px rgba(162, 67, 44, .14);
 }
 .opcao-perigo.selecionada .opcao-marca {
-  border-color: #a2432c;
+  border-color: #8d3b2a;
   background: #a2432c;
+  box-shadow: inset 0 0 0 3px #f9e7df;
+}
+.opcao-perigo.selecionada:hover:not(:disabled) {
+  border-color: #a2432c;
+  background: #f9e7df;
+  box-shadow: inset 0 0 0 1.5px #a2432c, 0 8px 20px rgba(162, 67, 44, .18);
+}
+
+/* Estado desabilitado: cor, borda e cursor próprios — não só opacidade. */
+.opcao:disabled,
+.opcao[aria-disabled="true"] {
+  border-style: dashed;
+  border-color: #cdbfa9;
+  background: #f1eae0;
+  color: #5a5045;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+.opcao:disabled .opcao-titulo,
+.opcao[aria-disabled="true"] .opcao-titulo {
+  color: #5a5045;
+}
+.opcao:disabled .opcao-sub,
+.opcao[aria-disabled="true"] .opcao-sub {
+  color: #6d6156;
+}
+.opcao:disabled .opcao-marca,
+.opcao[aria-disabled="true"] .opcao-marca {
+  border-color: #bfae97;
+  background: #e1d6c6;
+  box-shadow: none;
 }
 
 /* ---------- grades ---------- */
@@ -624,7 +694,7 @@ textarea:focus {
 }
 
 .nota {
-  margin: 16px 0 0;
+  margin: 18px 0 0;
   padding: 12px 14px;
   border-left: 3px solid var(--gold);
   border-radius: 0 12px 12px 0;
@@ -680,12 +750,20 @@ textarea:focus {
   cursor: pointer;
   transition: border-color .15s ease, background .15s ease;
 }
-.opcao-radio:hover {
+.opcao-radio:hover:not(:has(input:disabled)) {
   border-color: #c9a97c;
 }
 .opcao-radio:has(input:checked) {
   border-color: var(--terra);
-  background: #fdf8f0;
+  background: #f7eada;
+  box-shadow: inset 0 0 0 1.5px var(--terra);
+}
+.opcao-radio:has(input:disabled) {
+  border-style: dashed;
+  border-color: #cdbfa9;
+  background: #f1eae0;
+  color: #5a5045;
+  cursor: not-allowed;
 }
 .opcao-radio input[type="radio"] {
   width: 18px;
@@ -709,7 +787,7 @@ textarea:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 18px;
 }
 .acoes-inline .btn {
   flex: 1 1 180px;
@@ -779,6 +857,7 @@ textarea:focus {
   font-size: 13.5px;
   line-height: 1.45;
   color: var(--ink);
+  overflow-wrap: break-word;
 }
 
 .linha-vazia .linha-valor {
@@ -832,6 +911,7 @@ textarea:focus {
 }
 
 .btn-primario {
+  /* #fff sobre #9a5b2a = 5.3:1 (AA para texto normal). */
   background: var(--terra);
   color: #fff;
   box-shadow: 0 8px 18px rgba(154, 91, 42, .24), inset 0 1px 0 rgba(255, 255, 255, .12);
@@ -839,17 +919,23 @@ textarea:focus {
 .btn-primario:hover:not(:disabled) {
   background: #8a4f24;
   transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(138, 79, 36, .28), inset 0 1px 0 rgba(255, 255, 255, .12);
 }
 .btn-primario:active:not(:disabled) {
   transform: translateY(0);
 }
-.btn-primario:disabled {
-  background: #ded2c2;
-  color: #6f6255;
+.btn:disabled {
+  border-style: dashed;
+  border-color: #cdbfa9;
+  background: #efe7db;
+  color: #5a5045;
   box-shadow: none;
+  transform: none;
   cursor: not-allowed;
 }
 .btn-primario:disabled.btn-bloqueado {
+  border-style: solid;
+  border-color: #8d3b2a;
   background: #8d3b2a;
   color: #fff;
   cursor: not-allowed;
@@ -860,14 +946,14 @@ textarea:focus {
   background: transparent;
   color: #5f4a35;
 }
-.btn-secundario:hover {
+.btn-secundario:hover:not(:disabled) {
   border-color: #c9a97c;
   background: #f7efe2;
 }
 
 .btn-largo {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 14px;
 }
 
 /* Atalho de teste do protótipo: discreto, não é caminho do método. */
@@ -882,8 +968,9 @@ textarea:focus {
 .opcao-radio:focus-within,
 input:focus-visible,
 textarea:focus-visible,
-a:focus-visible {
-  outline: 3px solid rgba(154, 91, 42, .38);
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2.5px solid var(--terra-d);
   outline-offset: 2px;
 }
 
@@ -930,6 +1017,12 @@ a:focus-visible {
 @media (max-width: 380px) {
   .tela {
     padding: 18px 16px 26px;
+  }
+  .tela h2 {
+    font-size: 24px;
+  }
+  .lead {
+    font-size: 14.5px;
   }
   .topo,
   .rodape {
@@ -1030,18 +1123,18 @@ a:focus-visible {
 .cartao-corte {
   margin: 0;
   padding: 10px 6px 8px;
-  border: 1px solid var(--linha);
+  border: 1px solid var(--line);
   border-radius: 14px;
-  background: #fffdf9;
+  background: var(--card);
   text-align: center;
-  color: var(--tinta-suave, #4a423a);
+  color: var(--ink2);
 }
 .cartao-corte figcaption {
   margin-top: 6px;
   font-size: 12px;
   line-height: 1.25;
-  color: var(--tinta, #2f2a25);
+  color: var(--ink);
 }
 .ilustracao-corte { width: 100%; height: 132px; max-height: 132px; object-fit: contain; object-position: center bottom; display: block; margin: 0 auto; }
 .opcao-compacta { padding: 10px 8px; }
-.opcao-compacta .opcao-sub { display: block; font-size: 11.5px; opacity: .72; margin-top: 2px; }
+.opcao-compacta .opcao-sub { display: block; font-size: 11.5px; color: var(--ink2); margin-top: 2px; }
