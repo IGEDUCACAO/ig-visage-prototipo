@@ -590,7 +590,7 @@
       bloco: 'fechamento',
       render: render
     };
-    alvo.registrarTela(18, definicao);
+    alvo.registrarTela(13, definicao);
     return definicao;
   }
 

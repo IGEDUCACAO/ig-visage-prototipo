@@ -220,7 +220,7 @@
     return profundidade + ' · ' + temperatura;
   }
 
-  /* Grava família e teto no prontuário: o roteador da tela 11 lê exatamente esses campos. */
+  /* Grava família e teto no prontuário: o roteador da tela 7 lê exatamente esses campos. */
   function sincronizar(estado, ctx) {
     var familia = familiaPrescrita(estado);
     var mudou = false;
@@ -276,9 +276,9 @@
       if (!alvo || alvo.nodeType !== 1 || alvo.id !== 'avancar') return;
 
       var numero = secaoMontada();
-      if (numero !== 13 && numero !== 14) return;
+      if (numero !== 12) return;
 
-      var cheque = validarAvancar(numero, estadoMontado || {});
+      var cheque = validarAvancar(14, estadoMontado || {});
       if (cheque.ok) return;
 
       evento.preventDefault();
@@ -324,7 +324,7 @@
       ? calibracaoPorContraste(e.contraste)
       : null;
 
-    var secao = '<h2>Família e calibração</h2>' +
+    var secao = '<h2>Família</h2>' +
       '<p class="lead">Calculado a partir do que você registrou. Você confirma — este é o primeiro ponto de validação.</p>';
 
     /* Ordem pedida pelo Alysson (tela 10): campos preenchiveis em cima,
@@ -498,7 +498,7 @@
           '<p class="texto">' + (familia && teto !== null
             ? 'Nenhuma amostra de ' + esc(familia.nome + ' · ' + familia.sigla) + ' cabe no teto ' + esc(hh(teto)) + '.'
             : 'Faltam a família e o teto para filtrar as amostras.') + '</p>' +
-          '<p class="texto-suave">O app não substitui a família e não recalcula o teto. Volte e confira o conflito antes de escolher.</p>' +
+          '<p class="texto-suave">O app não substitui a família e não recalcula o teto. Volte e confira a família e o teto antes de escolher.</p>' +
         '</div>';
     } else {
       var grade = amostras.map(function (amostra) {
@@ -526,14 +526,17 @@
         '</p>';
     }
 
-    el.innerHTML = cabecalho + corpo +
+    el.innerHTML = cabecalho +
+      '<p class="rotulo">Sugestões de cores para a sua família</p>' +
+      corpo +
+      '<p class="rotulo">Cor escolhida pela cliente</p>' +
       '<div class="campo">' +
         '<label class="rotulo" for="corFinalLivre">Cor final (livre)</label>' +
         '<textarea id="corFinalLivre" class="entrada" rows="3" placeholder="Ex.: 7.1 com 10% de 6.0, aplicação em duas etapas, sem tocar nas pontas">' + esc(e.corFinalLivre || '') + '</textarea>' +
         '<p class="hint">Este texto vai para o resumo e para o dossiê.</p>' +
       '</div>' +
       '<div class="nota"><b>cor de tela é direção;</b> a decisão se confirma com a amostra na mão.</div>' +
-      '<div data-tela-prescricao="14" hidden aria-hidden="true"></div>';
+      '<div data-tela-prescricao="12" hidden aria-hidden="true"></div>';
 
     var campoCor = el.querySelector('#corFinalLivre');
     if (campoCor) {
@@ -555,10 +558,11 @@
   /* ---------- registro ---------- */
 
   if (VISAGE) {
-    VISAGE.registrarTela(11, { titulo: 'Família e calibração', bloco: 'prescricao', render: render10 });
-    VISAGE.registrarTela(12, { titulo: 'Regra dos 4 tons / COR final', bloco: 'prescricao', render: render11 });
-    VISAGE.registrarTela(13, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
-    VISAGE.registrarTela(14, { titulo: 'Cor final', bloco: 'prescricao', render: render13 });
+    VISAGE.registrarTela(7, { titulo: 'Família', bloco: 'prescricao', render: render10 });
+    VISAGE.registrarTela(12, { titulo: 'Cor final', bloco: 'prescricao', render: render13 });
+    /* Fora do fluxo linear: o código fica nos arquivos, arquivado em 100+. */
+    VISAGE.registrarTela(101, { titulo: 'Regra dos 4 tons', bloco: 'prescricao', render: render11 });
+    VISAGE.registrarTela(102, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
   }
 
   return {

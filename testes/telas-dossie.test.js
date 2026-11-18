@@ -54,16 +54,16 @@ var stub = {
 
 semErro('DOSSIE.registrar(stub)', function () { DOSSIE.registrar(stub); });
 
-conferir(registraram.length === 1 && registraram[0] === 18,
-  'registrar deve registrar exatamente a tela 18; veio ' + JSON.stringify(registraram) + '.');
-conferir(stub.telas[18] && typeof stub.telas[18] === 'object', 'tela 17 não foi registrada no stub.');
-conferir(stub.telas[18] && stub.telas[18].titulo === 'Dossiê final', 'título registrado diverge do esperado.');
-conferir(stub.telas[18] && stub.telas[18].bloco === 'fechamento', 'a tela 17 pertence ao bloco fechamento.');
-conferir(stub.telas[18] && typeof stub.telas[18].render === 'function', 'a tela 17 precisa expor render(el, ctx).');
+conferir(registraram.length === 1 && registraram[0] === 13,
+  'registrar deve registrar exatamente a tela 13; veio ' + JSON.stringify(registraram) + '.');
+conferir(stub.telas[13] && typeof stub.telas[13] === 'object', 'o Dossiê não foi registrado no stub.');
+conferir(stub.telas[13] && stub.telas[13].titulo === 'Dossiê final', 'título registrado diverge do esperado.');
+conferir(stub.telas[13] && stub.telas[13].bloco === 'fechamento', 'o Dossiê pertence ao bloco fechamento.');
+conferir(stub.telas[13] && typeof stub.telas[13].render === 'function', 'o Dossiê precisa expor render(el, ctx).');
 
 var semRegistrador = { telas: {} };
 semErro('DOSSIE.registrar cria o stub quando falta registrarTela', function () { DOSSIE.registrar(semRegistrador); });
-conferir(semRegistrador.telas[18] && typeof semRegistrador.telas[18].render === 'function',
+conferir(semRegistrador.telas[13] && typeof semRegistrador.telas[13].render === 'function',
   'registrar deveria criar registrarTela quando o shell ainda não o definiu.');
 
 /* ---------- estado completo de uma consultoria ---------- */

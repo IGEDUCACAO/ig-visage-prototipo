@@ -65,7 +65,7 @@ function contextoFalso(estado) {
 function renderizar(estado) {
   var el = elementoFalso();
   var ctx = contextoFalso(estado);
-  global.window.VISAGE.telas[11].render(el, ctx);
+  global.window.VISAGE.telas[7].render(el, ctx);
   return { html: el.innerHTML, ctx: ctx };
 }
 
