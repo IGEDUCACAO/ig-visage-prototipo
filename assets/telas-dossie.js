@@ -422,6 +422,7 @@
   }
 
   var CSS_DOSSIE = [
+    '<style>',
     '.dossie { max-width: 760px; margin: 0 auto; border: 1px solid var(--line-forte); border-radius: 20px; overflow: hidden; background: var(--card); box-shadow: var(--shadow-alto); }',
     '.dossie-capa { padding: 38px 30px 30px; background: radial-gradient(circle at 82% 12%, rgba(240,196,63,.30), transparent 46%), linear-gradient(160deg, #2C1236 0%, #150B1E 100%); color: #FFFFFF; }',
     '.dossie-capa-marca { margin: 0; font-family: var(--suave); font-size: 13px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--ouro); }',
