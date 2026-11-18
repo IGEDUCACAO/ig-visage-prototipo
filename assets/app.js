@@ -9,13 +9,13 @@
   /* Ordem final das 12 telas de leitura, ditada pela Ilda em 18/11/2026. */
   var TELAS = [
     { n: 1, titulo: 'Quem está na cadeira?', bloco: 'abertura' },
-    { n: 2, titulo: 'Qual o desejo dela?', bloco: 'abertura' },
+    { n: 2, titulo: 'Qual é o desejo dela?', bloco: 'abertura' },
     { n: 3, titulo: 'Rota escolhida', bloco: 'abertura' },
     { n: 4, titulo: 'Profundidade da pele', bloco: 'leitura' },
-    { n: 5, titulo: 'Base natural do cabelo', bloco: 'leitura' },
+    { n: 5, titulo: 'Base natural', bloco: 'leitura' },
     { n: 6, titulo: 'Contraste', bloco: 'leitura' },
     { n: 7, titulo: 'Família', bloco: 'prescricao' },
-    { n: 8, titulo: 'Formato do rosto', bloco: 'rosto' },
+    { n: 8, titulo: 'Formato de rosto', bloco: 'rosto' },
     { n: 9, titulo: 'O que o seu formato direciona', bloco: 'rosto' },
     { n: 10, titulo: 'Percentual de cabelos brancos', bloco: 'leitura' },
     { n: 11, titulo: 'Como ficou o teste', bloco: 'leitura' },

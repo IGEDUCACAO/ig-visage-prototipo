@@ -290,12 +290,16 @@ semErro('clique em Gerar PDF sem window.print', function () {
 });
 conferir(statusTexto.indexOf('impressão') !== -1,
   'sem window.print o botão precisa avisar em vez de falhar em silêncio; veio ' + JSON.stringify(statusTexto) + '.');
+conferir(statusTexto.indexOf('is not defined') === -1,
+  'Gerar PDF não pode estourar erro de runtime; veio ' + JSON.stringify(statusTexto) + '.');
 
 statusTexto = '';
 semErro('clique em Reiniciar sem VISAGE/localStorage', function () {
   ouvintes['[data-acao="reiniciar"]'].fn();
 });
 conferir(statusTexto.length > 0, 'sem VISAGE e sem localStorage o reinício precisa avisar em vez de falhar em silêncio.');
+conferir(statusTexto.indexOf('is not defined') === -1,
+  'Reiniciar não pode estourar erro de runtime; veio ' + JSON.stringify(statusTexto) + '.');
 
 /* ---------- impressão: interface escondida, dossiê impresso ---------- */
 

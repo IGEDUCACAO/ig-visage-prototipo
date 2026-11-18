@@ -27,13 +27,13 @@ var DOSSIE_META = VISAGE_META.TELA_DOSSIE || null;
 
 var TITULOS = [
   'Quem está na cadeira?',
-  'Qual o desejo dela?',
+  'Qual é o desejo dela?',
   'Rota escolhida',
   'Profundidade da pele',
-  'Base natural do cabelo',
+  'Base natural',
   'Contraste',
   'Família',
-  'Formato do rosto',
+  'Formato de rosto',
   'O que o seu formato direciona',
   'Percentual de cabelos brancos',
   'Como ficou o teste',

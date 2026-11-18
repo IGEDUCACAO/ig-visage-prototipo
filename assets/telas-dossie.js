@@ -13,6 +13,10 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (DADOS, MOTOR) {
   'use strict';
 
+  /* `root` é parâmetro do envelope, não chega até aqui: a raiz global é
+     resolvida dentro do módulo para impressão, storage e recarga. */
+  var RAIZ = typeof globalThis !== 'undefined' ? globalThis : this;
+
   if (!DADOS || !MOTOR) {
     throw new Error('telas-dossie precisa de assets/data.js e assets/engine.js carregados.');
   }
@@ -316,14 +320,14 @@
     var formato = estado.formatoRosto ? DADOS.formatoPorId(estado.formatoRosto) : null;
     if (!formato) {
       return '<section class="dossie-secao">' +
-        '<h3><span class="dossie-num">03</span> Formato do rosto</h3>' +
+        '<h3><span class="dossie-num">03</span> Formato de rosto</h3>' +
         '<p class="dossie-nota">' + esc(TEXTOS.semFormato) + '</p>' +
         '</section>';
     }
 
     var itens = MOTOR.itensDoFormato(formato);
     return '<section class="dossie-secao">' +
-      '<h3><span class="dossie-num">03</span> Formato do rosto</h3>' +
+      '<h3><span class="dossie-num">03</span> Formato de rosto</h3>' +
       '<p class="dossie-formato-nome">' + esc(formato.nome) + '</p>' +
       '<p class="dossie-direcionamento">' + esc(formato.direcionamento) + '</p>' +
       (itens.length
@@ -532,13 +536,13 @@
 
   function reiniciarDemonstracao(el) {
     try {
-      if (root.VISAGE && typeof root.VISAGE.reiniciar === 'function') {
-        root.VISAGE.reiniciar();
+      if (RAIZ.VISAGE && typeof RAIZ.VISAGE.reiniciar === 'function') {
+        RAIZ.VISAGE.reiniciar();
         return;
       }
-      if (root.localStorage) root.localStorage.removeItem(CHAVE);
-      if (root.location && typeof root.location.reload === 'function') {
-        root.location.reload();
+      if (RAIZ.localStorage) RAIZ.localStorage.removeItem(CHAVE);
+      if (RAIZ.location && typeof RAIZ.location.reload === 'function') {
+        RAIZ.location.reload();
         return;
       }
       mensagemNaTela(el, 'Não foi possível reiniciar: armazenamento e recarga indisponíveis neste navegador.');
@@ -549,12 +553,12 @@
 
   function imprimirDossie(el) {
     try {
-      if (typeof root.print !== 'function') {
+      if (typeof RAIZ.print !== 'function') {
         mensagemNaTela(el, 'Este navegador não expõe a impressão. Use o menu do navegador para salvar o dossiê em PDF.');
         return;
       }
       mensagemNaTela(el, '');
-      root.print();
+      RAIZ.print();
     } catch (err) {
       mensagemNaTela(el, 'Falha ao abrir a impressão: ' + (err && err.message ? err.message : err));
     }

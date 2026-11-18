@@ -34,7 +34,7 @@ esperarTela(1, 'tela 1 bloqueada');
 estado.cliente = { nome: 'Ana Teste', contato: '(11) 90000-0000' };
 avancar();
 esperarTela(2);
-conferir(elementos.telaNome.textContent === 'Qual o desejo dela?', 'a tela 2 diverge.');
+conferir(elementos.telaNome.textContent === 'Qual é o desejo dela?', 'a tela 2 diverge.');
 
 estado.desejo = 'clarear sem perder a naturalidade';
 avancar();
@@ -59,7 +59,7 @@ conferir(elementos.telaNome.textContent === 'Família', 'a tela 7 deveria ser Fa
 
 avancar();
 esperarTela(8);
-conferir(elementos.telaNome.textContent === 'Formato do rosto', 'a tela 8 deveria ser Formato do rosto.');
+conferir(elementos.telaNome.textContent === 'Formato de rosto', 'a tela 8 deveria ser Formato de rosto.');
 
 estado.formatoRosto = shell.DADOS.FORMATOS_ROSTO[0].id;
 avancar();
