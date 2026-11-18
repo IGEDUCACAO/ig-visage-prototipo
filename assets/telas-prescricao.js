@@ -324,7 +324,7 @@
       ? calibracaoPorContraste(e.contraste)
       : null;
 
-    var secao = '<h2>Família e calibração</h2>' +
+    var secao = '<h2>Família</h2>' +
       '<p class="lead">Calculado a partir do que você registrou. Você confirma — este é o primeiro ponto de validação.</p>';
 
     /* Ordem pedida pelo Alysson (tela 10): campos preenchiveis em cima,
@@ -520,7 +520,9 @@
       corpo =
         '<p class="lead-destaque">' + esc(amostras.length + (amostras.length === 1 ? ' amostra' : ' amostras') +
           ' de ' + familia.nome + ' · ' + familia.sigla + ' dentro do teto ' + hh(teto) + '.') + '</p>' +
+        '<p class="rotulo rotulo-secao">Sugestões de cores para a sua família</p>' +
         '<div class="grade grade-3">' + grade + '</div>' +
+        '<p class="rotulo rotulo-secao">Cor escolhida pela cliente</p>' +
         '<p class="estado-desejo' + (escolhida ? ' estado-desejo-ativo' : '') + '" role="status">' +
           (escolhida ? 'Amostra escolhida: ' + esc(escolhida) + '.' : 'Escolha pendente — o Continuar fica bloqueado até a seleção.') +
         '</p>';
