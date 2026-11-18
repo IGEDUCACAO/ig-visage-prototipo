@@ -499,7 +499,7 @@
           '<p class="texto">' + (familia && teto !== null
             ? 'Nenhuma amostra de ' + esc(familia.nome + ' · ' + familia.sigla) + ' cabe no teto ' + esc(hh(teto)) + '.'
             : 'Faltam a família e o teto para filtrar as amostras.') + '</p>' +
-          '<p class="texto-suave">O app não substitui a família e não recalcula o teto. Volte e confira o conflito antes de escolher.</p>' +
+          '<p class="texto-suave">O app não substitui a família e não recalcula o teto. Volte e confira a família e a base natural antes de escolher.</p>' +
         '</div>';
     } else {
       var grade = amostras.map(function (amostra) {

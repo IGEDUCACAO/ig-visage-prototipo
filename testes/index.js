@@ -24,4 +24,8 @@ if (!arquivos.length) {
     if (!passou) process.exitCode = 1;
     console.log((passou ? 'ok' : 'FALHOU') + ' — testes/' + nome);
   });
+
+  console.log(process.exitCode
+    ? 'TESTES: ' + arquivos.length + ' arquivos, com falha.'
+    : 'TESTES: ' + arquivos.length + ' arquivos, todos passaram.');
 }
