@@ -12,26 +12,39 @@ const { spawnSync } = require('node:child_process');
 
 const DIR_TESTES = __dirname;
 
-let arquivos;
-try {
-  arquivos = readdirSync(DIR_TESTES)
-    .filter((nome) => nome.endsWith('.test.js'))
-    .sort();
-} catch (erro) {
-  console.error('nao consegui ler o diretorio de testes: ' + erro.message);
-  process.exit(1);
+function coletar(dir, prefixo) {
+  let entradas;
+  try {
+    entradas = readdirSync(dir, { withFileTypes: true });
+  } catch (erro) {
+    console.error('nao consegui ler o diretorio de testes ' + dir + ': ' + erro.message);
+    process.exit(1);
+  }
+
+  const arquivos = [];
+  for (const entrada of entradas) {
+    const relativo = prefixo ? prefixo + '/' + entrada.name : entrada.name;
+    if (entrada.isDirectory()) {
+      arquivos.push(...coletar(path.join(dir, entrada.name), relativo));
+    } else if (entrada.isFile() && entrada.name.endsWith('.test.js')) {
+      arquivos.push(relativo);
+    }
+  }
+  return arquivos;
 }
 
-if (arquivos.length === 0) {
+const relativos = coletar(DIR_TESTES, '').sort();
+
+if (relativos.length === 0) {
   console.error('nenhum *.test.js em ' + DIR_TESTES + ' — nada foi provado.');
   process.exit(1);
 }
 
-console.log('rodando ' + arquivos.length + ' arquivo(s) de teste de ' + DIR_TESTES);
+console.log('rodando ' + relativos.length + ' arquivo(s) de teste de ' + DIR_TESTES);
 
 const filho = spawnSync(
   process.execPath,
-  ['--test', ...arquivos.map((nome) => path.join(DIR_TESTES, nome))],
+  ['--test', ...relativos.map((relativo) => path.join(DIR_TESTES, relativo))],
   { stdio: 'inherit' }
 );
 
