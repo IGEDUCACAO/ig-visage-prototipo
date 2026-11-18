@@ -629,7 +629,7 @@
     if (e.saudeFio === 'sem') {
       orientacao =
         '<section class="cartao cartao-bloqueio" role="alert" aria-labelledby="tituloTratamento">' +
-          '<p class="sobretitulo">RN-22 · prescrição bloqueada</p>' +
+          '<p class="sobretitulo">Prescrição bloqueada</p>' +
           '<h3 id="tituloTratamento">Orientação de tratamento</h3>' +
           '<p class="texto">O fio não recebe cor agora. Antes de qualquer prescrição de cor, a prioridade é o tratamento do fio — reconstrução e hidratação conduzidas pela profissional, com reavaliação da condição em um próximo atendimento.</p>' +
           '<p class="texto-suave">O bloqueio vale para as três rotas. Para seguir no fluxo, registre uma condição que permita a prescrição.</p>' +
@@ -640,8 +640,7 @@
       '<h2>Como ficou o teste</h2>' +
       '<p class="lead">Avaliação obrigatória nas três rotas, antes de qualquer prescrição.</p>' +
       '<div class="opcoes">' + opcoes + '</div>' +
-      orientacao +
-      '<div class="nota"><b>RN-22:</b> fio sem condição impede a prescrição, independentemente da rota, e desvia o fluxo para a orientação de tratamento.</div>';
+      orientacao;
 
     ligarOpcoes(el, '[data-valor]', function (valor) {
       e.saudeFio = valor;

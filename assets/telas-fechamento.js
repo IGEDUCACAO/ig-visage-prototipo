@@ -40,91 +40,8 @@
   }
 
   /* Mapa de cores visuais para as sugestões da Matriz de Paletas (direção de tela) */
-  var MAPA_CORES = {
-    'Preto': '#141416',
-    'Preto puro': '#0a0a0c',
-    'Preto frio': '#15171c',
-    'Branco puro': '#fcfcfc',
-    'Branco frio': '#f2f5f9',
-    'Branco quente': '#faf5ea',
-    'Off-white frio': '#eceff4',
-    'Cru': '#f3ece1',
-    'Marfim': '#f7f2e4',
-    'Areia': '#d8cbb5',
-    'Creme': '#f8f1de',
-    'Cinza-grafite': '#373c42',
-    'Cinza puro': '#7d828a',
-    'Cinza-pérola': '#cbcfd6',
-    'Cinza-azulado': '#5b6c7e',
-    'Grafite': '#3e4348',
-    'Chumbo suave': '#484d54',
-    'Platinado': '#e1e3e7',
-    'Platinado frio': '#d5d9e0',
-    'Perolado claro': '#e9e6df',
-    'Azul-marinho': '#122544',
-    'Azul-royal': '#1b4d9b',
-    'Azul-elétrico': '#0d6efd',
-    'Azul-elétrico frio': '#135bec',
-    'Azul-cobalto suave': '#3b6ea8',
-    'Azul-pavão': '#0a6474',
-    'Azul-piscina': '#22b8cf',
-    'Azul-acinzentado': '#687b8c',
-    'Azul-claro': '#8cbde8',
-    'Azul-gelo': '#c2dcf0',
-    'Turquesa': '#18a89e',
-    'Turquesa claro': '#59d2c7',
-    'Turquesa frio': '#1fb8ac',
-    'Turquesa profundo': '#096e68',
-    'Verde-esmeralda': '#167d53',
-    'Verde-esmeralda claro': '#3dbd87',
-    'Verde-floresta': '#1c4a27',
-    'Verde-oliva profundo': '#3e4823',
-    'Verde-musgo': '#475a36',
-    'Verde-maçã claro': '#96cc68',
-    'Verde-jade frio': '#148767',
-    'Oliva': '#64703a',
-    'Oliva claro': '#859458',
-    'Menta suave': '#9ddcc2',
-    'Vinho': '#661427',
-    'Borgonha': '#520e20',
-    'Ameixa': '#541c3e',
-    'Cereja': '#8a1736',
-    'Fúcsia': '#bd1f6e',
-    'Fúcsia escura': '#8a0d4b',
-    'Magenta': '#c71585',
-    'Malva': '#9b6b85',
-    'Rosa-bebê': '#f2bfce',
-    'Rosa-poeira': '#b58b99',
-    'Rosa-chá': '#e5a8b7',
-    'Rosa-antigo': '#9e6274',
-    'Lavanda': '#a998ce',
-    'Roxo profundo': '#3e174b',
-    'Vermelho puro': '#c91e1e',
-    'Vermelho quente': '#cb2d17',
-    'Terracota': '#b85437',
-    'Terracota suave': '#cb7358',
-    'Ferrugem': '#8e3518',
-    'Cobre': '#ad5832',
-    'Cobre claro': '#c76e44',
-    'Acobreado': '#9e4622',
-    'Laranja': '#e35d18',
-    'Laranja queimado': '#bd4c12',
-    'Pêssego claro': '#f5b597',
-    'Coral': '#dc5c48',
-    'Coral suave': '#e67c6b',
-    'Coral vivo': '#ea4328',
-    'Dourado intenso': '#c9962a',
-    'Amarelo mel': '#d49b29',
-    'Amarelo-ovo': '#e8a917',
-    'Mostarda': '#bf881d',
-    'Mostarda queimada': '#9f6e14',
-    'Bege quente': '#d8b993',
-    'Bege dourado': '#caa87e',
-    'Camelo': '#9f6e3c',
-    'Camelo escuro': '#744a22',
-    'Marrom-café': '#3a2618',
-    'Marrom quente': '#572f1b'
-  };
+  /* O mapa de cores vive em data.js para o dossiê usar o mesmo hex. */
+  var MAPA_CORES = (DADOS && DADOS.MAPA_CORES) || {};
 
   /* ---------- Validações ---------- */
 
@@ -153,7 +70,7 @@
     if (!textoValido(data)) {
       return {
         ok: false,
-        motivo: 'Informe a data prevista de retorno (preenchimento manual, RN-21).'
+        motivo: 'Informe a data prevista de retorno.'
       };
     }
     return { ok: true, motivo: '' };
@@ -252,7 +169,7 @@
         '<div class="campo">' +
           '<label class="rotulo" for="dataRetorno">Data prevista de retorno <span class="obrigatorio" aria-hidden="true">*</span></label>' +
           '<input type="date" id="dataRetorno" value="' + esc(dataRetorno) + '">' +
-          '<p class="hint">Regra RN-21: campo de data manual. O app não calcula nem sugere data automaticamente; o lembrete dispara na data definida pela profissional.</p>' +
+          '<p class="hint">A data é preenchida manualmente: o app não calcula nem sugere, e o lembrete dispara no dia definido pela profissional.</p>' +
         '</div>' +
       '</section>' +
       '<section class="cartao" aria-labelledby="tituloCuidados">' +
@@ -266,7 +183,7 @@
           '<textarea id="observarAntesRetorno" placeholder="Sinais de alteração de tom, porosidade, ressecamento ou crescimento..." rows="3">' + esc(observar) + '</textarea>' +
         '</div>' +
       '</section>' +
-      '<div class="nota"><b>Acompanhamento (RN-21):</b> A data definida manualmente garante que o contato de retorno respeite o ciclo fisiológico e técnico de cada fio.</div>';
+      '<div class="nota"><b>Acompanhamento:</b> a data definida manualmente garante que o contato de retorno respeite o ciclo fisiológico e técnico de cada fio.</div>';
 
     if (!el.querySelector) return;
 

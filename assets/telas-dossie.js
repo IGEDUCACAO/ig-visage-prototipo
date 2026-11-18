@@ -351,7 +351,8 @@
           return '<div class="dossie-paleta-bloco dossie-paleta-' + esc(camada.id) + '">' +
             '<p class="dossie-paleta-titulo">' + esc(camada.rotulo) + '</p>' +
             '<ul>' + camada.sugestoes.map(function (cor) {
-              return '<li>' + esc(cor) + '</li>';
+              var hex = (DADOS && DADOS.MAPA_CORES && DADOS.MAPA_CORES[cor]) || '#a9855a';
+              return '<li><i class="dossie-amostra" style="background:' + esc(hex) + '"></i>' + esc(cor) + '</li>';
             }).join('') + '</ul>' +
             '</div>';
         }).join('') + '</div>'
@@ -461,7 +462,8 @@
     '.dossie-paleta-bloco { padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fdfaf4; }',
     '.dossie-paleta-titulo { margin: 0 0 8px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--label); }',
     '.dossie-paleta ul { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }',
-    '.dossie-paleta li { padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 11.5px; color: var(--ink2); }',
+    '.dossie-paleta li { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 6px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 11.5px; color: var(--ink2); }',
+    '.dossie-amostra { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); flex: 0 0 auto; }',
     '.dossie-paleta-cores-a-evitar li { border-style: dashed; color: #8a6a5a; }',
     '.dossie-rodape-paleta { margin: 14px 0 0; font-size: 10.5px; letter-spacing: .04em; color: var(--ink3); }',
     '.dossie-receita { margin: 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fbf6ec; font-size: 13.5px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; }',

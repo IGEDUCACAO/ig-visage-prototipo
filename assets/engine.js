@@ -222,7 +222,7 @@
         if (e.saudeFio === 'sem') {
           return {
             ok: false,
-            motivo: 'RN-22: fio sem condição para receber cor bloqueia a prescrição. O fluxo desvia para orientação de tratamento.',
+            motivo: 'Fio sem condição para receber cor: a prescrição fica bloqueada e o fluxo segue para a orientação de tratamento.',
             bloqueio: 'tratamento'
           };
         }

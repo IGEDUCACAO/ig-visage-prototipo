@@ -105,8 +105,10 @@ esperarTela(11, 'caminho até a tela 11');
 estado.saudeFio = 'sem';
 avancar();
 esperarTela(11, 'fio sem condição');
-conferir(elementos.rodapeMotivo.textContent.indexOf('RN-22') !== -1,
-  'o bloqueio deveria citar a RN-22; veio "' + elementos.rodapeMotivo.textContent + '".');
+conferir(elementos.rodapeMotivo.textContent.indexOf('bloqueada') !== -1,
+  'o bloqueio precisa explicar em linguagem de cliente; veio "' + elementos.rodapeMotivo.textContent + '".');
+conferir(elementos.rodapeMotivo.textContent.indexOf('RN-') === -1,
+  'nota interna de regra de negócio não pode aparecer na tela; veio "' + elementos.rodapeMotivo.textContent + '".');
 
 if (falhas.length) {
   console.error('NAVEGACAO: ' + falhas.length + ' falha(s)');
