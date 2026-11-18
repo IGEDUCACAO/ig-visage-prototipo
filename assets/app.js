@@ -28,13 +28,13 @@
      Diagnóstico, Manutenção e Paleta) continuam registradas com o seu id. */
   var TELAS = [
     { n: 1, titulo: 'Quem está na cadeira?', bloco: 'abertura', tela: 1 },
-    { n: 2, titulo: 'Qual o desejo dela?', bloco: 'abertura', tela: 2 },
+    { n: 2, titulo: 'Qual é o desejo dela?', bloco: 'abertura', tela: 2 },
     { n: 3, titulo: 'Rota escolhida', bloco: 'abertura', tela: 3 },
     { n: 4, titulo: 'Profundidade da pele', bloco: 'leitura', tela: 4 },
-    { n: 5, titulo: 'Base natural do cabelo', bloco: 'leitura', tela: 5 },
+    { n: 5, titulo: 'Base natural', bloco: 'leitura', tela: 5 },
     { n: 6, titulo: 'Contraste', bloco: 'leitura', tela: 7 },
     { n: 7, titulo: 'Família', bloco: 'prescricao', tela: 11 },
-    { n: 8, titulo: 'Formato do rosto', bloco: 'rosto', tela: 9 },
+    { n: 8, titulo: 'Formato de rosto', bloco: 'rosto', tela: 9 },
     { n: 9, titulo: 'O que o seu formato direciona', bloco: 'rosto', tela: 10 },
     { n: 10, titulo: 'Percentual de cabelos brancos', bloco: 'leitura', tela: 6 },
     { n: 11, titulo: 'Como ficou o teste', bloco: 'leitura', tela: 8 },

@@ -316,14 +316,14 @@
     var formato = estado.formatoRosto ? DADOS.formatoPorId(estado.formatoRosto) : null;
     if (!formato) {
       return '<section class="dossie-secao">' +
-        '<h3><span class="dossie-num">03</span> Formato do rosto</h3>' +
+        '<h3><span class="dossie-num">03</span> Formato de rosto</h3>' +
         '<p class="dossie-nota">' + esc(TEXTOS.semFormato) + '</p>' +
         '</section>';
     }
 
     var itens = MOTOR.itensDoFormato(formato);
     return '<section class="dossie-secao">' +
-      '<h3><span class="dossie-num">03</span> Formato do rosto</h3>' +
+      '<h3><span class="dossie-num">03</span> Formato de rosto</h3>' +
       '<p class="dossie-formato-nome">' + esc(formato.nome) + '</p>' +
       '<p class="dossie-direcionamento">' + esc(formato.direcionamento) + '</p>' +
       (itens.length
