@@ -660,7 +660,7 @@
       return '<div class="nota"><b>Sem ilustração para este formato.</b> A tabela do método não separa cortes aqui.</div>';
     }
     var cartoes = cortes.map(function (corte) {
-      return '<figure class="cartao-corte">' + corte.svg +
+      return '<figure class="cartao-corte">' + (corte.figura || corte.svg) +
         '<figcaption>' + esc(corte.nome) + '</figcaption></figure>';
     }).join('');
     return '<section class="cartao cartao-ilustracoes" aria-labelledby="tituloCortes">' +
