@@ -100,6 +100,7 @@
     var aviso = sessao.aviso || '';
     var falhaSalvarAvisada = false;
     var rolarParaTopo = true;
+    var VALIDA_COMO = { 6: 7, 7: 11, 8: 9, 9: 10, 10: 6, 11: 8 };
 
     montarProgresso();
     elVoltar.addEventListener('click', voltar);
@@ -327,15 +328,12 @@
 
     function proximaTela(n) {
       if (n === 11 && estado.saudeFio === 'sem') return null;
-      if (n === 7) return 12;
       if (n === 12) return TELA_DOSSIE.n;
       if (n === TELA_DOSSIE.n) return null;
       return n + 1;
     }
 
     /* O motor valida pela numeração antiga; aqui a tela nova vira a equivalente. */
-    var VALIDA_COMO = { 6: 7, 7: 11, 8: 9, 9: 10, 10: 6, 11: 8 };
-
     function validaEtapaAtual() {
       var numero = VALIDA_COMO[telaAtual] || telaAtual;
       var cheque = MOTOR.validaEtapa(estado, numero);

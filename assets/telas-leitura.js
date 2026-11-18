@@ -1,4 +1,4 @@
-/* Telas 1 a 9 — blocos Abertura, Leitura e Rosto.
+/* Telas 1 a 6 e 8 a 11 — blocos Abertura, Leitura e Rosto (ordem da Ilda).
    Registradas em window.VISAGE.registrarTela(n, {titulo, bloco, render(el, ctx)}). */
 (function (root) {
   'use strict';
@@ -282,7 +282,7 @@
     var registrado = typeof e.desejo === 'string' && e.desejo.trim().length > 0;
 
     el.innerHTML =
-      '<h2>Qual é o desejo dela?</h2>' +
+      '<h2>Qual o desejo dela?</h2>' +
       '<p class="lead">Escreva com as palavras dela. Gíria, hesitação e “não sei” também são registro.</p>' +
       '<div class="campo">' +
         '<label class="rotulo" for="desejo">Desejo, nas palavras da cliente</label>' +

@@ -1,4 +1,4 @@
-/* Telas 14, 15 e 16 — bloco Fechamento.
+/* Telas arquivadas 101 a 103 — bloco Fechamento, fora do fluxo linear.
    Registradas em window.VISAGE.registrarTela(n, {titulo, bloco, render(el, ctx)}).
    Regras de negócio:
    - RN-21: campo de data manual; não sugere data automaticamente.

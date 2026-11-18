@@ -1,4 +1,4 @@
-/* Telas 10 a 13 — bloco Prescrição.
+/* Telas 7 (Família) e 12 (Cor final). As antigas 12/13 ficam arquivadas em 101/102.
    Família e calibração, teto e faixa, conflito e escolha da amostra.
    Registradas em window.VISAGE.registrarTela(n, {titulo, bloco, render(el, ctx)}).
    As regras ficam em funções puras, exportadas para teste (module.exports no node). */
@@ -90,7 +90,7 @@
     return null;
   }
 
-  /* Tela 13: SOMENTE amostras da família que cabem no teto — nunca a matriz inteira. */
+  /* Tela 12 (Cor final): SOMENTE amostras da família que cabem no teto — nunca a matriz inteira. */
   function amostrasDaTela13(estado) {
     var e = estado || {};
     var familia = familiaPrescrita(e);
@@ -139,8 +139,8 @@
     return estado.amostraEscolhida;
   }
 
-  /* validaEtapa do motor trata as telas 10 a 17 como livres; aqui ficam as
-     regras "obrigatório" das telas 13 (decisão do conflito) e 14 (amostra). */
+  /* validaEtapa do motor trata as telas 11 a 18 como livres; aqui ficam as
+     regras "obrigatório" da tela 12 (amostra dentro do teto na Cor final). */
   function validarAvancar(numero, estado) {
     var n = Number(numero);
     var e = estado || {};
@@ -243,7 +243,7 @@
     if (typeof ctx.recarregar === 'function') ctx.recarregar();
   }
 
-  /* ---------- guarda do Continuar (telas 12 e 13) ---------- */
+  /* ---------- guarda do Continuar (tela 12, Cor final) ---------- */
 
   var estadoMontado = null;
   var guardaInstalada = false;
@@ -327,7 +327,7 @@
     var secao = '<h2>Família</h2>' +
       '<p class="lead">Calculado a partir do que você registrou. Você confirma — este é o primeiro ponto de validação.</p>';
 
-    /* Ordem pedida pelo Alysson (tela 10): campos preenchiveis em cima,
+    /* Ordem pedida pelo Alysson (tela 7): campos preenchiveis em cima,
        veredito sempre embaixo. */
     secao +=
       '<div class="cartao cartao-calculo">' +

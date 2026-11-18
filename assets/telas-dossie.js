@@ -1,4 +1,4 @@
-/* Tela 17 — Dossiê final.
+/* Etapa final 13 — Dossiê final.
    O dossiê é um documento visual: capa, diagnóstico, formato, paleta,
    receita, manutenção e termo LGPD. Exporta o construtor para os testes
    em node e registra a tela no navegador. */
