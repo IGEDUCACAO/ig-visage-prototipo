@@ -206,6 +206,7 @@ body {
   margin: 12px 20px 0;
   padding: 11px 14px;
   border: 1px solid #efd3b8;
+  border-left: 3px solid var(--terra);
   border-radius: 12px;
   background: #fbeee2;
   color: #6b3c1c;
@@ -839,17 +840,18 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 50px;
+  min-height: 52px;
   padding: 14px 18px;
   border: 1.5px solid transparent;
   border-radius: 14px;
   font-family: inherit;
   font-size: 15px;
   font-weight: 700;
+  letter-spacing: .01em;
   line-height: 1.2;
   text-align: center;
   cursor: pointer;
-  transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  transition: transform .18s cubic-bezier(.2, .7, .3, 1), background .18s ease, border-color .18s ease, box-shadow .18s ease;
   touch-action: manipulation;
 }
 
@@ -861,9 +863,11 @@ textarea:focus {
 .btn-primario:hover:not(:disabled) {
   background: #8a4f24;
   transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(154, 91, 42, .26), inset 0 1px 0 rgba(255, 255, 255, .12);
 }
 .btn-primario:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(1px) scale(.99);
+  box-shadow: 0 4px 10px rgba(154, 91, 42, .20);
 }
 .btn-primario:disabled {
   background: #ded2c2;
@@ -884,6 +888,11 @@ textarea:focus {
 }
 .btn-secundario:hover {
   border-color: #c9a97c;
+  background: #f7efe2;
+  transform: translateY(-1px);
+}
+.btn-secundario:active:not(:disabled) {
+  transform: translateY(1px);
   background: #f7efe2;
 }
 
@@ -932,6 +941,7 @@ a:focus-visible {
 .rodape-motivo.motivo-bloqueio {
   padding: 8px 10px;
   border: 1px solid #efd3b8;
+  border-left: 3px solid var(--perigo);
   border-radius: 10px;
   background: #fbeee2;
 }
