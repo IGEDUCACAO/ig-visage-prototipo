@@ -22,26 +22,31 @@
     { id: 'fechamento', letra: 'E', nome: 'Fechamento' }
   ];
 
+  /* Fluxo oficial ditado pela Ilda, na ordem e com os títulos exatos das 12 telas.
+     `tela` é o id com que assets/telas-*.js registra o render daquela tela.
+     As telas que saíram do fluxo linear (Regra dos 4 tons, Conflito e decisão,
+     Diagnóstico, Manutenção e Paleta) continuam registradas com o seu id. */
   var TELAS = [
-    { n: 1, titulo: 'Quem está na cadeira?', bloco: 'abertura' },
-    { n: 2, titulo: 'Qual é o desejo dela?', bloco: 'abertura' },
-    { n: 3, titulo: 'Qual a Rota escolhida?', bloco: 'abertura' },
-    { n: 4, titulo: 'Profundidade da pele', bloco: 'leitura' },
-    { n: 5, titulo: 'Base natural do cabelo', bloco: 'leitura' },
-    { n: 6, titulo: 'Cabelos brancos', bloco: 'leitura' },
-    { n: 7, titulo: 'Contraste (calculado)', bloco: 'leitura' },
-    { n: 8, titulo: 'Saúde do fio (Como ficou o teste)', bloco: 'leitura' },
-    { n: 9, titulo: 'Formato do rosto', bloco: 'rosto' },
-    { n: 10, titulo: 'O que o seu formato direciona', bloco: 'rosto' },
-    { n: 11, titulo: 'Família e calibração', bloco: 'prescricao' },
-    { n: 12, titulo: 'Regra dos 4 tons / COR final', bloco: 'prescricao' },
-    { n: 13, titulo: 'Conflito e decisão', bloco: 'prescricao' },
-    { n: 14, titulo: 'Cor final', bloco: 'prescricao' },
-    { n: 15, titulo: 'Diagnóstico', bloco: 'fechamento' },
-    { n: 16, titulo: 'Manutenção e retorno', bloco: 'fechamento' },
-    { n: 17, titulo: 'Paleta de vestuário', bloco: 'fechamento' },
-    { n: 18, titulo: 'Dossiê final', bloco: 'fechamento' }
+    { n: 1, titulo: 'Quem está na cadeira?', bloco: 'abertura', tela: 1 },
+    { n: 2, titulo: 'Qual é o desejo dela?', bloco: 'abertura', tela: 2 },
+    { n: 3, titulo: 'Rota escolhida', bloco: 'abertura', tela: 3 },
+    { n: 4, titulo: 'Profundidade da pele', bloco: 'leitura', tela: 4 },
+    { n: 5, titulo: 'Base natural', bloco: 'leitura', tela: 5 },
+    { n: 6, titulo: 'Contraste', bloco: 'leitura', tela: 7 },
+    { n: 7, titulo: 'Família', bloco: 'prescricao', tela: 11 },
+    { n: 8, titulo: 'Formato de rosto', bloco: 'rosto', tela: 9 },
+    { n: 9, titulo: 'O que o seu formato direciona', bloco: 'rosto', tela: 10 },
+    { n: 10, titulo: 'Percentual de cabelos brancos', bloco: 'leitura', tela: 6 },
+    { n: 11, titulo: 'Como ficou o teste', bloco: 'leitura', tela: 8 },
+    { n: 12, titulo: 'Cor final', bloco: 'prescricao', tela: 14 }
   ];
+
+  /* O dossiê continua acessível como etapa 13, fora da contagem das 12 telas. */
+  var TELA_DOSSIE = 13;
+  var TOTAL_TELAS = TELAS.length + 1;
+  var MAX_REGISTRO = 18;
+
+  VISAGE.TELAS = TELAS;
 
   var elBloco = document.getElementById('blocoAtual');
   var elProgresso = document.getElementById('progresso');
@@ -233,10 +238,10 @@
       }
 
       var tela = Number(pacote.telaAtual);
-      if (!Number.isInteger(tela) || tela < 1 || tela > TELAS.length) tela = 1;
+      if (!Number.isInteger(tela) || tela < 1 || tela > TOTAL_TELAS) tela = 1;
 
       var trilha = Array.isArray(pacote.trilha) ? pacote.trilha.filter(function (n) {
-        return Number.isInteger(n) && n >= 1 && n <= TELAS.length;
+        return Number.isInteger(n) && n >= 1 && n <= TOTAL_TELAS;
       }) : [];
       if (!trilha.length || trilha[trilha.length - 1] !== tela) trilha = [tela];
 
@@ -281,7 +286,7 @@
 
     function registrarTela(n, definicao) {
       var numero = Number(n);
-      if (!Number.isInteger(numero) || numero < 1 || numero > TELAS.length) {
+      if (!Number.isInteger(numero) || numero < 1 || numero > MAX_REGISTRO) {
         throw new Error('Tela inválida para registro: ' + n);
       }
       if (!definicao || typeof definicao.render !== 'function') {
@@ -293,6 +298,7 @@
     /* ---------- roteamento ---------- */
 
     function metaDaTela(n) {
+      if (n === TELA_DOSSIE) return { titulo: 'Dossiê final', bloco: 'fechamento', tela: 18 };
       return TELAS[n - 1] || null;
     }
 
@@ -307,8 +313,9 @@
       return DADOS.familiaPorSigla(e.familia) || null;
     }
 
-    /* Rota da família: com amostra dentro do teto vai direto à cor final (14);
-       sem amostra viável passa pelo conflito (13), que exige decisão. */
+    /* Roteador das telas 12 (Regra dos 4 tons) e 13 (Conflito), que saíram do
+       fluxo linear da Ilda. Fica no código junto com os renders delas, mas o
+       fluxo atual segue reto da tela 12 (Cor final) para o dossiê. */
     function rotaDaCor() {
       var familia = familiaDoEstado(estado);
       var teto = estado.teto;
@@ -318,21 +325,18 @@
     }
 
     function proximaTela(n) {
-      if (n === 7 && estado.saudeFio === 'sem') return null;
-      if (n === 11 || n === 12) return rotaDaCor();
-      if (n === 13) return 14;
-      if (n === 18) return null;
       return n + 1;
     }
 
     function avancar() {
-      var cheque = MOTOR.validaEtapa(estado, telaAtual);
+      var meta = metaDaTela(telaAtual);
+      var cheque = MOTOR.validaEtapa(estado, meta ? meta.tela : telaAtual);
       if (!cheque.ok) {
         elMotivo.textContent = cheque.motivo;
         elTela.focus();
         return;
       }
-      if (telaAtual === TELAS.length) {
+      if (telaAtual === TOTAL_TELAS) {
         reiniciar();
         return;
       }
@@ -367,7 +371,7 @@
 
     function irPara(n) {
       var alvo = Number(n);
-      if (!Number.isInteger(alvo) || alvo < 1 || alvo > TELAS.length) {
+      if (!Number.isInteger(alvo) || alvo < 1 || alvo > TOTAL_TELAS) {
         elMotivo.textContent = 'Tela inválida: ' + n + '.';
         return false;
       }
@@ -429,11 +433,13 @@
 
       elBloco.textContent = 'Bloco ' + bloco.letra + ' · ' + bloco.nome;
       elTelaNome.textContent = meta.titulo;
-      elTelaNum.textContent = 'Tela ' + telaAtual + ' de ' + TELAS.length;
+      elTelaNum.textContent = telaAtual === TELA_DOSSIE
+        ? 'Etapa ' + TELA_DOSSIE + ' · dossiê final'
+        : 'Tela ' + telaAtual + ' de ' + TELAS.length;
       atualizarProgresso(meta.bloco);
 
       elTela.innerHTML = '';
-      var definicao = telasRegistradas[telaAtual];
+      var definicao = telasRegistradas[meta.tela];
 
       if (!definicao || typeof definicao.render !== 'function') {
         elTela.innerHTML = cartaoEmConstrucao(telaAtual, meta, bloco);
@@ -456,14 +462,13 @@
         elTela.scrollTop = 0;
         rolarParaTopo = false;
       }
-      document.title = 'Tela ' + telaAtual + ' · ' + meta.titulo + ' — Art Visage Harmonie';
-    }
+      document.title = 'Tela ' + telaAtual + ' · ' + meta.titulo + ' — Art Visage Harmonie';    }
 
     function cartaoEmConstrucao(n, meta, bloco) {
       return '<section class="cartao cartao-construcao" aria-labelledby="titulo-construcao">' +
         '<p class="sobretitulo">Bloco ' + bloco.letra + ' · ' + bloco.nome + '</p>' +
         '<h2 id="titulo-construcao">Tela ' + n + ' — em construção</h2>' +
-        '<p class="texto">Esta tela ainda não faz parte desta entrega do protótipo. As telas 10 a 17 chegam nas próximas tarefas.</p>' +
+        '<p class="texto">Esta etapa não está disponível nesta versão do protótipo.</p>' +
         '<p class="texto-suave">O botão Continuar segue disponível: ele apenas percorre as telas em construção. Voltar retorna ao fluxo já entregue.</p>' +
         '</section>';
     }
@@ -482,11 +487,12 @@
     }
 
     function atualizarRodape() {
-      var cheque = MOTOR.validaEtapa(estado, telaAtual);
+      var meta = metaDaTela(telaAtual);
+      var cheque = MOTOR.validaEtapa(estado, meta ? meta.tela : telaAtual);
       var bloqueioTratamento = cheque.bloqueio === 'tratamento';
 
       elAvancar.disabled = !cheque.ok;
-      elAvancar.textContent = telaAtual === TELAS.length
+      elAvancar.textContent = telaAtual === TOTAL_TELAS
         ? 'Reiniciar demonstração'
         : (bloqueioTratamento ? 'Prescrição bloqueada' : 'Continuar');
       elAvancar.classList.toggle('btn-bloqueado', bloqueioTratamento);
