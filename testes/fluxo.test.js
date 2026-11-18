@@ -94,10 +94,23 @@ conferir(!!registros[13], 'o Dossiê (tela 13) não foi registrado.');
 conferir(registros[13] && registros[13].titulo === 'Dossiê final', 'registro do Dossiê com título errado.');
 
 /* As telas que saíram do fluxo continuam no código, fora do array TELAS. */
-[101, 102, 103].forEach(function (numero) {
+[101, 102, 103, 104, 105].forEach(function (numero) {
   conferir(!!registros[numero], 'a tela arquivada ' + numero + ' sumiu do código.');
   conferir(registros[numero] && typeof registros[numero].render === 'function',
     'a tela arquivada ' + numero + ' perdeu o render.');
+});
+
+var TITULOS_ARQUIVADOS = {
+  101: 'Regra dos 4 tons',
+  102: 'Conflito e decisão',
+  103: 'Diagnóstico',
+  104: 'Manutenção e retorno',
+  105: 'Paleta de vestuário'
+};
+Object.keys(TITULOS_ARQUIVADOS).forEach(function (numero) {
+  conferir(registros[numero] && registros[numero].titulo === TITULOS_ARQUIVADOS[numero],
+    'a tela arquivada ' + numero + ' deveria manter o título "' + TITULOS_ARQUIVADOS[numero] +
+    '"; veio "' + (registros[numero] && registros[numero].titulo) + '".');
 });
 
 /* ---------- 3. Textos ajustados pela cliente ---------- */

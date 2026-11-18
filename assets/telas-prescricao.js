@@ -560,7 +560,7 @@
   if (VISAGE) {
     VISAGE.registrarTela(7, { titulo: 'Família', bloco: 'prescricao', render: render10 });
     VISAGE.registrarTela(12, { titulo: 'Cor final', bloco: 'prescricao', render: render13 });
-    /* Fora do fluxo linear: o código fica nos arquivos, arquivado em 100+. */
+    /* Fora do fluxo linear: o código fica nos arquivos, arquivado em 101/102. */
     VISAGE.registrarTela(101, { titulo: 'Regra dos 4 tons', bloco: 'prescricao', render: render11 });
     VISAGE.registrarTela(102, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
   }
