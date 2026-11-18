@@ -1,4 +1,4 @@
-/* Telas 1 a 9 — blocos Abertura, Leitura e Rosto.
+/* Telas 1 a 5 e 8 a 11 do fluxo (blocos Abertura, Leitura e Rosto).
    Registradas em window.VISAGE.registrarTela(n, {titulo, bloco, render(el, ctx)}). */
 (function (root) {
   'use strict';
@@ -282,7 +282,7 @@
     var registrado = typeof e.desejo === 'string' && e.desejo.trim().length > 0;
 
     el.innerHTML =
-      '<h2>Qual é o desejo dela?</h2>' +
+      '<h2>Qual o desejo dela?</h2>' +
       '<p class="lead">Escreva com as palavras dela. Gíria, hesitação e “não sei” também são registro.</p>' +
       '<div class="campo">' +
         '<label class="rotulo" for="desejo">Desejo, nas palavras da cliente</label>' +
@@ -344,10 +344,9 @@
     }).join('');
 
     el.innerHTML =
-      '<h2>Qual a Rota escolhida?</h2>' +
+      '<h2>Rota escolhida</h2>' +
       '<p class="lead">A rota nasce da conversa. O app não sugere, não pré-seleciona e não infere pelo histórico.</p>' +
-      '<div class="opcoes">' + cards + '</div>' +
-      '<div class="nota"><b>Nomenclatura (RN-24):</b> “prescrita” vale para Harmonia e Íris. Na Rota Estilo a cor é <b>proposta</b> — chamar de prescrita seria erro conceitual.</div>';
+      '<div class="opcoes">' + cards + '</div>';
 
     Array.prototype.forEach.call(el.querySelectorAll('[data-rota]'), function (botao) {
       botao.addEventListener('click', function () {
@@ -374,10 +373,9 @@
 
     el.innerHTML =
       '<h2>Profundidade da pele</h2>' +
-      '<p class="lead lead-destaque">Profundidade é uma medida isolada: o quão clara ou escura é a pele, sem comparar com o cabelo.</p>' +
+      '<p class="lead lead-destaque">Profundidade de pele é uma medida: o quão clara ou escura é a pele.</p>' +
       '<p class="texto-suave">A temperatura não é lida aqui: ela só vale depois do Kit de Tecidos.</p>' +
-      '<div class="grade grade-3">' + opcoes + '</div>' +
-      '<div class="nota"><b>O que esta tela não faz:</b> não infere temperatura por foto, por nome ou por histórico.</div>';
+      '<div class="grade grade-3">' + opcoes + '</div>';
 
     ligarOpcoes(el, '[data-valor]', function (valor) {
       if (e.profundidade !== valor) {
@@ -423,7 +421,7 @@
     ligarTexto(el, 'corCosmetica', e, 'corCosmetica');
   }
 
-  /* ---------- TELA 6 — Cabelos brancos ---------- */
+  /* ---------- TELA 10 — Percentual de cabelos brancos ---------- */
 
   var FAIXAS_BRANCOS = [
     { id: 'nenhum', titulo: 'Nenhum', sub: '0%' },
@@ -458,7 +456,7 @@
     ligarTexto(el, 'brancosObs', e, 'brancosObs');
   }
 
-  /* ---------- TELA 6 ---------- */
+  /* ---------- TELA 6 — Contraste ---------- */
 
   function render6Contraste(el, ctx) {
     var e = ctx.estado;
@@ -472,7 +470,7 @@
 
     if (!calculo) {
       el.innerHTML =
-        '<h2>Contraste (calculado)</h2>' +
+        '<h2>Contraste</h2>' +
         '<p class="lead">O contraste é a distância entre a profundidade da pele e a altura da base natural do cabelo.</p>' +
         '<section class="cartao cartao-alerta" role="alert">' +
           '<h3>Faltam dados para calcular</h3>' +
@@ -518,7 +516,7 @@
     }).join('');
 
     el.innerHTML =
-      '<h2>Contraste (calculado)</h2>' +
+      '<h2>Contraste</h2>' +
       '<p class="lead">O app cruza as duas leituras que você já registrou. O contraste é a distância entre elas.</p>' +
       '<section class="cartao cartao-calculo" aria-labelledby="calculoTitulo">' +
         '<p class="sobretitulo" id="calculoTitulo">Cálculo do contraste</p>' +
@@ -615,7 +613,7 @@
     }
   }
 
-  /* ---------- TELA 7 ---------- */
+  /* ---------- TELA 11 — Como ficou o teste ---------- */
 
   function render7(el, ctx) {
     var e = ctx.estado;
@@ -639,7 +637,7 @@
     }
 
     el.innerHTML =
-      '<h2>Saúde do fio (Como ficou o teste)</h2>' +
+      '<h2>Como ficou o teste</h2>' +
       '<p class="lead">Avaliação obrigatória nas três rotas, antes de qualquer prescrição.</p>' +
       '<div class="opcoes">' + opcoes + '</div>' +
       orientacao +
@@ -651,7 +649,7 @@
     });
   }
 
-  /* ---------- TELA 8 ---------- */
+  /* ---------- TELA 8 — Formato do rosto ---------- */
 
   /* Ilustracoes de corte (traco, nunca foto): mudam com formato e estatura. */
   function blocoDeCortes(formato, e) {
@@ -728,7 +726,7 @@
     });
   }
 
-  /* ---------- TELA 9 ---------- */
+  /* ---------- TELA 9 — O que o seu formato direciona ---------- */
 
   function render9(el, ctx) {
     var e = ctx.estado;
@@ -777,13 +775,13 @@
   /* ---------- registro ---------- */
 
   VISAGE.registrarTela(1, { titulo: 'Quem está na cadeira?', bloco: 'abertura', render: render1 });
-  VISAGE.registrarTela(2, { titulo: 'Desejo', bloco: 'abertura', render: render2 });
-  VISAGE.registrarTela(3, { titulo: 'Rota', bloco: 'abertura', render: render3 });
+  VISAGE.registrarTela(2, { titulo: 'Qual o desejo dela?', bloco: 'abertura', render: render2 });
+  VISAGE.registrarTela(3, { titulo: 'Rota escolhida', bloco: 'abertura', render: render3 });
   VISAGE.registrarTela(4, { titulo: 'Profundidade da pele', bloco: 'leitura', render: render4 });
   VISAGE.registrarTela(5, { titulo: 'Base natural do cabelo', bloco: 'leitura', render: render5 });
-  VISAGE.registrarTela(6, { titulo: 'Cabelos brancos', bloco: 'leitura', render: render6 });
-  VISAGE.registrarTela(7, { titulo: 'Contraste (calculado)', bloco: 'leitura', render: render6Contraste });
-  VISAGE.registrarTela(8, { titulo: 'Saúde do fio', bloco: 'leitura', render: render7 });
+  VISAGE.registrarTela(6, { titulo: 'Percentual de cabelos brancos', bloco: 'leitura', render: render6 });
+  VISAGE.registrarTela(7, { titulo: 'Contraste', bloco: 'leitura', render: render6Contraste });
+  VISAGE.registrarTela(8, { titulo: 'Como ficou o teste', bloco: 'leitura', render: render7 });
   VISAGE.registrarTela(9, { titulo: 'Formato do rosto', bloco: 'rosto', render: render8 });
   VISAGE.registrarTela(10, { titulo: 'O que o seu formato direciona', bloco: 'rosto', render: render9 });
 })(typeof window !== 'undefined' ? window : this);

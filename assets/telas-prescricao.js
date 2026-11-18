@@ -1,5 +1,6 @@
-/* Telas 10 a 13 — bloco Prescrição.
-   Família e calibração, teto e faixa, conflito e escolha da amostra.
+/* Telas 7 e 12 do fluxo da Ilda — bloco Prescrição (Família e Cor final).
+   Também registra as telas 12 (Regra dos 4 tons) e 13 (Conflito), que saíram do
+   fluxo linear e seguem no código com o seu id de registro.
    Registradas em window.VISAGE.registrarTela(n, {titulo, bloco, render(el, ctx)}).
    As regras ficam em funções puras, exportadas para teste (module.exports no node). */
 (function (root, factory) {
@@ -287,7 +288,7 @@
     }, true);
   }
 
-  /* ---------- TELA 10 ---------- */
+  /* ---------- TELA 7 — Família ---------- */
 
   var ROTULO_TEMPERATURA = 'Temperatura (leitura do Kit de Tecidos)';
   var NOTA_TEMPERATURA = 'A temperatura vem do Kit de Tecidos; o app não a estima.';
@@ -324,7 +325,7 @@
       ? calibracaoPorContraste(e.contraste)
       : null;
 
-    var secao = '<h2>Família e calibração</h2>' +
+    var secao = '<h2>Família</h2>' +
       '<p class="lead">Calculado a partir do que você registrou. Você confirma — este é o primeiro ponto de validação.</p>';
 
     /* Ordem pedida pelo Alysson (tela 10): campos preenchiveis em cima,
@@ -473,7 +474,7 @@
     });
   }
 
-  /* ---------- TELA 13 ---------- */
+  /* ---------- TELA 13 — Cor final ---------- */
 
   function render13(el, ctx) {
     var e = ctx.estado || {};
@@ -518,9 +519,11 @@
       }).join('');
 
       corpo =
+        '<p class="rotulo">Sugestões de cores para a sua família</p>' +
         '<p class="lead-destaque">' + esc(amostras.length + (amostras.length === 1 ? ' amostra' : ' amostras') +
           ' de ' + familia.nome + ' · ' + familia.sigla + ' dentro do teto ' + hh(teto) + '.') + '</p>' +
         '<div class="grade grade-3">' + grade + '</div>' +
+        '<p class="rotulo">Cor escolhida pela cliente</p>' +
         '<p class="estado-desejo' + (escolhida ? ' estado-desejo-ativo' : '') + '" role="status">' +
           (escolhida ? 'Amostra escolhida: ' + esc(escolhida) + '.' : 'Escolha pendente — o Continuar fica bloqueado até a seleção.') +
         '</p>';
@@ -555,7 +558,7 @@
   /* ---------- registro ---------- */
 
   if (VISAGE) {
-    VISAGE.registrarTela(11, { titulo: 'Família e calibração', bloco: 'prescricao', render: render10 });
+    VISAGE.registrarTela(11, { titulo: 'Família', bloco: 'prescricao', render: render10 });
     VISAGE.registrarTela(12, { titulo: 'Regra dos 4 tons / COR final', bloco: 'prescricao', render: render11 });
     VISAGE.registrarTela(13, { titulo: 'Conflito e decisão', bloco: 'prescricao', render: render12 });
     VISAGE.registrarTela(14, { titulo: 'Cor final', bloco: 'prescricao', render: render13 });
