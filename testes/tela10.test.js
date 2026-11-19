@@ -191,7 +191,9 @@ var iris = renderizar({ rota: 'iris', profundidade: 'clara', temperatura: 'fria'
 conferir(iris.html.indexOf('Família de referência') !== -1, 'Rota Íris deveria dizer "Família de referência".');
 conferir(iris.html.indexOf('Calibração de referência') !== -1, 'Rota Íris deveria dizer "Calibração de referência".');
 
-conferir(harmonia.html.indexOf('RN-24') !== -1, 'tela 10 perdeu a ressalva do rótulo por rota (RN-24).');
+conferir(harmonia.html.indexOf('O nome do resultado muda com a rota') !== -1,
+  'tela 10 perdeu a ressalva do rótulo por rota.');
+conferir(harmonia.html.indexOf('RN-') === -1, 'nota interna de regra não pode aparecer na tela 10.');
 
 /* ---------- resultado ---------- */
 

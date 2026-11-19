@@ -224,7 +224,9 @@ conferir(tela10.html.indexOf('Verão Claro · VC') !== -1, 'tela 10 não mostra 
 conferir(tela10.html.indexOf('Suave') !== -1, 'tela 10 não mostra a calibração Suave para contraste baixo.');
 conferir(tela10.html.indexOf('clara · fria') !== -1, 'tela 10 não mostra profundidade × temperatura.');
 conferir(tela10.html.indexOf('baixo') !== -1, 'tela 10 não mostra o contraste.');
-conferir(tela10.html.indexOf('RN-24') !== -1, 'tela 10 perdeu a ressalva do rótulo por rota (RN-24).');
+conferir(tela10.html.indexOf('O nome do resultado muda com a rota') !== -1,
+  'tela 10 perdeu a ressalva do rótulo por rota.');
+conferir(tela10.html.indexOf('RN-') === -1, 'nota interna de regra não pode aparecer na tela 10.');
 
 var tela10Estilo = renderizar(7, { rota: 'estilo', profundidade: 'clara', temperatura: 'fria', contraste: 'alto', familia: 'VC' });
 conferir(tela10Estilo.html.indexOf('Ponto de partida') !== -1, 'na Rota Estilo o rótulo deveria ser "Ponto de partida".');

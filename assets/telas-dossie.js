@@ -351,13 +351,47 @@
           return '<div class="dossie-paleta-bloco dossie-paleta-' + esc(camada.id) + '">' +
             '<p class="dossie-paleta-titulo">' + esc(camada.rotulo) + '</p>' +
             '<ul>' + camada.sugestoes.map(function (cor) {
-              return '<li>' + esc(cor) + '</li>';
+              var hex = (DADOS && DADOS.MAPA_CORES && DADOS.MAPA_CORES[cor]) || '#a9855a';
+              return '<li><i class="dossie-amostra" style="background:' + esc(hex) + '"></i>' + esc(cor) + '</li>';
             }).join('') + '</ul>' +
             '</div>';
         }).join('') + '</div>'
         : '<p class="dossie-nota">' + esc(TEXTOS.semPaleta) + '</p>') +
       '<p class="dossie-rodape-paleta">Orientação de vestuário — não é consultoria de imagem.</p>' +
       '</section>';
+  }
+
+  /* Campo de edição do fechamento. Fica dentro da própria seção a que
+     pertence (05 receita, 06 manutenção), no lugar onde a profissional
+     procura o dado — não numa seção separada no fim do documento. */
+  function campoEdicao(id, rotulo, valor, tipo) {
+    var conteudo = tipo === 'area'
+      ? '<textarea id="dossie-campo-' + id + '" data-campo="' + id + '" rows="3" placeholder="' + esc(rotulo) + '">' + esc(valor) + '</textarea>'
+      : '<input id="dossie-campo-' + id + '" data-campo="' + id + '" type="' + (tipo || 'text') + '" value="' + esc(valor) + '" placeholder="' + esc(rotulo) + '">';
+    return '<label class="dossie-campo' + (tipo === 'area' ? ' dossie-campo-largo' : '') + '" for="dossie-campo-' + id + '"><span>' + esc(rotulo) + '</span>' + conteudo + '</label>';
+  }
+
+  function saidaReceita(estado) {
+    var receita = texto(estado.receita || estado.receitaTecnica);
+    return receita
+      ? '<p class="dossie-receita">' + esc(receita) + '</p>'
+      : '<p class="dossie-nota">' + esc(TEXTOS.semReceita) + '</p>';
+  }
+
+  function saidaManutencao(estado) {
+    var plano = texto(estado.manutencao || estado.planoManutencao);
+    var cuidados = texto(estado.cuidadosDiarios || estado.cuidados);
+    var observar = texto(estado.observar || estado.oQueObservar);
+    var retorno = formatarDataISO(estado.dataRetorno);
+
+    return '<dl class="dossie-manutencao">' +
+      '<div><dt>Plano de manutenção</dt><dd>' + (plano ? esc(plano) : '<span class="dossie-vazio">' + esc(TEXTOS.semPlano) + '</span>') + '</dd></div>' +
+      '<div><dt>Cuidados diários</dt><dd>' + (cuidados ? esc(cuidados) : '<span class="dossie-vazio">' + esc(TEXTOS.semCuidados) + '</span>') + '</dd></div>' +
+      '<div><dt>O que observar antes de voltar</dt><dd>' + (observar ? esc(observar) : '<span class="dossie-vazio">' + esc(TEXTOS.semObservar) + '</span>') + '</dd></div>' +
+      '</dl>' +
+      '<p class="dossie-retorno">' + (retorno
+        ? 'Retorno previsto para <strong>' + esc(retorno) + '</strong>.'
+        : '<span class="dossie-vazio">' + esc(TEXTOS.semRetorno) + '</span>') + '</p>';
   }
 
   function htmlReceita(estado) {
@@ -367,9 +401,7 @@
 
     return '<section class="dossie-secao">' +
       '<h3><span class="dossie-num">05</span> Receita técnica</h3>' +
-      (receita
-        ? '<p class="dossie-receita">' + esc(receita) + '</p>'
-        : '<p class="dossie-nota">' + esc(TEXTOS.semReceita) + '</p>') +
+      '<div data-saida="receita">' + saidaReceita(estado) + '</div>' +
       (consultoria || servico
         ? '<dl class="dossie-valores">' +
           (consultoria ? '<div><dt>Valor da consultoria</dt><dd>R$ ' + esc(consultoria) + '</dd></div>' : '') +
@@ -377,6 +409,13 @@
           '</dl>' +
           '<p class="dossie-nota">Os dois valores são independentes: não são somados nem totalizados.</p>'
         : '') +
+      '<div class="dossie-editor" data-editor="receita">' +
+      '<p class="dossie-editor-titulo">Preencher a receita</p>' +
+      '<div class="dossie-campos">' +
+      campoEdicao('receita', 'Receita técnica (fórmula, tempo, oxidante, técnica)', receita, 'area') +
+      '</div>' +
+      '<p class="dossie-editor-ajuda">Salva sozinho enquanto você digita e atualiza o texto acima. No PDF saem apenas os dados registrados, não os campos.</p>' +
+      '</div>' +
       '</section>';
   }
 
@@ -384,18 +423,21 @@
     var plano = texto(estado.manutencao || estado.planoManutencao);
     var cuidados = texto(estado.cuidadosDiarios || estado.cuidados);
     var observar = texto(estado.observar || estado.oQueObservar);
-    var retorno = formatarDataISO(estado.dataRetorno);
+    var retorno = texto(estado.dataRetorno);
 
     return '<section class="dossie-secao">' +
       '<h3><span class="dossie-num">06</span> Manutenção e retorno</h3>' +
-      '<dl class="dossie-manutencao">' +
-      '<div><dt>Plano de manutenção</dt><dd>' + (plano ? esc(plano) : '<span class="dossie-vazio">' + esc(TEXTOS.semPlano) + '</span>') + '</dd></div>' +
-      '<div><dt>Cuidados diários</dt><dd>' + (cuidados ? esc(cuidados) : '<span class="dossie-vazio">' + esc(TEXTOS.semCuidados) + '</span>') + '</dd></div>' +
-      '<div><dt>O que observar antes de voltar</dt><dd>' + (observar ? esc(observar) : '<span class="dossie-vazio">' + esc(TEXTOS.semObservar) + '</span>') + '</dd></div>' +
-      '</dl>' +
-      '<p class="dossie-retorno">' + (retorno
-        ? 'Retorno previsto para <strong>' + esc(retorno) + '</strong>.'
-        : '<span class="dossie-vazio">' + esc(TEXTOS.semRetorno) + '</span>') + '</p>' +
+      '<div data-saida="manutencao">' + saidaManutencao(estado) + '</div>' +
+      '<div class="dossie-editor" data-editor="manutencao">' +
+      '<p class="dossie-editor-titulo">Preencher a manutenção</p>' +
+      '<div class="dossie-campos">' +
+      campoEdicao('dataRetorno', 'Data de retorno', retorno, 'date') +
+      campoEdicao('manutencao', 'Plano de manutenção', plano) +
+      campoEdicao('cuidados', 'Cuidados diários', cuidados) +
+      campoEdicao('observar', 'O que observar antes de voltar', observar) +
+      '</div>' +
+      '<p class="dossie-editor-ajuda">Salva sozinho enquanto você digita e atualiza o texto acima. No PDF saem apenas os dados registrados, não os campos.</p>' +
+      '</div>' +
       '</section>';
   }
 
@@ -450,6 +492,15 @@
     '.dossie-dado dd { margin: 0; font-size: 14px; line-height: 1.4; color: var(--ink); }',
     '.dossie-dado-vazio dd { color: #94836f; font-style: italic; }',
     '.dossie-amostra { margin: 16px 0 0; font-size: 12.5px; color: var(--ink2); }',
+    '.dossie-editor { margin: 16px 0 0; padding: 13px 15px 15px; border: 1px dashed #d8c7ae; border-radius: 12px; background: #fffdf8; }',
+    '.dossie-editor-titulo { margin: 0 0 10px; font-size: 9.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--label); }',
+    '.dossie-campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }',
+    '.dossie-campo { display: flex; flex-direction: column; gap: 5px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--label); }',
+    '.dossie-campo-largo { grid-column: 1 / -1; }',
+    '.dossie-campo input, .dossie-campo textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line-forte); border-radius: 9px; background: #fff; font-family: var(--sans); font-size: 13.5px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink); }',
+    '.dossie-campo textarea { resize: vertical; min-height: 62px; line-height: 1.5; }',
+    '.dossie-editor-ajuda { margin: 10px 0 0; font-size: 11px; line-height: 1.45; color: var(--ink3); }',
+    '@media print { .dossie-editor { display: none; } }',
     '.dossie-conflito { margin: 12px 0 0; }',
     '.dossie-formato-nome { margin: 0 0 6px; font-family: var(--serif); font-size: 24px; color: var(--ink); }',
     '.dossie-direcionamento { margin: 0 0 14px; font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.55; color: #4a3a2a; }',
@@ -461,7 +512,8 @@
     '.dossie-paleta-bloco { padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fdfaf4; }',
     '.dossie-paleta-titulo { margin: 0 0 8px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--label); }',
     '.dossie-paleta ul { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }',
-    '.dossie-paleta li { padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 11.5px; color: var(--ink2); }',
+    '.dossie-paleta li { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 6px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 11.5px; color: var(--ink2); }',
+    '.dossie-amostra { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); flex: 0 0 auto; }',
     '.dossie-paleta-cores-a-evitar li { border-style: dashed; color: #8a6a5a; }',
     '.dossie-rodape-paleta { margin: 14px 0 0; font-size: 10.5px; letter-spacing: .04em; color: var(--ink3); }',
     '.dossie-receita { margin: 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fbf6ec; font-size: 13.5px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; }',
@@ -564,9 +616,34 @@
     }
   }
 
+  /* Atualiza só os blocos de leitura (05 e 06) depois que a profissional
+     digita — sem remontar o documento inteiro e sem perder o foco. */
+  function atualizarSaidas(el, estado) {
+    if (!el || typeof el.querySelector !== 'function') return;
+    var receita = el.querySelector('[data-saida="receita"]');
+    if (receita) receita.innerHTML = saidaReceita(estado);
+    var manutencao = el.querySelector('[data-saida="manutencao"]');
+    if (manutencao) manutencao.innerHTML = saidaManutencao(estado);
+  }
+
   function render(el, ctx) {
     var estado = ctx && ctx.estado ? ctx.estado : {};
     el.innerHTML = montarTela(estado);
+
+    var campos = el && typeof el.querySelectorAll === 'function' ? el.querySelectorAll('[data-campo]') : [];
+    Array.prototype.forEach.call(campos, function (campo) {
+      /* Salva a cada tecla, sem redesenhar o documento: o campo continua
+         montado, com o foco e o cursor onde a profissional deixou. */
+      campo.addEventListener('input', function () {
+        var chave = campo.getAttribute('data-campo');
+        if (!chave) return;
+        estado[chave] = campo.value;
+        if (RAIZ.VISAGE && typeof RAIZ.VISAGE.salvar === 'function') {
+          try { RAIZ.VISAGE.salvar(); } catch (err) { /* storage indisponível não pode travar o preenchimento */ }
+        }
+        atualizarSaidas(el, estado);
+      });
+    });
 
     var gerar = el.querySelector('[data-acao="gerar-pdf"]');
     if (gerar) {

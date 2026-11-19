@@ -359,7 +359,7 @@
     }
 
     secao +=
-      '<div class="nota"><b>Nomenclatura (RN-24):</b> o rótulo muda com a rota. Na Rota Estilo a cor é <b>proposta</b> — chamar de prescrita seria erro conceitual.</div>';
+      '<div class="nota">O nome do resultado muda com a rota: na Rota Estilo a família é <b>ponto de partida</b>; nas demais, <b>prescrita</b> ou <b>de referência</b>.</div>';
 
     el.innerHTML = secao;
 
@@ -462,7 +462,7 @@
       '<p class="rotulo">Decisão da profissional</p>' +
       '<div class="opcoes">' + opcoes + '</div>' +
       '<p class="estado-desejo' + (decisao ? ' estado-desejo-ativo' : '') + '" role="status">' + esc(statusDecisao) + '</p>' +
-      '<div class="nota"><b>RN-20.</b> A decisão é registrada com data e hora e aparece no prontuário.</div>' +
+      '<div class="nota">A decisão fica registrada com data e hora no prontuário.</div>' +
       '<div data-tela-prescricao="13" hidden aria-hidden="true"></div>';
 
     Array.prototype.forEach.call(el.querySelectorAll('[data-decisao]'), function (botao) {

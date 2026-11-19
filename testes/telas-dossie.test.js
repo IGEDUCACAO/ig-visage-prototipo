@@ -301,6 +301,50 @@ conferir(statusTexto.length > 0, 'sem VISAGE e sem localStorage o reinício prec
 conferir(statusTexto.indexOf('is not defined') === -1,
   'Reiniciar não pode estourar erro de runtime; veio ' + JSON.stringify(statusTexto) + '.');
 
+/* ---------- pedido do Alysson: campos visíveis dentro da seção certa ---------- */
+
+var htmlEditavel = semErro('montar dossiê com fechamento preenchido', function () {
+  return DOSSIE.montarDossie({
+    formato: 'Oval',
+    familia: 'Inverno Frio',
+    baseNatural: 5,
+    contraste: 'Suave',
+    receita: '7.1 com 20 vol, 35 min',
+    dataRetorno: '2026-12-20',
+    manutencao: 'Retoque de raiz a cada 4 semanas',
+    cuidados: 'Shampoo sem sulfato e máscara 1x por semana',
+    observar: 'Se a raiz clarear antes do previsto, antecipar o retorno'
+  });
+});
+
+if (htmlEditavel) {
+  /* os campos têm que existir no HTML entregue, não só sob demanda */
+  contem(htmlEditavel, 'id="dossie-campo-receita"', 'campos de fechamento');
+  contem(htmlEditavel, 'id="dossie-campo-dataRetorno"', 'campos de fechamento');
+  contem(htmlEditavel, 'type="date"', 'campos de fechamento');
+  contem(htmlEditavel, 'id="dossie-campo-manutencao"', 'campos de fechamento');
+  contem(htmlEditavel, 'id="dossie-campo-cuidados"', 'campos de fechamento');
+  contem(htmlEditavel, 'id="dossie-campo-observar"', 'campos de fechamento');
+  contem(htmlEditavel, '<textarea', 'receita técnica em campo de texto livre');
+
+  /* e têm que estar DENTRO das seções 05 e 06, não numa seção solta no fim */
+  var posReceita = htmlEditavel.indexOf('Receita técnica');
+  var posCampoReceita = htmlEditavel.indexOf('id="dossie-campo-receita"');
+  var posManutencao = htmlEditavel.indexOf('Manutenção e retorno');
+  var posCampoData = htmlEditavel.indexOf('id="dossie-campo-dataRetorno"');
+  var posTermo = htmlEditavel.indexOf('Termo');
+  conferir(posReceita !== -1 && posCampoReceita > posReceita && posCampoReceita < posManutencao,
+    'o campo da receita precisa ficar dentro da seção 05 (Receita técnica).');
+  conferir(posManutencao !== -1 && posCampoData > posManutencao && posCampoData < posTermo,
+    'os campos de retorno e manutenção precisam ficar dentro da seção 06 (Manutenção e retorno).');
+  naoContem(htmlEditavel, 'Fechamento', 'seções do dossiê');
+
+  /* o que a profissional digitou precisa aparecer na leitura da seção */
+  contem(htmlEditavel, '7.1 com 20 vol, 35 min', 'receita registrada');
+  contem(htmlEditavel, 'dezembro de 2026', 'data de retorno registrada');
+  contem(htmlEditavel, 'Retoque de raiz a cada 4 semanas', 'plano de manutenção registrado');
+}
+
 /* ---------- impressão: interface escondida, dossiê impresso ---------- */
 
 var css = '';

@@ -1172,6 +1172,7 @@ a:focus-visible {
   .aviso,
   .rodape,
   .dossie-acoes,
+  .dossie-editor,
   .dossie-status {
     display: none !important;
   }
@@ -1228,7 +1229,8 @@ a:focus-visible {
   line-height: 1.25;
   color: var(--ink);
 }
-.ilustracao-corte { width: 100%; height: 132px; max-height: 132px; object-fit: contain; object-position: center bottom; display: block; margin: 0 auto; }
+.ilustracao-corte { width: 100%; height: 186px; max-height: 186px; object-fit: contain; object-position: center bottom; display: block; margin: 0 auto; }
+@media (max-width: 420px) { .ilustracao-corte { height: 150px; max-height: 150px; } }
 .opcao-compacta { padding: 10px 8px; }
 .opcao-compacta .opcao-sub { display: block; font-size: 11.5px; opacity: .72; margin-top: 2px; }
 
