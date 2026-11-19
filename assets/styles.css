@@ -1172,6 +1172,7 @@ a:focus-visible {
   .aviso,
   .rodape,
   .dossie-acoes,
+  .dossie-editor,
   .dossie-status {
     display: none !important;
   }
